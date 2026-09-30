@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue";
+import { computed, onBeforeUnmount, ref, toRef, watch } from "vue";
 import {
   usePaginatedAdministrators,
   usePaginatedProfileAssignments,
@@ -17,6 +17,7 @@ import type {
   Resource,
   Role,
   SecurityUiOptions,
+  User,
 } from "./types";
 import ConfirmDangerDialog from "./components/ConfirmDangerDialog.vue";
 import PaginationControls from "./components/PaginationControls.vue";
@@ -25,7 +26,7 @@ import ResourceList from "./components/ResourceList.vue";
 import RoleList from "./components/RoleList.vue";
 import ProfileList from "./components/ProfileList.vue";
 import AdministratorList from "./components/AdministratorList.vue";
-import AssignmentList from "./components/AssignmentList.vue";
+import AccessAdministrationPanel from "./components/AccessAdministrationPanel.vue";
 
 const props = defineProps<{ options: SecurityUiOptions }>();
 const administration = useSecurityAdministration(toRef(props, "options"));
@@ -48,6 +49,13 @@ const {
   profileRoles,
   loadRoleResources,
   loadProfileRoles,
+  userRoleAssignments,
+  userProfileAssignments,
+  assignmentsForRole,
+  assignmentsForProfile,
+  loadUserAssignments,
+  loadAssignmentsForRole,
+  loadAssignmentsForProfile,
   invalidateRelation,
 } = administration;
 defineExpose({ refresh });
@@ -68,6 +76,11 @@ const activeTab = ref<Tab>("summary"),
   dialog = ref<Dialog>(null),
   selected = ref<Selected>(),
   confirmAction = ref<() => Promise<boolean>>();
+const selectedAccessPersonId = ref(""), selectedAccessRoleId = ref(""), selectedAccessProfileId = ref("");
+const selectedUser = ref<User>();
+const userPickerOpen = ref(false);
+const MINIMUM_USER_QUERY_LENGTH = 3;
+let userSearchTimer: ReturnType<typeof setTimeout> | undefined;
 const form = ref({
   userId: "",
   userQuery: "",
@@ -133,8 +146,8 @@ watch(
   activeTab,
   (tab) => {
     if (tab === "people") {
-      void load("roleAssignments");
-      void load("profileAssignments");
+      void load("roles");
+      void load("profiles");
       return;
     }
     const collection = (
@@ -205,9 +218,42 @@ function open(kind?: Dialog, entity?: Selected) {
     void loadProfileRoles(entity.id);
 }
 function close() {
+  if (userSearchTimer) clearTimeout(userSearchTimer);
   dialog.value = null;
   selected.value = undefined;
+  selectedUser.value = undefined;
+  userPickerOpen.value = false;
 }
+function queueUserSearch() {
+  const query = form.value.userQuery.trim();
+  form.value.userId = "";
+  selectedUser.value = undefined;
+  userPickerOpen.value = true;
+  if (userSearchTimer) clearTimeout(userSearchTimer);
+  if (query.length < MINIMUM_USER_QUERY_LENGTH) {
+    void searchUsers("");
+    return;
+  }
+  userSearchTimer = setTimeout(() => void searchUsers(query), 250);
+}
+function selectUser(user: User) {
+  form.value.userId = user.id;
+  form.value.userQuery = `${user.name} · ${user.email}`;
+  selectedUser.value = user;
+  userPickerOpen.value = false;
+}
+const userSearchHint = computed(() => {
+  const length = form.value.userQuery.trim().length;
+  if (length < MINIMUM_USER_QUERY_LENGTH)
+    return `Escriba al menos ${MINIMUM_USER_QUERY_LENGTH} caracteres para buscar.`;
+  if (users.loading) return "Buscando coincidencias…";
+  if (users.error) return "No fue posible buscar personas. Inténtelo de nuevo.";
+  if (userPickerOpen.value && !users.content.length) return "No hay coincidencias para esta búsqueda.";
+  return "Seleccione una persona de los resultados.";
+});
+onBeforeUnmount(() => {
+  if (userSearchTimer) clearTimeout(userSearchTimer);
+});
 async function submit() {
   const value = form.value,
     kind = dialog.value;
@@ -275,6 +321,11 @@ async function submit() {
     [...invalidations],
     `${kind}:${selected.value?.id ?? value.userId}`,
   );
+  if (ok && kind === "access") {
+    if (selectedAccessPersonId.value === value.userId) await loadUserAssignments(value.userId, userRoleAssignments.page, true);
+    if (value.accessKind === "role" && selectedAccessRoleId.value === value.targetId) await loadAssignmentsForRole(value.targetId, assignmentsForRole.page, true);
+    if (value.accessKind === "profile" && selectedAccessProfileId.value === value.targetId) await loadAssignmentsForProfile(value.targetId, assignmentsForProfile.page, true);
+  }
   if (ok) close();
 }
 function confirm(text: string, action: () => Promise<boolean>) {
@@ -339,23 +390,22 @@ function removeProfile(id: string) {
     },
   );
 }
-function revokeAssignment(item: {
-  id: string;
-  roleId?: string;
-  profileId?: string;
-}) {
+function revokeAssignment(item: import("./types").RoleAssignment | import("./types").ProfileAssignment) {
+  const isRole = "role" in item;
   confirm(
-    "Revocar este acceso retira el permiso vigente del usuario.",
+    `Revocar ${isRole ? `el rol ${item.role.name}` : `el perfil ${item.profile.name}`} de ${item.user.name} (${item.user.email}) retira su acceso vigente.`,
     async () => {
-      return mutate(
+      const ok = await mutate(
         (api) =>
-          item.roleId
-            ? api.revokeRoleAssignment(item.roleId, item.id)
-            : api.revokeProfileAssignment(item.profileId!, item.id),
-        [item.roleId ? "roleAssignments" : "profileAssignments", "summary"],
+          isRole ? api.revokeRoleAssignment(item.role.id, item.id) : api.revokeProfileAssignment(item.profile.id, item.id),
+        [isRole ? "roleAssignments" : "profileAssignments", "summary"],
         `assignment:${item.id}`,
         true,
       );
+      if (ok && selectedAccessPersonId.value) await loadUserAssignments(selectedAccessPersonId.value, userRoleAssignments.page, true);
+      if (ok && isRole && selectedAccessRoleId.value) await loadAssignmentsForRole(selectedAccessRoleId.value, assignmentsForRole.page, true);
+      if (ok && !isRole && selectedAccessProfileId.value) await loadAssignmentsForProfile(selectedAccessProfileId.value, assignmentsForProfile.page, true);
+      return ok;
     },
   );
 }
@@ -506,8 +556,11 @@ function date(value: string) {
         <p v-if="error" class="error">{{ error }}</p>
         <SecuritySummaryPanel v-if="activeTab === 'summary'" :summary="summary" :loading="summaryLoading" :assignment-count="counts.people" />
         <template v-else-if="activeTab === 'people'">
-          <AssignmentList :state="roleAssignments" kind="role" :busy="saving" @revoke="revokeAssignment" @previous="assignmentPage('roleAssignments', -1)" @next="assignmentPage('roleAssignments', 1)" />
-          <AssignmentList :state="profileAssignments" kind="profile" :busy="saving" @revoke="revokeAssignment" @previous="assignmentPage('profileAssignments', -1)" @next="assignmentPage('profileAssignments', 1)" />
+          <AccessAdministrationPanel :users="users" :roles="roles" :profiles="profiles" :person-role-assignments="userRoleAssignments" :person-profile-assignments="userProfileAssignments" :role-assignments="assignmentsForRole" :profile-assignments="assignmentsForProfile" :busy="saving"
+            @search-users="searchUsers" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
+            @person-page="direction => { if (selectedAccessPersonId && userRoleAssignments.page + direction >= 0) loadUserAssignments(selectedAccessPersonId, userRoleAssignments.page + direction) }"
+            @role-page="direction => { if (selectedAccessRoleId && assignmentsForRole.page + direction >= 0) loadAssignmentsForRole(selectedAccessRoleId, assignmentsForRole.page + direction) }"
+            @profile-page="direction => { if (selectedAccessProfileId && assignmentsForProfile.page + direction >= 0) loadAssignmentsForProfile(selectedAccessProfileId, assignmentsForProfile.page + direction) }" />
         </template>
         <template v-else>
           <ResourceList v-if="activeTab === 'resources'" :state="resources" :busy="saving" @edit="open('resource', $event)" @remove="removeResource($event.id)" @previous="previous" @next="next" />
@@ -529,25 +582,69 @@ function date(value: string) {
           }}
         </h3>
         <p class="sub">La acción se aplica solo a esta aplicación.</p>
-        <template v-if="dialog === 'admin'">
+        <template v-if="dialog === 'admin' || dialog === 'access'">
           <label
             >Buscar usuario<input
               v-model.trim="form.userQuery"
               placeholder="Nombre o correo"
-              @input="searchUsers(form.userQuery)"
+              autocomplete="off"
+              aria-describedby="user-search-hint"
+              :aria-expanded="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH"
+              aria-controls="user-search-results"
+              @focus="userPickerOpen = true"
+              @input="queueUserSearch"
           /></label>
-          <label
-            >Usuario<select v-model="form.userId" required>
-              <option disabled value="">Seleccione una coincidencia</option>
-              <option
-                v-for="item in users.content"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.name || item.email }} · {{ item.email }}
-              </option>
-            </select></label
-          > </template
+          <p id="user-search-hint" class="field-hint" :class="{ 'is-error': users.error }">
+            {{ userSearchHint }}
+          </p>
+          <div
+            v-if="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH && (users.loading || users.content.length || users.error)"
+            id="user-search-results"
+            class="user-result-list"
+            role="listbox"
+            aria-label="Coincidencias de usuario"
+            :aria-busy="users.loading"
+          >
+            <p v-if="users.loading" class="user-result-status">Buscando en el directorio…</p>
+            <button
+              v-for="item in users.content"
+              :key="item.id"
+              type="button"
+              class="user-result"
+              role="option"
+              :aria-selected="form.userId === item.id"
+              @click="selectUser(item)"
+            >
+              <span>{{ item.name || item.email }}</span><small>{{ item.email }}</small>
+            </button>
+          </div>
+          <div v-if="selectedUser" class="selected-user" role="status">
+            <span>Persona seleccionada</span>
+            <strong>{{ selectedUser.name || selectedUser.email }}</strong>
+            <small>{{ selectedUser.email }}</small>
+          </div>
+          <template v-if="dialog === 'access'">
+            <label
+              >Tipo<select v-model="form.accessKind">
+                <option value="role">Rol</option>
+                <option value="profile">Perfil</option>
+              </select></label
+            ><label
+              >Acceso<select v-model="form.targetId" required>
+                <option disabled value="">Seleccione un acceso</option>
+                <option
+                  v-for="item in form.accessKind === 'role'
+                    ? roles.content
+                    : profiles.content"
+                  :key="item.id"
+                  :value="item.id"
+                >
+                  {{ item.name }}
+                </option>
+              </select></label
+            >
+          </template>
+        </template
         ><template v-else-if="dialog === 'application'"
           ><label>Nombre<input v-model.trim="form.name" required /></label
           ><label>Descripción<textarea v-model.trim="form.description" /></label
@@ -572,42 +669,6 @@ function date(value: string) {
           ></template
         ><label v-else-if="dialog === 'role' || dialog === 'profile'"
           >Nombre<input v-model.trim="form.name" required /></label
-        ><template v-else-if="dialog === 'access'"
-          ><label
-            >Buscar usuario<input
-              v-model.trim="form.userQuery"
-              placeholder="Nombre o correo"
-              @input="searchUsers(form.userQuery)" /></label
-          ><label
-            >Usuario<select v-model="form.userId" required>
-              <option disabled value="">Seleccione una coincidencia</option>
-              <option
-                v-for="item in users.content"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.name || item.email }} · {{ item.email }}
-              </option>
-            </select></label
-          ><label
-            >Tipo<select v-model="form.accessKind">
-              <option value="role">Rol</option>
-              <option value="profile">Perfil</option>
-            </select></label
-          ><label
-            >Acceso<select v-model="form.targetId" required>
-              <option disabled value="">Seleccione un acceso</option>
-              <option
-                v-for="item in form.accessKind === 'role'
-                  ? roles.content
-                  : profiles.content"
-                :key="item.id"
-                :value="item.id"
-              >
-                {{ item.name }}
-              </option>
-            </select></label
-          ></template
         ><template v-else
           ><label
             >{{ dialog === "role-resource" ? "Agregar recurso" : "Agregar rol"
@@ -682,12 +743,7 @@ function date(value: string) {
               @next="relationPage(1)"
             />
           </div></template
-        ><datalist id="security-users">
-          <option v-for="item in users.content" :key="item.id" :value="item.id">
-            {{ item.name || item.email }}
-          </option>
-        </datalist>
-        <div class="actions bottom">
+        ><div class="actions bottom">
           <button class="quiet" type="button" :disabled="saving" @click="close">
             Cancelar</button
           ><button class="primary" :disabled="saving">

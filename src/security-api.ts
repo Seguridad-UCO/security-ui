@@ -11,6 +11,7 @@ import type {
   SecuritySummary,
   SecurityUiOptions,
   User,
+  UserAssignmentsResponse,
 } from "./types";
 type Envelope<T> = { data: T };
 export class ApiError extends Error {
@@ -76,6 +77,18 @@ export class SecurityApi {
       page,
       signal,
     );
+  }
+  getUserAssignments(id: string, userId: string, page: Page, signal?: AbortSignal) {
+    const query = new URLSearchParams({ page: String(page.page ?? 0), size: String(page.size ?? 20) });
+    return this.request<UserAssignmentsResponse>(
+      `${this.security(id, `users/${encodeURIComponent(userId)}/assignments`)}?${query}`, { signal },
+    );
+  }
+  getAssignmentsForRole(id: string, roleId: string, page: Page, signal?: AbortSignal) {
+    return this.page<RoleAssignment>(id, `roles/${encodeURIComponent(roleId)}/assignments`, page, signal);
+  }
+  getAssignmentsForProfile(id: string, profileId: string, page: Page, signal?: AbortSignal) {
+    return this.page<ProfileAssignment>(id, `profiles/${encodeURIComponent(profileId)}/assignments`, page, signal);
   }
   getRoleResources(
     applicationId: string,
