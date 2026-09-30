@@ -125,6 +125,26 @@ describe("SecurityApi", () => {
       "https://pdp.test/api/v1/applications/app/security/profiles/profile%2Fid/roles?page=1&size=20",
     );
   });
+  it("uses scoped assignment-detail routes and preserves enriched identities", async () => {
+    browser();
+    const payload = { data: {
+      user: { id: "internal-user", name: "Ana Gómez", email: "ana@uco.edu.co" },
+      roleAssignments: { content: [{ id: "assignment", user: { id: "internal-user", name: "Ana Gómez", email: "ana@uco.edu.co" }, role: { id: "role", name: "Editor" }, validFrom: "2026-09-25T00:00:00Z" }], total: 1, page: 0, offset: 0, limit: 20 },
+      profileAssignments: { content: [], total: 0, page: 0, offset: 0, limit: 20 },
+    } };
+    const fetch = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify(payload), { status: 200 })));
+    vi.stubGlobal("fetch", fetch);
+    const api = new SecurityApi(options);
+    const detail = await api.getUserAssignments("app", "internal/user", { page: 0, size: 20 });
+    await api.getAssignmentsForRole("app", "role/id", { page: 0, size: 20 });
+    await api.getAssignmentsForProfile("app", "profile/id", { page: 0, size: 20 });
+    expect(detail.roleAssignments.content[0]?.user).toMatchObject({ name: "Ana Gómez", email: "ana@uco.edu.co" });
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+      "https://pdp.test/api/v1/applications/app/security/users/internal%2Fuser/assignments?page=0&size=20",
+      "https://pdp.test/api/v1/applications/app/security/roles/role%2Fid/assignments?page=0&size=20",
+      "https://pdp.test/api/v1/applications/app/security/profiles/profile%2Fid/assignments?page=0&size=20",
+    ]);
+  });
   it("only uses the explicit application PATCH route for lifecycle metadata", async () => {
     browser();
     const fetch = vi

@@ -54,7 +54,12 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     profileAssignments = reactive(EMPTY<ProfileAssignment>()),
     users = reactive(EMPTY<User>());
   const roleResources = reactive(EMPTY<Resource>()),
-    profileRoles = reactive(EMPTY<Role>());
+    profileRoles = reactive(EMPTY<Role>()),
+    userAssignments = reactive(EMPTY<RoleAssignment | ProfileAssignment>()),
+    userRoleAssignments = reactive(EMPTY<RoleAssignment>()),
+    userProfileAssignments = reactive(EMPTY<ProfileAssignment>()),
+    assignmentsForRole = reactive(EMPTY<RoleAssignment>()),
+    assignmentsForProfile = reactive(EMPTY<ProfileAssignment>());
   const cache = new Map<string, PageResponse<unknown>>();
   let summaryController: AbortController | undefined;
   const api = computed(() => new SecurityApi(options.value));
@@ -91,6 +96,11 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     Object.assign(users, EMPTY<User>());
     Object.assign(roleResources, EMPTY<Resource>());
     Object.assign(profileRoles, EMPTY<Role>());
+    Object.assign(userAssignments, EMPTY<RoleAssignment | ProfileAssignment>());
+    Object.assign(userRoleAssignments, EMPTY<RoleAssignment>());
+    Object.assign(userProfileAssignments, EMPTY<ProfileAssignment>());
+    Object.assign(assignmentsForRole, EMPTY<RoleAssignment>());
+    Object.assign(assignmentsForProfile, EMPTY<ProfileAssignment>());
   }
   async function loadSummary() {
     summaryController?.abort();
@@ -135,7 +145,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
         controller.signal,
       );
       if (state.abortController !== controller) return;
-      cache.set(cacheKey, response);
+      cache.set(cacheKey, response as unknown as PageResponse<unknown>);
       apply(state, response);
     } catch (cause) {
       if (!aborted(cause) && state.abortController === controller)
@@ -208,6 +218,31 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       page,
       force,
     );
+  }
+  async function loadUserAssignments(userId: string, page = userRoleAssignments.page, force = false) {
+    if (!applicationId.value) return;
+    const cacheKey = `${applicationId.value}:${userId}:user-assignments:${page}:${userRoleAssignments.limit}`;
+    userRoleAssignments.abortController?.abort();
+    const cached = !force ? cache.get(cacheKey) as { roleAssignments: PageResponse<RoleAssignment>; profileAssignments: PageResponse<ProfileAssignment> } | undefined : undefined;
+    if (cached) { apply(userRoleAssignments, cached.roleAssignments); apply(userProfileAssignments, cached.profileAssignments); return; }
+    const controller = new AbortController();
+    userRoleAssignments.abortController = controller; userProfileAssignments.abortController = controller;
+    userRoleAssignments.loading = userProfileAssignments.loading = true;
+    try {
+      const response = await api.value.getUserAssignments(applicationId.value, userId, { page, size: userRoleAssignments.limit }, controller.signal);
+      if (userRoleAssignments.abortController !== controller) return;
+      cache.set(cacheKey, response as unknown as PageResponse<unknown>);
+      apply(userRoleAssignments, response.roleAssignments); apply(userProfileAssignments, response.profileAssignments);
+    } catch (cause) { if (!aborted(cause)) { const detail = message(cause); userRoleAssignments.error = userProfileAssignments.error = detail; } }
+    finally { if (userRoleAssignments.abortController === controller) userRoleAssignments.loading = userProfileAssignments.loading = false; }
+  }
+  async function loadAssignmentsForRole(roleId: string, page = assignmentsForRole.page, force = false) {
+    return loadRelation("role-assignments", roleId, assignmentsForRole, (signal) =>
+      api.value.getAssignmentsForRole(applicationId.value, roleId, { page, size: assignmentsForRole.limit }, signal), page, force);
+  }
+  async function loadAssignmentsForProfile(profileId: string, page = assignmentsForProfile.page, force = false) {
+    return loadRelation("profile-assignments", profileId, assignmentsForProfile, (signal) =>
+      api.value.getAssignmentsForProfile(applicationId.value, profileId, { page, size: assignmentsForProfile.limit }, signal), page, force);
   }
   async function loadRelation<T>(
     kind: string,
@@ -323,6 +358,11 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     users.abortController?.abort();
     roleResources.abortController?.abort();
     profileRoles.abortController?.abort();
+    userAssignments.abortController?.abort();
+    userRoleAssignments.abortController?.abort();
+    userProfileAssignments.abortController?.abort();
+    assignmentsForRole.abortController?.abort();
+    assignmentsForProfile.abortController?.abort();
   });
   return {
     applicationId,
@@ -342,11 +382,19 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     profileAssignments,
     roleResources,
     profileRoles,
+    userAssignments,
+    userRoleAssignments,
+    userProfileAssignments,
+    assignmentsForRole,
+    assignmentsForProfile,
     users,
     load,
     loadSummary,
     loadRoleResources,
     loadProfileRoles,
+    loadUserAssignments,
+    loadAssignmentsForRole,
+    loadAssignmentsForProfile,
     searchUsers,
     refresh,
     mutate,

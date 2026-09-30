@@ -50,13 +50,22 @@ export type SecuritySummary = {
         profileAssignments: number;
     };
 };
-export type User = {
+export type UserIdentitySummary = {
     id: string;
     name: string;
     email: string;
 };
+export type RoleSummary = {
+    id: string;
+    name: string;
+};
+export type ProfileSummary = {
+    id: string;
+    name: string;
+};
+export type User = UserIdentitySummary;
 export type Administrator = {
-    userId: string;
+    user: UserIdentitySummary;
     validFrom: string;
     validUntil?: string | null;
 };
@@ -80,17 +89,22 @@ export type Profile = {
 };
 export type RoleAssignment = {
     id: string;
-    userId: string;
-    roleId: string;
+    user: UserIdentitySummary;
+    role: RoleSummary;
     validFrom: string;
     validUntil?: string | null;
 };
 export type ProfileAssignment = {
     id: string;
-    userId: string;
-    profileId: string;
+    user: UserIdentitySummary;
+    profile: ProfileSummary;
     validFrom: string;
     validUntil?: string | null;
+};
+export type UserAssignmentsResponse = {
+    user: UserIdentitySummary;
+    roleAssignments: PageResponse<RoleAssignment>;
+    profileAssignments: PageResponse<ProfileAssignment>;
 };
 export type ApiFieldError = {
     field?: string;
