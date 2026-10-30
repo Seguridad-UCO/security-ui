@@ -77,8 +77,8 @@ de consultar SurrealDB. `security-overview` no forma parte de ningún contrato.
    `Authorization: Bearer` (ADR-031), la aplicación host renueva con su propio cliente OIDC directamente con
    Keycloak y entrega un token vigente en cada llamada.
 7. **Códigos que el host debe distinguir.** `401` significa sesión muerta o token inválido: llevar al login.
-   `503` (con `Retry-After`) significa que Keycloak o el PDP no están disponibles de forma pasajera: mostrar
-   "reintentar", **no** redirigir al login ni cerrar la sesión. `429` indica limitación por exceso de solicitudes.
+   `503` significa que Keycloak o el PDP no están disponibles de forma pasajera (el PEP añade `Retry-After: 5` cuando
+   interviene; el PDP no lo envía, así que el host define su propio retardo): mostrar "reintentar", **no** redirigir al login ni cerrar la sesión. `429` indica limitación por exceso de solicitudes.
 8. **Alcance del cierre de sesión (ADR-034).** `DELETE /api/v1/session` con bearer revoca solo el token
    presentado y los del mismo cliente (`azp`); no cierra la sesión del usuario en otras aplicaciones ni en el
    panel de Seguridad. El cierre global es el del panel (cookie BFF).
