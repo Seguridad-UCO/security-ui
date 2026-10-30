@@ -5,6 +5,7 @@ import type { SecurityUiHandle, SecurityUiOptions } from "./types";
 export type {
   SecurityUiHandle,
   SecurityUiOptions,
+  SecurityUiError,
   SecurityUiTheme,
 } from "./types";
 

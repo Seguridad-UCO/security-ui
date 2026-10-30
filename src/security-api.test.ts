@@ -115,6 +115,119 @@ describe("SecurityApi", () => {
         "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación.",
     } satisfies Partial<ApiError>);
   });
+  describe("bearer channel (ADR-031)", () => {
+    it("sends a fresh bearer on every request and no cookie or CSRF", async () => {
+      browser();
+      (document as { cookie: string }).cookie = "XSRF-TOKEN=csrf";
+      const fetch = vi
+        .fn()
+        .mockImplementation(
+          async () => new Response(null, { status: 204 }),
+        );
+      vi.stubGlobal("fetch", fetch);
+      const getAccessToken = vi
+        .fn()
+        .mockResolvedValueOnce("token-1")
+        .mockResolvedValueOnce("token-2");
+      const api = new SecurityApi({ ...options, getAccessToken });
+      await api.deleteRole("role");
+      await api.deleteRole("role");
+      expect(getAccessToken).toHaveBeenCalledTimes(2);
+      const [first, second] = fetch.mock.calls.map(([, init]) => init);
+      expect(first.headers.get("Authorization")).toBe("Bearer token-1");
+      expect(second.headers.get("Authorization")).toBe("Bearer token-2");
+      expect(first.credentials).toBe("omit");
+      expect(first.headers.get("X-XSRF-TOKEN")).toBeNull();
+    });
+    it("keeps the cookie channel when the host gives no token function", async () => {
+      browser();
+      const fetch = vi
+        .fn()
+        .mockResolvedValue(new Response(null, { status: 204 }));
+      vi.stubGlobal("fetch", fetch);
+      await new SecurityApi(options).deleteRole("role");
+      const init = fetch.mock.calls[0][1];
+      expect(init.credentials).toBe("include");
+      expect(init.headers.get("Authorization")).toBeNull();
+    });
+    it("reports unauthenticated and never retries when the PDP answers 401", async () => {
+      browser();
+      const fetch = vi
+        .fn()
+        .mockResolvedValue(new Response("{}", { status: 401 }));
+      vi.stubGlobal("fetch", fetch);
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 401 });
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledWith({
+        cause: "unauthenticated",
+        status: 401,
+        code: undefined,
+      });
+    });
+    it("does not call the PDP when the host cannot provide a token", async () => {
+      browser();
+      const fetch = vi.fn();
+      vi.stubGlobal("fetch", fetch);
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => Promise.reject(new Error("expired")),
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 401, code: "UNAUTHENTICATED" });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({ cause: "unauthenticated" }),
+      );
+    });
+    it.each([
+      [403, "MFA_REQUIRED", "mfa_required"],
+      [403, "NOT_AUTHORIZED_TO_ADMINISTER", "forbidden"],
+      [429, undefined, "unavailable"],
+      [503, "BFF_SESSION_UNAVAILABLE", "unavailable"],
+    ])("classifies %s %s as %s for the host", async (status, code, cause) => {
+      browser();
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockResolvedValue(new Response(JSON.stringify({ code }), { status })),
+      );
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status });
+      expect(onError).toHaveBeenCalledWith({ cause, status, code });
+    });
+    it("does not let a failing host callback mask the API error", async () => {
+      browser();
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(new Response("{}", { status: 503 })),
+      );
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError: () => {
+            throw new Error("host bug");
+          },
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 503 });
+    });
+  });
   it("does not attach an AbortSignal to mutations", async () => {
     browser();
     const fetch = vi

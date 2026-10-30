@@ -18,7 +18,27 @@ mount(document.querySelector("#security")!, {
 ```
 
 También puede configurarse `<uco-security-administration>` directamente. El componente nunca
-persiste tokens: envía cookies con `credentials: "include"` y adjunta `X-XSRF-TOKEN` en escrituras.
+persiste tokens y soporta dos canales, según quién sea dueño de la sesión:
+
+| Canal | Cuándo | Qué envía |
+|---|---|---|
+| **Bearer** (`getAccessToken`) | Aplicación externa con su propio login OIDC (ADR-031). **Es el canal de integración.** | `Authorization: Bearer <token>` pedido al host antes de **cada** petición; sin cookies ni CSRF |
+| **Cookie BFF** (por omisión) | El panel propio del PDP, mismo sitio | Cookie de sesión con `credentials: "include"` y `X-XSRF-TOKEN` en escrituras |
+
+```ts
+mount(document.querySelector("#security")!, {
+  applicationId: "018f4d8b-7c69-7a6d-ae2c-9b2f8d0da77d",
+  apiBaseUrl: "https://pdp.example.edu",
+  // El host es dueño de la sesión: devuelve un token vigente (renovado por su cliente OIDC) con audiencia del PDP.
+  getAccessToken: () => auth.getValidAccessToken(),
+  // El componente informa y no reintenta; el host decide.
+  onError: ({ cause, status, code }) => {
+    if (cause === "unauthenticated") auth.login();       // 401 o sin token
+    if (cause === "mfa_required") auth.stepUpWithMfa();  // 403 MFA_REQUIRED
+    // "forbidden" (403) y "unavailable" (429/503, reintentable) normalmente solo se muestran.
+  },
+});
+```
 
 ## API que consume
 

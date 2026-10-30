@@ -1,5 +1,5 @@
 import type { SecurityUiHandle, SecurityUiOptions } from "./types";
-export type { SecurityUiHandle, SecurityUiOptions, SecurityUiTheme, } from "./types";
+export type { SecurityUiHandle, SecurityUiOptions, SecurityUiError, SecurityUiTheme, } from "./types";
 export declare class SecurityAdministrationElement extends HTMLElement {
     private readonly root;
     private readonly options;

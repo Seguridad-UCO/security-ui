@@ -10,6 +10,18 @@ export type SecurityUiOptions = {
     apiBaseUrl: string;
     theme?: SecurityUiTheme;
     /** Enables PATCH application metadata; deletion is never rendered. */ allowApplicationLifecycleManagement?: boolean;
+    /**
+     * Canal bearer (ADR-031). Devuelve un access token vigente con audiencia del PDP; se invoca antes de cada
+     * petición y el componente nunca lo guarda. Si se omite, se usa la cookie de sesión BFF.
+     */
+    getAccessToken?: () => string | Promise<string>;
+    /** Avisa al host de fallos que le corresponden (login, MFA, indisponibilidad). El componente no reintenta. */
+    onError?: (error: SecurityUiError) => void;
+};
+export type SecurityUiError = {
+    cause: "unauthenticated" | "mfa_required" | "forbidden" | "unavailable";
+    status: number;
+    code?: string;
 };
 export type Page = {
     page?: number;

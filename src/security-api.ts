@@ -283,20 +283,69 @@ export class SecurityApi {
       { signal },
     );
   }
+  private async accessToken(
+    getAccessToken: NonNullable<SecurityUiOptions["getAccessToken"]>,
+  ): Promise<string> {
+    let token: string | undefined;
+    try {
+      token = await getAccessToken();
+    } catch {
+      token = undefined;
+    }
+    if (token) return token;
+    const failure = new ApiError(
+      401,
+      "UNAUTHENTICATED",
+      "No hay una sesión vigente. Inicie sesión de nuevo.",
+    );
+    this.report(failure);
+    throw failure;
+  }
+  // El host decide qué hacer (login, reautenticar con MFA, reintentar); el componente solo informa y nunca reintenta.
+  private report(failure: ApiError) {
+    const cause =
+      failure.status === 401
+        ? "unauthenticated"
+        : failure.status === 403 && failure.code === "MFA_REQUIRED"
+          ? "mfa_required"
+          : failure.status === 403
+            ? "forbidden"
+            : failure.status === 429 || failure.status === 503
+              ? "unavailable"
+              : undefined;
+    if (!cause) return;
+    try {
+      this.options.onError?.({
+        cause,
+        status: failure.status,
+        code: failure.code,
+      });
+    } catch {
+      /* un callback del host no debe romper la petición */
+    }
+  }
   private async request<T = void>(
     path: string,
     init: Omit<RequestInit, "body"> & { body?: unknown } = {},
   ): Promise<T> {
     const headers = new Headers(init.headers);
     headers.set("Accept", "application/json");
-    const csrf = document.cookie
-      .split("; ")
-      .find((value) => value.startsWith("XSRF-TOKEN="));
-    if (csrf && init.method && init.method !== "GET")
-      headers.set(
-        "X-XSRF-TOKEN",
-        decodeURIComponent(csrf.slice("XSRF-TOKEN=".length)),
-      );
+    // Canal bearer (ADR-031): el host entrega un token vigente por petición; no se cachea ni se persiste y no
+    // hay CSRF que enviar porque no viaja ninguna cookie. Sin `getAccessToken` rige el canal de cookie BFF.
+    const bearer = Boolean(this.options.getAccessToken);
+    if (this.options.getAccessToken) {
+      const token = await this.accessToken(this.options.getAccessToken);
+      headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      const csrf = document.cookie
+        .split("; ")
+        .find((value) => value.startsWith("XSRF-TOKEN="));
+      if (csrf && init.method && init.method !== "GET")
+        headers.set(
+          "X-XSRF-TOKEN",
+          decodeURIComponent(csrf.slice("XSRF-TOKEN=".length)),
+        );
+    }
     if (init.body !== undefined)
       headers.set("Content-Type", "application/json");
     let response: Response;
@@ -304,7 +353,7 @@ export class SecurityApi {
       response = await fetch(`${this.baseUrl}${path}`, {
         ...init,
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
-        credentials: "include",
+        credentials: bearer ? "omit" : "include",
         headers,
       });
     } catch (cause) {
@@ -338,7 +387,7 @@ export class SecurityApi {
                   : response.status === 503
                     ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos."
                     : `El servicio respondió ${response.status}.`;
-      throw new ApiError(
+      const failure = new ApiError(
         response.status,
         error?.code,
         response.status === 403
@@ -346,6 +395,8 @@ export class SecurityApi {
           : (error?.detail ?? error?.message ?? fallback),
         error?.fieldErrors ?? error?.errors ?? [],
       );
+      this.report(failure);
+      throw failure;
     }
     if (response.status === 204) return undefined as T;
     return ((await response.json()) as Envelope<T>).data;
