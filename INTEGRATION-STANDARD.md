@@ -67,6 +67,16 @@ de consultar SurrealDB. `security-overview` no forma parte de ningún contrato.
 4. Aplique CSP con `script-src` para el CDN y `connect-src` para el PDP. Versione artefactos por
    major y use SRI cuando la publicación genere hashes estables.
 5. Ocultar un botón no autoriza nada: cada consulta y mutación es validada nuevamente por el PDP.
+6. **Renovación del token (ADR-033).** El PDP no expone ningún endpoint de refresh y nunca recibe el refresh
+   token de un cliente. Con cookie BFF, el PDP renueva del lado servidor y el navegador nunca ve un token; con
+   `Authorization: Bearer` (ADR-031), la aplicación host renueva con su propio cliente OIDC directamente con
+   Keycloak y entrega un token vigente en cada llamada.
+7. **Códigos que el host debe distinguir.** `401` significa sesión muerta o token inválido: llevar al login.
+   `503` (con `Retry-After`) significa que Keycloak o el PDP no están disponibles de forma pasajera: mostrar
+   "reintentar", **no** redirigir al login ni cerrar la sesión. `429` indica limitación por exceso de solicitudes.
+8. **Alcance del cierre de sesión (ADR-034).** `DELETE /api/v1/session` con bearer revoca solo el token
+   presentado y los del mismo cliente (`azp`); no cierra la sesión del usuario en otras aplicaciones ni en el
+   panel de Seguridad. El cierre global es el del panel (cookie BFF).
 
 Las páginas se pueden cambiar rápidamente: Security UI cancela la solicitud anterior y deja visible
 el último resultado correcto hasta recibir la siguiente página. La caché es local a la instancia y

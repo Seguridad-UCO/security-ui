@@ -102,6 +102,21 @@ describe("SecurityApi", () => {
       code: "NETWORK_ERROR",
     } satisfies Partial<ApiError>);
   });
+  it("reports an unavailable PDP as retryable, not as an expired session", async () => {
+    browser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(null, { status: 503, headers: { "Retry-After": "5" } }),
+      ),
+    );
+    await expect(
+      new SecurityApi(options).deleteProfile("profile"),
+    ).rejects.toMatchObject({
+      status: 503,
+      message: expect.stringContaining("no está disponible temporalmente"),
+    } satisfies Partial<ApiError>);
+  });
   it("uses the application-scoped paged relation URLs", async () => {
     browser();
     const fetch = vi.fn().mockImplementation(() =>

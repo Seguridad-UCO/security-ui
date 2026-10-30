@@ -323,7 +323,11 @@ export class SecurityApi {
               ? "La operación entra en conflicto con el estado actual."
               : response.status === 400
                 ? "Revise los datos ingresados."
-                : `El servicio respondió ${response.status}.`;
+                : response.status === 429
+                  ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo."
+                  : response.status === 503
+                    ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos."
+                    : `El servicio respondió ${response.status}.`;
       throw new ApiError(
         response.status,
         error?.code,
