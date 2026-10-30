@@ -77,6 +77,12 @@ de consultar SurrealDB. `security-overview` no forma parte de ningún contrato.
 8. **Alcance del cierre de sesión (ADR-034).** `DELETE /api/v1/session` con bearer revoca solo el token
    presentado y los del mismo cliente (`azp`); no cierra la sesión del usuario en otras aplicaciones ni en el
    panel de Seguridad. El cierre global es el del panel (cookie BFF).
+9. **`403` con código (ADR-027, ADR-036).** Un `403` no siempre es "sin permisos": `MFA_REQUIRED` indica que la
+   operación exige evidencia de segundo factor y el **host** (dueño de la sesión, ADR-031) debe llevar al usuario a
+   reautenticarse con MFA y reintentar; el componente no autentica. `NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG`
+   significa que definir o modificar roles y perfiles de alcance inquilino exige administrar al menos una
+   aplicación. El componente muestra un texto por código y expone `ApiError.code` para que el host decida; el
+   texto del PDP no se reproduce.
 
 Las páginas se pueden cambiar rápidamente: Security UI cancela la solicitud anterior y deja visible
 el último resultado correcto hasta recibir la siguiente página. La caché es local a la instancia y

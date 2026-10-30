@@ -14,6 +14,16 @@ import type {
   UserAssignmentsResponse,
 } from "./types";
 type Envelope<T> = { data: T };
+
+// El texto de un 403 sale del código y no del `detail` del PDP: el cuerpo de una denegación no se muestra tal cual.
+function forbiddenMessageFor(code?: string): string {
+  if (code === "MFA_REQUIRED")
+    return "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo.";
+  if (code === "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG")
+    return "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación.";
+  return "No tiene permisos para administrar la seguridad de esta aplicación.";
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -316,7 +326,7 @@ export class SecurityApi {
       } | null;
       const fallback =
         response.status === 403
-          ? "No tiene permisos para administrar la seguridad de esta aplicación."
+          ? forbiddenMessageFor(error?.code)
           : response.status === 404
             ? "El elemento ya no existe o no pertenece a esta aplicación."
             : response.status === 409

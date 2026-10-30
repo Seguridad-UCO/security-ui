@@ -83,6 +83,38 @@ describe("SecurityApi", () => {
       fields: [{ field: "path", message: "Debe comenzar con /" }],
     } satisfies Partial<ApiError>);
   });
+  it("explains a 403 by its code without echoing the PDP body", async () => {
+    browser();
+    const forbidden = (code: string) =>
+      new Response(JSON.stringify({ code, detail: "texto interno" }), {
+        status: 403,
+      });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(forbidden("MFA_REQUIRED"))
+        .mockResolvedValueOnce(
+          forbidden("NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG"),
+        ),
+    );
+    await expect(
+      new SecurityApi(options).deleteRole("role"),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "MFA_REQUIRED",
+      message:
+        "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo.",
+    } satisfies Partial<ApiError>);
+    await expect(
+      new SecurityApi(options).deleteRole("role"),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG",
+      message:
+        "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación.",
+    } satisfies Partial<ApiError>);
+  });
   it("does not attach an AbortSignal to mutations", async () => {
     browser();
     const fetch = vi
