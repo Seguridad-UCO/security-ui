@@ -24,6 +24,13 @@ function forbiddenMessageFor(code?: string): string {
   return "No tiene permisos para administrar la seguridad de esta aplicación.";
 }
 
+// El `detail` de estos conflictos trae identificadores internos; la persona usuaria debe ver una frase legible.
+const MESSAGES_WITHOUT_IDS: Record<string, string> = {
+  ASSIGNMENT_ALREADY_ACTIVE: "Esta persona ya tiene ese rol vigente en la aplicación.",
+  PROFILE_ASSIGNMENT_ALREADY_ACTIVE: "Esta persona ya tiene ese perfil vigente en la aplicación.",
+  PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar.",
+};
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -392,7 +399,7 @@ export class SecurityApi {
         error?.code,
         response.status === 403
           ? fallback
-          : (error?.detail ?? error?.message ?? fallback),
+          : ((error?.code ? MESSAGES_WITHOUT_IDS[error.code] : undefined) ?? error?.detail ?? error?.message ?? fallback),
         error?.fieldErrors ?? error?.errors ?? [],
       );
       this.report(failure);

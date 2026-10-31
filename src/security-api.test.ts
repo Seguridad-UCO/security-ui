@@ -26,6 +26,25 @@ describe("SecurityApi", () => {
     expect(init.headers.get("X-XSRF-TOKEN")).toBe("csrf value");
     expect(init.body).toBe('{"path":"/notes","method":"PATCH"}');
   });
+  it("replaces PDP messages that carry internal identifiers with a readable one", async () => {
+    browser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            code: "ASSIGNMENT_ALREADY_ACTIVE",
+            detail: "El usuario 54cc7a8f ya tiene una asignación activa del rol 5141683b",
+          }),
+          { status: 409 },
+        ),
+      ),
+    );
+    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    expect(failure).toMatchObject({ status: 409, code: "ASSIGNMENT_ALREADY_ACTIVE" });
+    expect((failure as ApiError).message).toBe("Esta persona ya tiene ese rol vigente en la aplicación.");
+    expect((failure as ApiError).message).not.toMatch(/54cc7a8f|5141683b/);
+  });
   it("maps a PDP conflict without masking its business message", async () => {
     browser();
     vi.stubGlobal(

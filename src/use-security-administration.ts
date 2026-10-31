@@ -278,7 +278,13 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       if (state.abortController === controller) state.loading = false;
     }
   }
+  // Las vistas por persona, rol y perfil tienen su propia caché; si no se limpia, reabrirlas muestra datos viejos.
+  const ASSIGNMENT_VIEWS = [":user-assignments:", ":role-assignments:", ":profile-assignments:"];
   function invalidate(...kinds: Array<Collection | "summary">) {
+    if (kinds.includes("roleAssignments") || kinds.includes("profileAssignments"))
+      for (const cacheKey of [...cache.keys()])
+        if (cacheKey.startsWith(`${applicationId.value}:`) && ASSIGNMENT_VIEWS.some((view) => cacheKey.includes(view)))
+          cache.delete(cacheKey);
     for (const kind of kinds) {
       if (kind === "summary") {
         summary.value = undefined;

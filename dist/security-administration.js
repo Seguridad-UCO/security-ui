@@ -2935,14 +2935,18 @@ function To(e) {
 function Eo(e) {
 	return e === "MFA_REQUIRED" ? "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo." : e === "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG" ? "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación." : "No tiene permisos para administrar la seguridad de esta aplicación.";
 }
-var Do = class extends Error {
+var Do = {
+	ASSIGNMENT_ALREADY_ACTIVE: "Esta persona ya tiene ese rol vigente en la aplicación.",
+	PROFILE_ASSIGNMENT_ALREADY_ACTIVE: "Esta persona ya tiene ese perfil vigente en la aplicación.",
+	PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar."
+}, Oo = class extends Error {
 	status;
 	code;
 	fields;
 	constructor(e, t, n = "No fue posible completar la solicitud.", r = []) {
 		super(n), this.status = e, this.code = t, this.fields = r, this.name = "ApiError";
 	}
-}, Oo = class {
+}, ko = class {
 	options;
 	baseUrl;
 	constructor(e) {
@@ -3113,7 +3117,7 @@ var Do = class extends Error {
 			t = void 0;
 		}
 		if (t) return t;
-		let n = new Do(401, "UNAUTHENTICATED", "No hay una sesión vigente. Inicie sesión de nuevo.");
+		let n = new Oo(401, "UNAUTHENTICATED", "No hay una sesión vigente. Inicie sesión de nuevo.");
 		throw this.report(n), n;
 	}
 	report(e) {
@@ -3147,10 +3151,10 @@ var Do = class extends Error {
 				headers: n
 			});
 		} catch (e) {
-			throw e instanceof DOMException && e.name === "AbortError" ? e : new Do(0, "NETWORK_ERROR", "No fue posible conectar con el PDP.");
+			throw e instanceof DOMException && e.name === "AbortError" ? e : new Oo(0, "NETWORK_ERROR", "No fue posible conectar con el PDP.");
 		}
 		if (!i.ok) {
-			let e = await i.json().catch(() => null), t = i.status === 403 ? Eo(e?.code) : i.status === 404 ? "El elemento ya no existe o no pertenece a esta aplicación." : i.status === 409 ? "La operación entra en conflicto con el estado actual." : i.status === 400 ? "Revise los datos ingresados." : i.status === 429 ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo." : i.status === 503 ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos." : `El servicio respondió ${i.status}.`, n = new Do(i.status, e?.code, i.status === 403 ? t : e?.detail ?? e?.message ?? t, e?.fieldErrors ?? e?.errors ?? []);
+			let e = await i.json().catch(() => null), t = i.status === 403 ? Eo(e?.code) : i.status === 404 ? "El elemento ya no existe o no pertenece a esta aplicación." : i.status === 409 ? "La operación entra en conflicto con el estado actual." : i.status === 400 ? "Revise los datos ingresados." : i.status === 429 ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo." : i.status === 503 ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos." : `El servicio respondió ${i.status}.`, n = new Oo(i.status, e?.code, i.status === 403 ? t : (e?.code ? Do[e.code] : void 0) ?? e?.detail ?? e?.message ?? t, e?.fieldErrors ?? e?.errors ?? []);
 			throw this.report(n), n;
 		}
 		if (i.status !== 204) return (await i.json()).data;
@@ -3164,8 +3168,8 @@ var Do = class extends Error {
 	error: null,
 	loaded: !1
 });
-function ko(e) {
-	let t = /* @__PURE__ */ V(""), n = /* @__PURE__ */ V(), r = /* @__PURE__ */ V(!1), i = /* @__PURE__ */ V(""), a = /* @__PURE__ */ V(!1), o = /* @__PURE__ */ R(/* @__PURE__ */ new Set()), s = /* @__PURE__ */ R($()), c = /* @__PURE__ */ R($()), l = /* @__PURE__ */ R($()), u = /* @__PURE__ */ R($()), d = /* @__PURE__ */ R($()), f = /* @__PURE__ */ R($()), p = /* @__PURE__ */ R($()), m = /* @__PURE__ */ R($()), h = /* @__PURE__ */ R($()), g = /* @__PURE__ */ R($()), _ = /* @__PURE__ */ R($()), v = /* @__PURE__ */ R($()), y = /* @__PURE__ */ R($()), b = /* @__PURE__ */ R($()), x = /* @__PURE__ */ new Map(), S, C = _a(() => new Oo(e.value)), w = _a(() => !!n.value && !r.value), ee = {
+function Ao(e) {
+	let t = /* @__PURE__ */ V(""), n = /* @__PURE__ */ V(), r = /* @__PURE__ */ V(!1), i = /* @__PURE__ */ V(""), a = /* @__PURE__ */ V(!1), o = /* @__PURE__ */ R(/* @__PURE__ */ new Set()), s = /* @__PURE__ */ R($()), c = /* @__PURE__ */ R($()), l = /* @__PURE__ */ R($()), u = /* @__PURE__ */ R($()), d = /* @__PURE__ */ R($()), f = /* @__PURE__ */ R($()), p = /* @__PURE__ */ R($()), m = /* @__PURE__ */ R($()), h = /* @__PURE__ */ R($()), g = /* @__PURE__ */ R($()), _ = /* @__PURE__ */ R($()), v = /* @__PURE__ */ R($()), y = /* @__PURE__ */ R($()), b = /* @__PURE__ */ R($()), x = /* @__PURE__ */ new Map(), S, C = _a(() => new ko(e.value)), w = _a(() => !!n.value && !r.value), ee = {
 		resources: (e, t, n, r, i) => e.getResources(t, {
 			page: n,
 			size: r
@@ -3209,7 +3213,7 @@ function ko(e) {
 			let e = await C.value.resolveApplicationId(S.signal);
 			t.value = e, n.value = await C.value.getSummary(e, S.signal);
 		} catch (e) {
-			zo(e) || (i.value = Bo(e));
+			Bo(e) || (i.value = Vo(e));
 		} finally {
 			r.value = !1;
 		}
@@ -3220,7 +3224,7 @@ function ko(e) {
 		i.abortController?.abort(), i.error = null;
 		let o = !r && x.get(a);
 		if (o) {
-			Ro(i, o);
+			zo(i, o);
 			return;
 		}
 		let s = new AbortController();
@@ -3228,9 +3232,9 @@ function ko(e) {
 		try {
 			let r = await ee[e](C.value, t.value, n, i.limit, s.signal);
 			if (i.abortController !== s) return;
-			x.set(a, r), Ro(i, r);
+			x.set(a, r), zo(i, r);
 		} catch (e) {
-			!zo(e) && i.abortController === s && (i.error = Bo(e));
+			!Bo(e) && i.abortController === s && (i.error = Vo(e));
 		} finally {
 			i.abortController === s && (i.loading = !1);
 		}
@@ -3249,9 +3253,9 @@ function ko(e) {
 				size: p.limit
 			}, r.signal);
 			if (p.abortController !== r) return;
-			Ro(p, i);
+			zo(p, i);
 		} catch (e) {
-			zo(e) || (p.error = Bo(e));
+			Bo(e) || (p.error = Vo(e));
 		} finally {
 			p.abortController === r && (p.loading = !1);
 		}
@@ -3274,7 +3278,7 @@ function ko(e) {
 		_.abortController?.abort();
 		let a = r ? void 0 : x.get(i);
 		if (a) {
-			Ro(_, a.roleAssignments), Ro(v, a.profileAssignments);
+			zo(_, a.roleAssignments), zo(v, a.profileAssignments);
 			return;
 		}
 		let o = new AbortController();
@@ -3285,10 +3289,10 @@ function ko(e) {
 				size: _.limit
 			}, o.signal);
 			if (_.abortController !== o) return;
-			x.set(i, r), Ro(_, r.roleAssignments), Ro(v, r.profileAssignments);
+			x.set(i, r), zo(_, r.roleAssignments), zo(v, r.profileAssignments);
 		} catch (e) {
-			if (!zo(e)) {
-				let t = Bo(e);
+			if (!Bo(e)) {
+				let t = Vo(e);
 				_.error = v.error = t;
 			}
 		} finally {
@@ -3313,7 +3317,7 @@ function ko(e) {
 		r.abortController?.abort(), r.error = null;
 		let c = o ? void 0 : x.get(s);
 		if (c) {
-			Ro(r, c);
+			zo(r, c);
 			return;
 		}
 		let l = new AbortController();
@@ -3321,14 +3325,20 @@ function ko(e) {
 		try {
 			let e = await i(l.signal);
 			if (r.abortController !== l) return;
-			x.set(s, e), Ro(r, e);
+			x.set(s, e), zo(r, e);
 		} catch (e) {
-			!zo(e) && r.abortController === l && (r.error = Bo(e));
+			!Bo(e) && r.abortController === l && (r.error = Vo(e));
 		} finally {
 			r.abortController === l && (r.loading = !1);
 		}
 	}
-	function oe(...e) {
+	let oe = [
+		":user-assignments:",
+		":role-assignments:",
+		":profile-assignments:"
+	];
+	function se(...e) {
+		if (e.includes("roleAssignments") || e.includes("profileAssignments")) for (let e of [...x.keys()]) e.startsWith(`${t.value}:`) && oe.some((t) => e.includes(t)) && x.delete(e);
 		for (let r of e) {
 			if (r === "summary") {
 				n.value = void 0;
@@ -3338,24 +3348,24 @@ function ko(e) {
 			T[r].loaded = !1;
 		}
 	}
-	function se(e, n) {
+	function ce(e, n) {
 		for (let r of x.keys()) r.startsWith(`${t.value}:${n}:${e}:`) && x.delete(r);
 	}
-	async function ce() {
+	async function M() {
 		E(), await ne();
 	}
-	function M(e) {
+	function le(e) {
 		return e ? o.has(e) : o.size > 0;
 	}
-	async function le(e, n, r = "global", s = !1) {
+	async function ue(e, n, r = "global", s = !1) {
 		if (!t.value || o.has(r)) return !1;
 		o.add(r), a.value = !0, i.value = "";
 		try {
-			await e(C.value, t.value), oe(...n);
+			await e(C.value, t.value), se(...n);
 			let r = n.filter((e) => e !== "summary");
 			return await Promise.all(r.map((e) => D(e, T[e].page, !0))), s && await Promise.all(r.filter((e) => T[e].page > 0 && T[e].content.length === 0).map((e) => D(e, T[e].page - 1, !0))), n.includes("summary") && await ne(), !0;
 		} catch (e) {
-			return i.value = Bo(e), !1;
+			return i.value = Vo(e), !1;
 		} finally {
 			o.delete(r), a.value = o.size > 0;
 		}
@@ -3376,7 +3386,7 @@ function ko(e) {
 		loading: r,
 		saving: a,
 		mutations: o,
-		isMutating: M,
+		isMutating: le,
 		error: i,
 		ready: w,
 		resources: s,
@@ -3401,60 +3411,60 @@ function ko(e) {
 		loadAssignmentsForRole: j,
 		loadAssignmentsForProfile: ie,
 		searchUsers: O,
-		refresh: ce,
-		mutate: le,
-		invalidate: oe,
-		invalidateRelation: se
+		refresh: M,
+		mutate: ue,
+		invalidate: se,
+		invalidateRelation: ce
 	};
 }
-function Ao(e) {
+function jo(e) {
 	return {
 		summary: e.summary,
 		loading: e.summaryLoading,
 		load: e.loadSummary
 	};
 }
-function jo(e) {
+function Mo(e) {
 	return e.resources;
 }
-function Mo(e) {
+function No(e) {
 	return e.roles;
 }
-function No(e) {
+function Po(e) {
 	return e.profiles;
 }
-function Po(e) {
+function Fo(e) {
 	return e.administrators;
 }
-function Fo(e) {
+function Io(e) {
 	return e.roleAssignments;
 }
-function Io(e) {
+function Lo(e) {
 	return e.profileAssignments;
 }
-function Lo(e) {
+function Ro(e) {
 	return {
 		state: e.users,
 		search: e.searchUsers
 	};
 }
-function Ro(e, t) {
+function zo(e, t) {
 	e.content = t.content, e.total = t.total, e.page = t.page, e.limit = t.limit, e.loaded = !0;
 }
-function zo(e) {
+function Bo(e) {
 	return e instanceof DOMException && e.name === "AbortError";
 }
-function Bo(e) {
+function Vo(e) {
 	return e instanceof Error ? e.message : "No fue posible cargar la seguridad.";
 }
 //#endregion
 //#region src/components/ConfirmDangerDialog.vue?vue&type=script&setup=true&lang.ts
-var Vo = {
+var Ho = {
 	class: "dialog",
 	role: "alertdialog",
 	"aria-modal": "true",
 	"aria-labelledby": "confirm-title"
-}, Ho = { class: "sub" }, Uo = { class: "actions bottom" }, Wo = ["disabled"], Go = ["disabled"], Ko = /* @__PURE__ */ qn({
+}, Uo = { class: "sub" }, Wo = { class: "actions bottom" }, Go = ["disabled"], Ko = ["disabled"], qo = /* @__PURE__ */ qn({
 	__name: "ConfirmDangerDialog",
 	props: {
 		open: { type: Boolean },
@@ -3467,22 +3477,22 @@ var Vo = {
 			key: 0,
 			class: "backdrop",
 			onClick: n[2] ||= yo((e) => t.$emit("cancel"), ["self"])
-		}, [Y("div", Vo, [
+		}, [Y("div", Ho, [
 			n[3] ||= Y("h3", { id: "confirm-title" }, "Confirmar acción destructiva", -1),
-			Y("p", Ho, P(e.message), 1),
-			Y("div", Uo, [Y("button", {
+			Y("p", Uo, P(e.message), 1),
+			Y("div", Wo, [Y("button", {
 				class: "quiet",
 				disabled: e.busy,
 				onClick: n[0] ||= (e) => t.$emit("cancel")
-			}, " Cancelar ", 8, Wo), Y("button", {
+			}, " Cancelar ", 8, Go), Y("button", {
 				"data-testid": "confirm-danger",
 				class: "primary danger",
 				disabled: e.busy,
 				onClick: n[1] ||= (e) => t.$emit("confirm")
-			}, " Confirmar ", 8, Go)])
+			}, " Confirmar ", 8, Ko)])
 		])])) : Q("", !0);
 	}
-}), qo = ["aria-label"], Jo = ["disabled"], Yo = ["disabled"], Xo = /* @__PURE__ */ qn({
+}), Jo = ["aria-label"], Yo = ["disabled"], Xo = ["disabled"], Zo = /* @__PURE__ */ qn({
 	__name: "PaginationControls",
 	props: {
 		page: {},
@@ -3502,22 +3512,22 @@ var Vo = {
 				class: "quiet",
 				disabled: e.page === 0 || e.loading,
 				onClick: n[0] ||= (e) => t.$emit("previous")
-			}, " Anterior ", 8, Jo),
+			}, " Anterior ", 8, Yo),
 			Y("span", null, "Página " + P(e.page + 1) + " de " + P(Math.ceil(e.total / e.limit)), 1),
 			Y("button", {
 				class: "quiet",
 				disabled: (e.page + 1) * e.limit >= e.total || e.loading,
 				onClick: n[1] ||= (e) => t.$emit("next")
-			}, " Siguiente ", 8, Yo)
-		], 8, qo)) : Q("", !0);
+			}, " Siguiente ", 8, Xo)
+		], 8, Jo)) : Q("", !0);
 	}
-}), Zo = {
+}), Qo = {
 	key: 0,
 	class: "empty"
-}, Qo = {
+}, $o = {
 	key: 1,
 	class: "stats"
-}, $o = /* @__PURE__ */ qn({
+}, es = /* @__PURE__ */ qn({
 	__name: "SecuritySummaryPanel",
 	props: {
 		summary: {},
@@ -3525,7 +3535,7 @@ var Vo = {
 		assignmentCount: {}
 	},
 	setup(e) {
-		return (t, n) => e.loading ? (q(), J("p", Zo, "Consultando políticas de seguridad…")) : e.summary ? (q(), J("div", Qo, [(q(!0), J(K, null, W([
+		return (t, n) => e.loading ? (q(), J("p", Qo, "Consultando políticas de seguridad…")) : e.summary ? (q(), J("div", $o, [(q(!0), J(K, null, W([
 			[e.summary.counts.administrators, "administradores"],
 			[e.assignmentCount, "asignaciones"],
 			[e.summary.counts.roles, "roles"],
@@ -3535,16 +3545,16 @@ var Vo = {
 			class: "stat"
 		}, [Y("b", null, P(e[0]), 1), Y("small", null, P(e[1]), 1)]))), 128))])) : Q("", !0);
 	}
-}), es = ["aria-busy"], ts = {
+}), ts = ["aria-busy"], ns = {
 	key: 0,
 	class: "empty"
-}, ns = {
+}, rs = {
 	key: 1,
 	class: "error"
-}, rs = { class: "method" }, is = { class: "grow" }, as = ["disabled", "onClick"], os = ["disabled", "onClick"], ss = {
+}, is = { class: "method" }, as = { class: "grow" }, os = ["disabled", "onClick"], ss = ["disabled", "onClick"], cs = {
 	key: 2,
 	class: "empty"
-}, cs = /* @__PURE__ */ qn({
+}, ls = /* @__PURE__ */ qn({
 	__name: "ResourceList",
 	props: {
 		state: {},
@@ -3562,27 +3572,27 @@ var Vo = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", ts, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", ns, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", ns, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", rs, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("span", rs, P(t.method), 1),
-				Y("div", is, [Y("strong", null, P(t.path), 1), r[2] ||= Y("small", null, "Recurso protegido", -1)]),
+				Y("span", is, P(t.method), 1),
+				Y("div", as, [Y("strong", null, P(t.path), 1), r[2] ||= Y("small", null, "Recurso protegido", -1)]),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("edit", t)
-				}, "Editar", 8, as),
+				}, "Editar", 8, os),
 				Y("button", {
 					class: "quiet danger",
 					disabled: e.busy,
 					onClick: (e) => n("remove", t)
-				}, "Eliminar", 8, os)
+				}, "Eliminar", 8, ss)
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", ss, "No hay datos en esta página.")) : Q("", !0)
-		], 8, es), X(Xo, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", cs, "No hay datos en esta página.")) : Q("", !0)
+		], 8, ts), X(Zo, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3596,16 +3606,16 @@ var Vo = {
 			"loading"
 		])], 64));
 	}
-}), ls = ["aria-busy"], us = {
+}), us = ["aria-busy"], ds = {
 	key: 0,
 	class: "empty"
-}, ds = {
+}, fs = {
 	key: 1,
 	class: "error"
-}, fs = { class: "grow" }, ps = ["disabled", "onClick"], ms = ["disabled", "onClick"], hs = ["disabled", "onClick"], gs = {
+}, ps = { class: "grow" }, ms = { class: "pill" }, hs = ["disabled", "onClick"], gs = ["disabled", "onClick"], _s = ["disabled", "onClick"], vs = { key: 1 }, ys = {
 	key: 2,
 	class: "empty"
-}, _s = /* @__PURE__ */ qn({
+}, bs = /* @__PURE__ */ qn({
 	__name: "RoleList",
 	props: {
 		state: {},
@@ -3619,43 +3629,45 @@ var Vo = {
 		"next"
 	],
 	setup(e, { emit: t }) {
-		let n = t;
-		return (t, r) => (q(), J(K, null, [Y("div", {
+		let n = (e) => e.name.trim().toUpperCase() === "ADMIN", r = t;
+		return (t, i) => (q(), J(K, null, [Y("div", {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", us, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", ds, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", ds, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", fs, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("div", fs, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.resourceCount ?? 0) + " recursos autorizados", 1)]),
-				r[2] ||= Y("span", { class: "pill" }, "Aplicación", -1),
-				Y("button", {
-					class: "quiet",
-					disabled: e.busy,
-					onClick: (e) => n("manage", t)
-				}, "Administrar recursos", 8, ps),
-				Y("button", {
-					class: "quiet",
-					disabled: e.busy,
-					onClick: (e) => n("edit", t)
-				}, "Editar", 8, ms),
-				Y("button", {
-					class: "quiet danger",
-					disabled: e.busy,
-					onClick: (e) => n("remove", t)
-				}, "Eliminar", 8, hs)
+				Y("div", ps, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.resourceCount ?? 0) + " recursos autorizados", 1)]),
+				Y("span", ms, P(n(t) ? "Protegido" : "Aplicación"), 1),
+				n(t) ? (q(), J("small", vs, "Administra la aplicación; no se edita.")) : (q(), J(K, { key: 0 }, [
+					Y("button", {
+						class: "quiet",
+						disabled: e.busy,
+						onClick: (e) => r("manage", t)
+					}, "Administrar recursos", 8, hs),
+					Y("button", {
+						class: "quiet",
+						disabled: e.busy,
+						onClick: (e) => r("edit", t)
+					}, "Editar", 8, gs),
+					Y("button", {
+						class: "quiet danger",
+						disabled: e.busy,
+						onClick: (e) => r("remove", t)
+					}, "Eliminar", 8, _s)
+				], 64))
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", gs, "No hay datos en esta página.")) : Q("", !0)
-		], 8, ls), X(Xo, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", ys, "No hay datos en esta página.")) : Q("", !0)
+		], 8, us), X(Zo, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
 			loading: e.state.loading,
-			onPrevious: r[0] ||= (e) => n("previous"),
-			onNext: r[1] ||= (e) => n("next")
+			onPrevious: i[0] ||= (e) => r("previous"),
+			onNext: i[1] ||= (e) => r("next")
 		}, null, 8, [
 			"page",
 			"limit",
@@ -3663,16 +3675,16 @@ var Vo = {
 			"loading"
 		])], 64));
 	}
-}), vs = ["aria-busy"], ys = {
+}), xs = ["aria-busy"], Ss = {
 	key: 0,
 	class: "empty"
-}, bs = {
+}, Cs = {
 	key: 1,
 	class: "error"
-}, xs = { class: "grow" }, Ss = ["disabled", "onClick"], Cs = ["disabled", "onClick"], ws = ["disabled", "onClick"], Ts = {
+}, ws = { class: "grow" }, Ts = ["disabled", "onClick"], Es = ["disabled", "onClick"], Ds = ["disabled", "onClick"], Os = {
 	key: 2,
 	class: "empty"
-}, Es = /* @__PURE__ */ qn({
+}, ks = /* @__PURE__ */ qn({
 	__name: "ProfileList",
 	props: {
 		state: {},
@@ -3691,32 +3703,32 @@ var Vo = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", ys, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", bs, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", Ss, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", Cs, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("div", xs, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.roleCount ?? 0) + " roles agrupados", 1)]),
+				Y("div", ws, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.roleCount ?? 0) + " roles agrupados", 1)]),
 				r[2] ||= Y("span", { class: "pill" }, "Aplicación", -1),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("manage", t)
-				}, "Administrar roles", 8, Ss),
+				}, "Administrar roles", 8, Ts),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("edit", t)
-				}, "Editar", 8, Cs),
+				}, "Editar", 8, Es),
 				Y("button", {
 					class: "quiet danger",
 					disabled: e.busy,
 					onClick: (e) => n("remove", t)
-				}, "Eliminar", 8, ws)
+				}, "Eliminar", 8, Ds)
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", Ts, "No hay datos en esta página.")) : Q("", !0)
-		], 8, vs), X(Xo, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", Os, "No hay datos en esta página.")) : Q("", !0)
+		], 8, xs), X(Zo, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3730,16 +3742,16 @@ var Vo = {
 			"loading"
 		])], 64));
 	}
-}), Ds = ["aria-busy"], Os = {
+}), As = ["aria-busy"], js = {
 	key: 0,
 	class: "empty"
-}, ks = {
+}, Ms = {
 	key: 1,
 	class: "error"
-}, As = { class: "grow" }, js = ["disabled", "onClick"], Ms = {
+}, Ns = { class: "grow" }, Ps = ["disabled", "onClick"], Fs = {
 	key: 2,
 	class: "empty"
-}, Ns = /* @__PURE__ */ qn({
+}, Is = /* @__PURE__ */ qn({
 	__name: "AdministratorList",
 	props: {
 		state: {},
@@ -3759,12 +3771,12 @@ var Vo = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", Os, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", ks, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", js, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", Ms, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.user.id,
 				class: "row"
-			}, [Y("div", As, [
+			}, [Y("div", Ns, [
 				Y("strong", null, P(t.user.name), 1),
 				Y("small", null, P(t.user.email), 1),
 				Y("small", null, "Administrador · desde " + P(r(t.validFrom)), 1)
@@ -3772,9 +3784,9 @@ var Vo = {
 				class: "quiet danger",
 				disabled: e.busy,
 				onClick: (e) => n("remove", t.user.id)
-			}, "Retirar", 8, js)]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", Ms, "No hay datos en esta página.")) : Q("", !0)
-		], 8, Ds), X(Xo, {
+			}, "Retirar", 8, Ps)]))), 128)),
+			e.state.loaded && !e.state.content.length ? (q(), J("p", Fs, "No hay datos en esta página.")) : Q("", !0)
+		], 8, As), X(Zo, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3788,51 +3800,51 @@ var Vo = {
 			"loading"
 		])], 64));
 	}
-}), Ps = {
+}), Ls = {
 	class: "access-workbench",
 	"aria-label": "Administración de personas y accesos"
-}, Fs = {
+}, Rs = {
 	class: "perspective-tabs",
 	role: "tablist",
 	"aria-label": "Perspectiva de consulta"
-}, Is = ["aria-selected", "onClick"], Ls = { class: "access-layout" }, Rs = { class: "access-query" }, zs = { class: "search-field" }, Bs = {
+}, zs = ["aria-selected", "onClick"], Bs = { class: "access-layout" }, Vs = { class: "access-query" }, Hs = { class: "search-field" }, Us = {
 	key: 0,
 	class: "choices",
 	"aria-label": "Resultados de personas"
-}, Vs = ["onClick"], Hs = { class: "avatar" }, Us = {
-	key: 0,
-	class: "empty compact"
-}, Ws = { class: "option-grid" }, Gs = ["onClick"], Ks = {
+}, Ws = ["onClick"], Gs = { class: "avatar" }, Ks = {
 	key: 0,
 	class: "empty compact"
 }, qs = { class: "option-grid" }, Js = ["onClick"], Ys = {
 	key: 0,
 	class: "empty compact"
-}, Xs = { class: "access-results" }, Zs = {
+}, Xs = { class: "option-grid" }, Zs = ["onClick"], Qs = {
+	key: 0,
+	class: "empty compact"
+}, $s = { class: "access-results" }, ec = {
 	key: 0,
 	class: "empty-state"
-}, Qs = { class: "identity-strip" }, $s = { class: "avatar large" }, ec = {
+}, tc = { class: "identity-strip" }, nc = { class: "avatar large" }, rc = {
 	key: 0,
 	class: "admin-mark"
-}, tc = {
+}, ic = {
 	key: 0,
 	class: "error"
-}, nc = { class: "access-group" }, rc = { class: "group-title" }, ic = ["disabled", "onClick"], ac = {
+}, ac = { class: "access-group" }, oc = { class: "group-title" }, sc = ["disabled", "onClick"], cc = {
 	key: 0,
 	class: "empty compact"
-}, oc = { class: "access-group" }, sc = { class: "group-title" }, cc = ["disabled", "onClick"], lc = {
+}, lc = { class: "access-group" }, uc = { class: "group-title" }, dc = ["disabled", "onClick"], fc = {
 	key: 0,
 	class: "empty compact"
-}, uc = { class: "result-title" }, dc = { class: "count-badge" }, fc = {
+}, pc = { class: "result-title" }, mc = { class: "count-badge" }, hc = {
 	key: 0,
 	class: "error"
-}, pc = { class: "avatar" }, mc = { class: "access-meta" }, hc = ["disabled", "onClick"], gc = {
+}, gc = { class: "avatar" }, _c = { class: "access-meta" }, vc = ["disabled", "onClick"], yc = {
 	key: 1,
 	class: "empty compact"
-}, _c = {
+}, bc = {
 	key: 3,
 	class: "empty-state"
-}, vc = /* @__PURE__ */ qn({
+}, xc = /* @__PURE__ */ qn({
 	__name: "AccessAdministrationPanel",
 	props: {
 		users: {},
@@ -3876,13 +3888,13 @@ var Vo = {
 		function h(e) {
 			i.value === "person" ? r("personPage", e) : i.value === "role" ? r("rolePage", e) : r("profilePage", e);
 		}
-		return (t, n) => (q(), J("section", Ps, [
+		return (t, n) => (q(), J("section", Ls, [
 			n[18] ||= Y("header", { class: "access-heading" }, [Y("div", null, [
 				Y("p", { class: "kicker" }, "Consultar y ajustar"),
 				Y("h4", null, "Personas y accesos"),
 				Y("p", null, "Encuentre una relación vigente y actúe desde el mismo lugar.")
 			]), Y("span", { class: "scope-mark" }, "Aplicación actual")], -1),
-			Y("div", Fs, [(q(), J(K, null, W([
+			Y("div", Rs, [(q(), J(K, null, W([
 				{
 					id: "person",
 					label: "Por persona",
@@ -3905,10 +3917,10 @@ var Vo = {
 				"aria-selected": i.value === e.id,
 				class: N({ active: i.value === e.id }),
 				onClick: (t) => i.value = e.id
-			}, [Y("strong", null, P(e.label), 1), Y("small", null, P(e.hint), 1)], 10, Is)), 64))]),
-			Y("div", Ls, [Y("aside", Rs, [i.value === "person" ? (q(), J(K, { key: 0 }, [
+			}, [Y("strong", null, P(e.label), 1), Y("small", null, P(e.hint), 1)], 10, zs)), 64))]),
+			Y("div", Bs, [Y("aside", Vs, [i.value === "person" ? (q(), J(K, { key: 0 }, [
 				n[6] ||= Y("label", { for: "person-search" }, "Buscar una persona", -1),
-				Y("div", zs, [n[5] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
+				Y("div", Hs, [n[5] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
 					id: "person-search",
 					"onUpdate:modelValue": n[0] ||= (e) => a.value = e,
 					autocomplete: "off",
@@ -3920,43 +3932,43 @@ var Vo = {
 					{ trim: !0 }
 				]])]),
 				n[7] ||= Y("p", { class: "query-help" }, "Los resultados pertenecen al tenant actual.", -1),
-				a.value ? (q(), J("div", Bs, [(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
+				a.value ? (q(), J("div", Us, [(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
 					class: N(["choice", { selected: o.value?.id === e.id }]),
 					onClick: (t) => u(e)
-				}, [Y("span", Hs, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Vs))), 128)), e.users.loaded && !e.users.content.length ? (q(), J("p", Us, "No se encontraron personas.")) : Q("", !0)])) : Q("", !0)
+				}, [Y("span", Gs, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Ws))), 128)), e.users.loaded && !e.users.content.length ? (q(), J("p", Ks, "No se encontraron personas.")) : Q("", !0)])) : Q("", !0)
 			], 64)) : i.value === "role" ? (q(), J(K, { key: 1 }, [
 				n[8] ||= Y("p", { class: "query-label" }, "Elija un rol", -1),
 				n[9] ||= Y("p", { class: "query-help" }, "Muestra únicamente roles de esta aplicación.", -1),
-				Y("div", Ws, [(q(!0), J(K, null, W(e.roles.content, (e) => (q(), J("button", {
+				Y("div", qs, [(q(!0), J(K, null, W(e.roles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
 					class: N({ selected: s.value?.id === e.id }),
 					onClick: (t) => d(e)
-				}, P(e.name), 11, Gs))), 128)), e.roles.loaded && !e.roles.content.length ? (q(), J("p", Ks, "No hay roles disponibles.")) : Q("", !0)])
+				}, P(e.name), 11, Js))), 128)), e.roles.loaded && !e.roles.content.length ? (q(), J("p", Ys, "No hay roles disponibles.")) : Q("", !0)])
 			], 64)) : (q(), J(K, { key: 2 }, [
 				n[10] ||= Y("p", { class: "query-label" }, "Elija un perfil", -1),
 				n[11] ||= Y("p", { class: "query-help" }, "Muestra únicamente perfiles de esta aplicación.", -1),
-				Y("div", qs, [(q(!0), J(K, null, W(e.profiles.content, (e) => (q(), J("button", {
+				Y("div", Xs, [(q(!0), J(K, null, W(e.profiles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
 					class: N({ selected: c.value?.id === e.id }),
 					onClick: (t) => f(e)
-				}, P(e.name), 11, Js))), 128)), e.profiles.loaded && !e.profiles.content.length ? (q(), J("p", Ys, "No hay perfiles disponibles.")) : Q("", !0)])
-			], 64))]), Y("div", Xs, [i.value === "person" && !o.value ? (q(), J("div", Zs, [...n[12] ||= [
+				}, P(e.name), 11, Zs))), 128)), e.profiles.loaded && !e.profiles.content.length ? (q(), J("p", Qs, "No hay perfiles disponibles.")) : Q("", !0)])
+			], 64))]), Y("div", $s, [i.value === "person" && !o.value ? (q(), J("div", ec, [...n[12] ||= [
 				Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione una persona", -1),
 				Y("p", null, "Busque por nombre o correo para consultar sus accesos vigentes.", -1)
 			]])) : i.value === "person" && o.value ? (q(), J(K, { key: 1 }, [
-				Y("div", Qs, [
-					Y("span", $s, P(o.value.name.slice(0, 1)), 1),
+				Y("div", tc, [
+					Y("span", nc, P(o.value.name.slice(0, 1)), 1),
 					Y("div", null, [Y("strong", null, P(o.value.name), 1), Y("small", null, P(o.value.email), 1)]),
-					e.personRoleAssignments.content.some((e) => e.role.name === "ADMIN") ? (q(), J("span", ec, "Administra esta aplicación")) : Q("", !0)
+					e.personRoleAssignments.content.some((e) => e.role.name === "ADMIN") ? (q(), J("span", rc, "Administra esta aplicación")) : Q("", !0)
 				]),
-				e.personRoleAssignments.error || e.personProfileAssignments.error ? (q(), J("p", tc, P(e.personRoleAssignments.error || e.personProfileAssignments.error), 1)) : Q("", !0),
-				Y("section", nc, [
-					Y("div", rc, [n[13] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
+				e.personRoleAssignments.error || e.personProfileAssignments.error ? (q(), J("p", ic, P(e.personRoleAssignments.error || e.personProfileAssignments.error), 1)) : Q("", !0),
+				Y("section", ac, [
+					Y("div", oc, [n[13] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personRoleAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
@@ -3964,11 +3976,11 @@ var Vo = {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, ic)]))), 128)),
-					e.personRoleAssignments.loaded && !e.personRoleAssignments.content.length ? (q(), J("p", ac, "Esta persona no tiene roles asignados.")) : Q("", !0)
+					}, "Revocar", 8, sc)]))), 128)),
+					e.personRoleAssignments.loaded && !e.personRoleAssignments.content.length ? (q(), J("p", cc, "Esta persona no tiene roles asignados.")) : Q("", !0)
 				]),
-				Y("section", oc, [
-					Y("div", sc, [n[14] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
+				Y("section", lc, [
+					Y("div", uc, [n[14] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personProfileAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
@@ -3976,10 +3988,10 @@ var Vo = {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, cc)]))), 128)),
-					e.personProfileAssignments.loaded && !e.personProfileAssignments.content.length ? (q(), J("p", lc, "Esta persona no tiene perfiles asignados.")) : Q("", !0)
+					}, "Revocar", 8, dc)]))), 128)),
+					e.personProfileAssignments.loaded && !e.personProfileAssignments.content.length ? (q(), J("p", fc, "Esta persona no tiene perfiles asignados.")) : Q("", !0)
 				]),
-				X(Xo, {
+				X(Zo, {
 					page: e.personRoleAssignments.page,
 					limit: e.personRoleAssignments.limit,
 					total: Math.max(e.personRoleAssignments.total, e.personProfileAssignments.total),
@@ -3994,26 +4006,26 @@ var Vo = {
 					"loading"
 				])
 			], 64)) : i.value === "role" && s.value || i.value === "profile" && c.value ? (q(), J(K, { key: 2 }, [
-				Y("div", uc, [Y("div", null, [n[15] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", dc, P(l.value.total), 1)]),
-				l.value.error ? (q(), J("p", fc, P(l.value.error), 1)) : Q("", !0),
+				Y("div", pc, [Y("div", null, [n[15] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", mc, P(l.value.total), 1)]),
+				l.value.error ? (q(), J("p", hc, P(l.value.error), 1)) : Q("", !0),
 				(q(!0), J(K, null, W(l.value.content, (t) => (q(), J("div", {
 					key: t.id,
 					class: "access-row person-row"
 				}, [
-					Y("span", pc, P(t.user.name.slice(0, 1)), 1),
+					Y("span", gc, P(t.user.name.slice(0, 1)), 1),
 					Y("div", null, [
 						Y("strong", null, P(t.user.name), 1),
 						Y("small", null, P(t.user.email), 1),
-						Y("small", mc, [Z(P(p(t)) + " · desde " + P(m(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [Z(" hasta " + P(m(t.validUntil)), 1)], 64)) : Q("", !0)])
+						Y("small", _c, [Z(P(p(t)) + " · desde " + P(m(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [Z(" hasta " + P(m(t.validUntil)), 1)], 64)) : Q("", !0)])
 					]),
 					Y("button", {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, hc)
+					}, "Revocar", 8, vc)
 				]))), 128)),
-				l.value.loaded && !l.value.content.length ? (q(), J("p", gc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Q("", !0),
-				X(Xo, {
+				l.value.loaded && !l.value.content.length ? (q(), J("p", yc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Q("", !0),
+				X(Zo, {
 					page: l.value.page,
 					limit: l.value.limit,
 					total: l.value.total,
@@ -4027,33 +4039,33 @@ var Vo = {
 					"total",
 					"loading"
 				])
-			], 64)) : (q(), J("div", _c, [
+			], 64)) : (q(), J("div", bc, [
 				n[16] ||= Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione un " + P(i.value === "role" ? "rol" : "perfil"), 1),
 				n[17] ||= Y("p", null, "Las personas con ese acceso aparecerán aquí.", -1)
 			]))])])
 		]));
 	}
-}), yc = { class: "chip" }, bc = { class: "grid" }, xc = { "aria-label": "Secciones de seguridad" }, Sc = ["aria-current", "onClick"], Cc = { class: "title" }, wc = { class: "actions" }, Tc = ["disabled"], Ec = ["disabled"], Dc = {
+}), Sc = { class: "chip" }, Cc = { class: "grid" }, wc = { "aria-label": "Secciones de seguridad" }, Tc = ["aria-current", "onClick"], Ec = { class: "title" }, Dc = { class: "actions" }, Oc = ["disabled"], kc = ["disabled"], Ac = {
 	key: 0,
 	class: "error"
-}, Oc = ["aria-expanded"], kc = ["aria-busy"], Ac = {
+}, jc = ["aria-expanded"], Mc = ["aria-busy"], Nc = {
 	key: 0,
 	class: "user-result-status"
-}, jc = ["aria-selected", "onClick"], Mc = {
+}, Pc = ["aria-selected", "onClick"], Fc = {
 	key: 1,
 	class: "selected-user",
 	role: "status"
-}, Nc = ["value"], Pc = { key: 3 }, Fc = ["value"], Ic = ["aria-busy"], Lc = { class: "grow" }, Rc = ["disabled", "onClick"], zc = {
+}, Ic = ["value"], Lc = { key: 3 }, Rc = ["value"], zc = ["aria-busy"], Bc = { class: "grow" }, Vc = ["disabled", "onClick"], Hc = {
 	key: 0,
 	class: "empty"
-}, Bc = { class: "actions bottom" }, Vc = ["disabled"], Hc = ["disabled"], Uc = 3, Wc = /* @__PURE__ */ qn({
+}, Uc = { class: "actions bottom" }, Wc = ["disabled"], Gc = ["disabled"], Kc = 3, qc = /* @__PURE__ */ qn({
 	__name: "SecurityAdministration",
 	props: { options: {} },
 	setup(e, { expose: t }) {
-		let n = e, r = ko(/* @__PURE__ */ Zt(n, "options")), { summary: i, loading: a } = Ao(r), o = jo(r), s = Mo(r), c = No(r), l = Po(r);
-		Fo(r), Io(r);
-		let { state: u, search: d } = Lo(r), { saving: f, error: p, ready: m, load: h, refresh: g, mutate: _, roleResources: v, profileRoles: y, loadRoleResources: b, loadProfileRoles: x, userRoleAssignments: S, userProfileAssignments: C, assignmentsForRole: w, assignmentsForProfile: ee, loadUserAssignments: T, loadAssignmentsForRole: te, loadAssignmentsForProfile: E, invalidateRelation: ne } = r;
+		let n = e, r = Ao(/* @__PURE__ */ Zt(n, "options")), { summary: i, loading: a } = jo(r), o = Mo(r), s = No(r), c = Po(r), l = Fo(r);
+		Io(r), Lo(r);
+		let { state: u, search: d } = Ro(r), { saving: f, error: p, ready: m, load: h, refresh: g, mutate: _, roleResources: v, profileRoles: y, loadRoleResources: b, loadProfileRoles: x, userRoleAssignments: S, userProfileAssignments: C, assignmentsForRole: w, assignmentsForProfile: ee, loadUserAssignments: T, loadAssignmentsForRole: te, loadAssignmentsForProfile: E, invalidateRelation: ne } = r;
 		t({ refresh: g });
 		let D = /* @__PURE__ */ V("summary"), O = /* @__PURE__ */ V(null), k = /* @__PURE__ */ V(), A = /* @__PURE__ */ V(), re = /* @__PURE__ */ V(""), j = /* @__PURE__ */ V(""), ie = /* @__PURE__ */ V(""), ae = /* @__PURE__ */ V(), oe = /* @__PURE__ */ V(!1), ce, M = /* @__PURE__ */ V({
 			userId: "",
@@ -4153,7 +4165,7 @@ var Vo = {
 		}
 		function ve() {
 			let e = M.value.userQuery.trim();
-			if (M.value.userId = "", ae.value = void 0, oe.value = !0, ce && clearTimeout(ce), e.length < Uc) {
+			if (M.value.userId = "", ae.value = void 0, oe.value = !0, ce && clearTimeout(ce), e.length < Kc) {
 				d("");
 				return;
 			}
@@ -4162,7 +4174,7 @@ var Vo = {
 		function ye(e) {
 			M.value.userId = e.id, M.value.userQuery = `${e.name} · ${e.email}`, ae.value = e, oe.value = !1;
 		}
-		let be = _a(() => M.value.userQuery.trim().length < Uc ? `Escriba al menos ${Uc} caracteres para buscar.` : u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : oe.value && !u.content.length ? "No hay coincidencias para esta búsqueda." : "Seleccione una persona de los resultados.");
+		let be = _a(() => M.value.userQuery.trim().length < Kc ? `Escriba al menos ${Kc} caracteres para buscar.` : u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : oe.value && !u.content.length ? "No hay coincidencias para esta búsqueda." : "Seleccione una persona de los resultados.");
 		dr(() => {
 			ce && clearTimeout(ce);
 		});
@@ -4255,23 +4267,23 @@ var Vo = {
 				Y("p", { class: "eyebrow" }, "Seguridad · aplicación actual"),
 				Y("h2", null, "Control de acceso"),
 				Y("p", null, "La información y las acciones están acotadas a esta aplicación.")
-			], -1), Y("span", yc, P(H(i)?.application.name ?? e.options.applicationName ?? "Cargando"), 1)]),
-			Y("div", bc, [Y("nav", xc, [(q(), J(K, null, W(le, (e) => Y("button", {
+			], -1), Y("span", Sc, P(H(i)?.application.name ?? e.options.applicationName ?? "Cargando"), 1)]),
+			Y("div", Cc, [Y("nav", wc, [(q(), J(K, null, W(le, (e) => Y("button", {
 				key: e.id,
 				"aria-current": D.value === e.id,
 				onClick: (t) => D.value = e.id
-			}, [Z(P(e.label), 1), e.id === "summary" ? Q("", !0) : (q(), J(K, { key: 0 }, [Z(" · " + P(fe.value[e.id]), 1)], 64))], 8, Sc)), 64))]), Y("main", null, [
-				Y("div", Cc, [Y("div", null, [Y("h3", null, P(ue[D.value]), 1), n[30] ||= Y("p", { class: "sub" }, "Alcance exclusivo de la aplicación abierta.", -1)]), Y("div", wc, [Y("button", {
+			}, [Z(P(e.label), 1), e.id === "summary" ? Q("", !0) : (q(), J(K, { key: 0 }, [Z(" · " + P(fe.value[e.id]), 1)], 64))], 8, Tc)), 64))]), Y("main", null, [
+				Y("div", Ec, [Y("div", null, [Y("h3", null, P(ue[D.value]), 1), n[30] ||= Y("p", { class: "sub" }, "Alcance exclusivo de la aplicación abierta.", -1)]), Y("div", Dc, [Y("button", {
 					class: "quiet",
 					disabled: H(a) || H(f),
 					onClick: n[0] ||= (...e) => H(g) && H(g)(...e)
-				}, " Actualizar", 8, Tc), Y("button", {
+				}, " Actualizar", 8, Oc), Y("button", {
 					class: "primary",
 					disabled: !H(m) || H(f),
 					onClick: n[1] ||= (e) => ge()
-				}, P(pe.value), 9, Ec)])]),
-				H(p) ? (q(), J("p", Dc, P(H(p)), 1)) : Q("", !0),
-				D.value === "summary" ? (q(), zi($o, {
+				}, P(pe.value), 9, kc)])]),
+				H(p) ? (q(), J("p", Ac, P(H(p)), 1)) : Q("", !0),
+				D.value === "summary" ? (q(), zi(es, {
 					key: 1,
 					summary: H(i),
 					loading: H(a),
@@ -4280,7 +4292,7 @@ var Vo = {
 					"summary",
 					"loading",
 					"assignment-count"
-				])) : D.value === "people" ? (q(), zi(vc, {
+				])) : D.value === "people" ? (q(), zi(xc, {
 					key: 2,
 					users: H(u),
 					roles: H(s),
@@ -4320,7 +4332,7 @@ var Vo = {
 					"profile-assignments",
 					"busy",
 					"onSearchUsers"
-				])) : (q(), J(K, { key: 3 }, [D.value === "resources" ? (q(), zi(cs, {
+				])) : (q(), J(K, { key: 3 }, [D.value === "resources" ? (q(), zi(ls, {
 					key: 0,
 					state: H(o),
 					busy: H(f),
@@ -4328,7 +4340,7 @@ var Vo = {
 					onRemove: n[9] ||= (e) => Te(e.id),
 					onPrevious: Me,
 					onNext: je
-				}, null, 8, ["state", "busy"])) : D.value === "roles" ? (q(), zi(_s, {
+				}, null, 8, ["state", "busy"])) : D.value === "roles" ? (q(), zi(bs, {
 					key: 1,
 					state: H(s),
 					busy: H(f),
@@ -4337,7 +4349,7 @@ var Vo = {
 					onRemove: n[12] ||= (e) => I(e.id),
 					onPrevious: Me,
 					onNext: je
-				}, null, 8, ["state", "busy"])) : D.value === "profiles" ? (q(), zi(Es, {
+				}, null, 8, ["state", "busy"])) : D.value === "profiles" ? (q(), zi(ks, {
 					key: 2,
 					state: H(c),
 					busy: H(f),
@@ -4346,7 +4358,7 @@ var Vo = {
 					onRemove: n[15] ||= (e) => Ee(e.id),
 					onPrevious: Me,
 					onNext: je
-				}, null, 8, ["state", "busy"])) : (q(), zi(Ns, {
+				}, null, 8, ["state", "busy"])) : (q(), zi(Is, {
 					key: 3,
 					state: H(l),
 					busy: H(f),
@@ -4359,7 +4371,7 @@ var Vo = {
 				key: 0,
 				class: "backdrop",
 				onClick: yo(_e, ["self"])
-			}, [O.value === "confirm" ? (q(), zi(Ko, {
+			}, [O.value === "confirm" ? (q(), zi(qo, {
 				key: 1,
 				open: !0,
 				message: F.value,
@@ -4379,11 +4391,11 @@ var Vo = {
 						placeholder: "Nombre o correo",
 						autocomplete: "off",
 						"aria-describedby": "user-search-hint",
-						"aria-expanded": oe.value && M.value.userQuery.trim().length >= Uc,
+						"aria-expanded": oe.value && M.value.userQuery.trim().length >= Kc,
 						"aria-controls": "user-search-results",
 						onFocus: n[17] ||= (e) => oe.value = !0,
 						onInput: ve
-					}, null, 40, Oc), [[
+					}, null, 40, jc), [[
 						fo,
 						M.value.userQuery,
 						void 0,
@@ -4393,22 +4405,22 @@ var Vo = {
 						id: "user-search-hint",
 						class: N(["field-hint", { "is-error": H(u).error }])
 					}, P(be.value), 3),
-					oe.value && M.value.userQuery.trim().length >= Uc && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
+					oe.value && M.value.userQuery.trim().length >= Kc && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
 						key: 0,
 						id: "user-search-results",
 						class: "user-result-list",
 						role: "listbox",
 						"aria-label": "Coincidencias de usuario",
 						"aria-busy": H(u).loading
-					}, [H(u).loading ? (q(), J("p", Ac, "Buscando en el directorio…")) : Q("", !0), (q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
+					}, [H(u).loading ? (q(), J("p", Nc, "Buscando en el directorio…")) : Q("", !0), (q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
 						key: e.id,
 						type: "button",
 						class: "user-result",
 						role: "option",
 						"aria-selected": M.value.userId === e.id,
 						onClick: (t) => ye(e)
-					}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, jc))), 128))], 8, kc)) : Q("", !0),
-					ae.value ? (q(), J("div", Mc, [
+					}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, Pc))), 128))], 8, Mc)) : Q("", !0),
+					ae.value ? (q(), J("div", Fc, [
 						n[32] ||= Y("span", null, "Persona seleccionada", -1),
 						Y("strong", null, P(ae.value.name || ae.value.email), 1),
 						Y("small", null, P(ae.value.email), 1)
@@ -4422,7 +4434,7 @@ var Vo = {
 					}, "Seleccione un acceso", -1), (q(!0), J(K, null, W(M.value.accessKind === "role" ? H(s).content : H(c).content, (e) => (q(), J("option", {
 						key: e.id,
 						value: e.id
-					}, P(e.name), 9, Nc))), 128))], 512), [[po, M.value.targetId]])])], 64)) : Q("", !0)
+					}, P(e.name), 9, Ic))), 128))], 512), [[po, M.value.targetId]])])], 64)) : Q("", !0)
 				], 64)) : O.value === "application" ? (q(), J(K, { key: 1 }, [
 					Y("label", null, [n[37] ||= Z("Nombre", -1), jn(Y("input", {
 						"onUpdate:modelValue": n[20] ||= (e) => M.value.name = e,
@@ -4463,7 +4475,7 @@ var Vo = {
 					Y("option", null, "PUT", -1),
 					Y("option", null, "PATCH", -1),
 					Y("option", null, "DELETE", -1)
-				]], 512), [[po, M.value.method]])])], 64)) : O.value === "role" || O.value === "profile" ? (q(), J("label", Pc, [n[43] ||= Z("Nombre", -1), jn(Y("input", {
+				]], 512), [[po, M.value.method]])])], 64)) : O.value === "role" || O.value === "profile" ? (q(), J("label", Lc, [n[43] ||= Z("Nombre", -1), jn(Y("input", {
 					"onUpdate:modelValue": n[25] ||= (e) => M.value.name = e,
 					required: ""
 				}, null, 512), [[
@@ -4480,7 +4492,7 @@ var Vo = {
 				}, "Seleccione una opción", -1), (q(!0), J(K, null, W(O.value === "role-resource" ? H(o).content : H(s).content, (e) => (q(), J("option", {
 					key: e.id,
 					value: e.id
-				}, P("path" in e ? `${e.method} · ${e.path}` : e.name), 9, Fc))), 128))], 512), [[po, M.value.targetId]])]), Y("div", {
+				}, P("path" in e ? `${e.method} · ${e.path}` : e.name), 9, Rc))), 128))], 512), [[po, M.value.targetId]])]), Y("div", {
 					class: "relation-list",
 					"aria-busy": O.value === "role-resource" ? H(v).loading : H(y).loading
 				}, [
@@ -4488,14 +4500,14 @@ var Vo = {
 					(q(!0), J(K, null, W(O.value === "role-resource" ? H(v).content : H(y).content, (e) => (q(), J("div", {
 						key: e.id,
 						class: "row"
-					}, [Y("div", Lc, [Y("strong", null, P("path" in e ? `${e.method} · ${e.path}` : e.name), 1)]), Y("button", {
+					}, [Y("div", Bc, [Y("strong", null, P("path" in e ? `${e.method} · ${e.path}` : e.name), 1)]), Y("button", {
 						class: "quiet danger",
 						type: "button",
 						disabled: H(f),
 						onClick: (t) => O.value === "role-resource" ? Oe(e.id) : ke(e.id)
-					}, " Retirar ", 8, Rc)]))), 128)),
-					(O.value === "role-resource" ? H(v).content : H(y).content).length ? Q("", !0) : (q(), J("p", zc, " No hay relaciones en esta página. ")),
-					X(Xo, {
+					}, " Retirar ", 8, Vc)]))), 128)),
+					(O.value === "role-resource" ? H(v).content : H(y).content).length ? Q("", !0) : (q(), J("p", Hc, " No hay relaciones en esta página. ")),
+					X(Zo, {
 						page: O.value === "role-resource" ? H(v).page : H(y).page,
 						limit: O.value === "role-resource" ? H(v).limit : H(y).limit,
 						total: O.value === "role-resource" ? H(v).total : H(y).total,
@@ -4509,20 +4521,20 @@ var Vo = {
 						"total",
 						"loading"
 					])
-				], 8, Ic)], 64)),
-				Y("div", Bc, [Y("button", {
+				], 8, zc)], 64)),
+				Y("div", Uc, [Y("button", {
 					class: "quiet",
 					type: "button",
 					disabled: H(f),
 					onClick: _e
-				}, " Cancelar", 8, Vc), Y("button", {
+				}, " Cancelar", 8, Wc), Y("button", {
 					class: "primary",
 					disabled: H(f)
-				}, P(H(f) ? "Guardando…" : "Guardar"), 9, Hc)])
+				}, P(H(f) ? "Guardando…" : "Guardar"), 9, Gc)])
 			], 32))])) : Q("", !0)
 		], 4));
 	}
-}), Gc = ":host{all:initial;display:block}*{box-sizing:border-box}.shell{font-family:var(--font);color:#17263c;--line:#dce5df;border:1px solid var(--line);border-radius:var(--radius);background:#fffdfa;overflow:hidden;box-shadow:0 18px 42px #18321b14}header{border-bottom:1px solid var(--line);justify-content:space-between;gap:18px;padding:27px 30px 20px;display:flex}.eyebrow{color:#9a6c32;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;font:700 12px ui-monospace,monospace}h2{letter-spacing:-.03em;margin:0;font:700 28px Georgia,serif}h3{margin:0;font-size:19px}header p:last-child,.sub,small{color:#66776c;font-size:13px}.chip,.pill{color:#287045;background:#edf4ef;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}.chip{height:max-content;color:var(--accent);background:#f2f6fb}.grid{grid-template-columns:190px 1fr;min-height:470px;display:grid}nav{border-right:1px solid var(--line);background:#fafbf8;padding:12px}nav button{text-align:left;color:#486053;cursor:pointer;background:0 0;border:0;border-radius:8px;width:100%;padding:10px;font:600 13px inherit}nav button[aria-current=true]{color:#183c2a;background:#e8f0eb}main{padding:25px 30px}.title,.actions,.row{align-items:center;gap:10px;display:flex}.title{justify-content:space-between;margin-bottom:18px}.actions{flex-wrap:wrap;justify-content:end}button{cursor:pointer}button:disabled{cursor:wait;opacity:.62}.primary,.quiet{border:0;border-radius:8px;padding:9px 12px;font:700 12px inherit}.primary{background:var(--accent);color:#fff}.quiet{color:#29523c;background:#edf3ed}.danger{color:#96332c;background:#fff2f0}.stats{grid-template-columns:repeat(4,1fr);gap:10px;display:grid}.stat,.panel{border:1px solid var(--line);background:#fff;border-radius:10px}.stat{padding:15px}.stat b{color:var(--accent);font:700 25px Georgia,serif;display:block}.panel{margin-top:20px;overflow:hidden}.row{border-bottom:1px solid #edf1ee;padding:13px 15px}.row:last-child{border:0}.grow{flex:1;min-width:0}.grow strong{font-size:13px;display:block}.method{color:#265482;min-width:54px;font:700 11px ui-monospace,monospace}.empty{color:#66776c;text-align:center;padding:25px;font-size:13px}.error{color:#96332c;background:#fff2f0;border-left:3px solid #b7473d;padding:11px;font-size:13px}.backdrop{z-index:1;background:#17263c66;place-items:center;padding:16px;display:grid;position:fixed;inset:0}.dialog{background:#fff;border-radius:14px;width:min(460px,100%);padding:23px;box-shadow:0 25px 70px #0005}label{gap:6px;margin-top:12px;font-size:12px;font-weight:700;display:grid}input,select,textarea{border:1px solid #cad8d0;border-radius:8px;width:100%;padding:10px;font:13px inherit}textarea{resize:vertical;min-height:72px}.bottom{margin-top:20px}.field-hint{color:#66776c;margin:6px 0 0;font-size:12px;line-height:1.35}.field-hint.is-error{color:#96332c}.user-result-list{background:#f8faf7;border:1px solid #cad8d0;border-radius:10px;max-height:216px;margin-top:8px;overflow-y:auto;box-shadow:0 10px 24px #17263c12}.user-result-status{color:#66776c;margin:0;padding:11px 13px;font-size:12px}.user-result{color:#17263c;text-align:left;background:0 0;border:0;border-bottom:1px solid #dce4de;border-radius:0;gap:2px;width:100%;padding:11px 13px;display:grid}.user-result:last-child{border-bottom:0}.user-result:hover,.user-result:focus-visible,.user-result[aria-selected=true]{color:#173d30;background:#e8f0e9;outline:none}.user-result span{font-weight:700}.user-result small,.selected-user small{color:#66776c;font-size:12px}.selected-user{background:#edf4ed;border-left:3px solid #4c8065;border-radius:7px;gap:2px;margin-top:10px;padding:10px 12px;display:grid}.selected-user>span{color:#49705a;letter-spacing:.08em;text-transform:uppercase;font-size:10px;font-weight:800}.selected-user strong{color:#173d30;font-size:13px}.access-workbench{--paper:#fffdfa;--ledger:#f5f1e8;--ink:#17263c;--muted-ink:#68776f;--sage:#dfe9df;--sage-deep:#2d5947;--ochre:#9a6c32;--rule:#dce4de;--inset:#f8faf7;border:1px solid var(--rule);background:var(--paper);border-radius:14px;margin-top:18px;overflow:hidden}.access-heading{border-bottom:1px solid var(--rule);background:#fffefa;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px 18px;display:flex}.access-heading h4,.result-title h5{color:var(--ink);letter-spacing:-.025em;margin:2px 0 4px;font:700 22px Georgia,serif}.access-heading p:last-child{color:var(--muted-ink);margin:0;font-size:13px}.kicker{color:var(--ochre);letter-spacing:.12em;text-transform:uppercase;margin:0;font:700 10px ui-monospace,monospace}.scope-mark,.count-badge,.admin-mark{background:var(--ledger);color:var(--sage-deep);white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}.perspective-tabs{border-bottom:1px solid var(--rule);background:#fbfcf9;grid-template-columns:repeat(3,1fr);gap:0;padding:8px;display:grid}.perspective-tabs button{color:#64736a;text-align:left;background:0 0;border:0;border-radius:9px;min-height:56px;padding:9px 12px;transition:background .16s,color .16s}.perspective-tabs button:hover{color:var(--sage-deep);background:#eff4ee}.perspective-tabs button.active{color:var(--ink);background:var(--paper);box-shadow:0 1px 3px #20352414,inset 0 0 0 1px #d4dfd6}.perspective-tabs strong,.perspective-tabs small{display:block}.perspective-tabs strong{font-size:13px}.perspective-tabs small{color:inherit;opacity:.72;margin-top:3px;font-size:11px;font-weight:500}.access-layout{grid-template-columns:minmax(220px,.8fr) minmax(0,1.7fr);min-height:390px;display:grid}.access-query{border-right:1px solid var(--rule);background:#fafbf8;padding:20px}.access-query label,.query-label{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:700;display:block}.query-help{color:var(--muted-ink);margin:8px 0 14px;font-size:12px;line-height:1.45}.search-field{background:#f1f5f0;border:1px solid #c9d8ce;border-radius:9px;align-items:center;gap:8px;padding:0 10px;transition:border-color .16s,box-shadow .16s;display:flex}.search-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)}.search-field span{color:var(--sage-deep);font-size:20px;line-height:1}.search-field input{background:0 0;border:0;border-radius:0;outline:0;padding:11px 0}.choices,.option-grid{gap:6px;display:grid}.choice,.option-grid button{color:var(--ink);text-align:left;background:0 0;border:1px solid #0000;border-radius:9px;padding:9px}.choice{align-items:center;gap:9px;display:flex}.choice:hover,.option-grid button:hover{background:#edf3ed}.choice.selected,.option-grid button.selected{background:var(--sage);color:#183c2a;border-color:#b8d0be}.choice strong,.choice small{display:block}.choice small{text-overflow:ellipsis;white-space:nowrap;margin-top:2px;overflow:hidden}.option-grid button{font-size:12px;font-weight:700}.access-results{background:var(--paper);min-width:0;padding:20px 24px}.empty-state{text-align:center;min-height:300px;color:var(--muted-ink);place-content:center;display:grid}.empty-state span{width:38px;height:38px;color:var(--ochre);background:var(--ledger);border-radius:50%;place-items:center;margin:0 auto 10px;font-size:23px;display:grid}.empty-state strong{color:var(--ink);font-size:14px}.empty-state p{max-width:260px;margin:6px 0 0;font-size:12px;line-height:1.5}.identity-strip,.result-title{border-bottom:1px solid var(--rule);align-items:center;gap:10px;padding-bottom:16px;display:flex}.identity-strip>div{flex:1;min-width:0}.identity-strip strong,.identity-strip small{display:block}.identity-strip small{margin-top:2px}.admin-mark{background:#eff5ef}.avatar{color:#315745;text-transform:uppercase;background:#e0ebe1;border-radius:50%;flex:0 0 28px;place-items:center;width:28px;height:28px;font-size:11px;font-weight:800;display:grid}.avatar.large{background:#dce8df;flex-basis:38px;width:38px;height:38px;font-size:15px}.access-group{border:1px solid #e5ebe5;border-radius:10px;margin-top:18px;overflow:hidden}.group-title{color:#506258;background:#f7f9f6;justify-content:space-between;align-items:center;padding:9px 12px;font-size:12px;font-weight:700;display:flex}.group-title b{min-width:20px;color:var(--sage-deep);background:var(--sage);text-align:center;border-radius:99px;padding:1px 6px;font-size:11px}.access-row{border-top:1px solid #edf1ed;align-items:center;gap:10px;min-height:58px;padding:11px 12px;display:flex}.access-row>div{flex:1;min-width:0}.access-row strong,.access-row small{display:block}.access-row strong{color:var(--ink);font-size:13px}.access-row small{margin-top:3px}.person-row{padding-left:0;padding-right:0}.person-row>div{flex:1}.access-meta{color:#718078!important}.result-title{justify-content:space-between}.result-title h5{font-size:20px}.count-badge{text-align:center;background:#eef3ee;min-width:28px}.compact{text-align:left;padding:14px 12px}@media (width<=700px){header{padding:20px;display:block}.chip{margin-top:14px;display:inline-block}.grid{grid-template-columns:1fr}nav{border-right:0;border-bottom:1px solid var(--line);display:flex;overflow:auto}nav button{min-width:max-content}main{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}.access-heading{padding:18px}.access-heading h4{font-size:20px}.access-layout{grid-template-columns:1fr}.access-query{border-right:0;border-bottom:1px solid var(--rule)}.access-results{padding:18px}.perspective-tabs{grid-template-columns:repeat(3,minmax(122px,1fr));overflow-x:auto}.scope-mark,.admin-mark{display:none}}", Kc = "uco-security-administration", qc = class extends HTMLElement {
+}), Jc = ":host{all:initial;display:block}*{box-sizing:border-box}.shell{font-family:var(--font);color:#17263c;--line:#dce5df;border:1px solid var(--line);border-radius:var(--radius);background:#fffdfa;overflow:hidden;box-shadow:0 18px 42px #18321b14}header{border-bottom:1px solid var(--line);justify-content:space-between;gap:18px;padding:27px 30px 20px;display:flex}.eyebrow{color:#9a6c32;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;font:700 12px ui-monospace,monospace}h2{letter-spacing:-.03em;margin:0;font:700 28px Georgia,serif}h3{margin:0;font-size:19px}header p:last-child,.sub,small{color:#66776c;font-size:13px}.chip,.pill{color:#287045;background:#edf4ef;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}.chip{height:max-content;color:var(--accent);background:#f2f6fb}.grid{grid-template-columns:190px 1fr;min-height:470px;display:grid}nav{border-right:1px solid var(--line);background:#fafbf8;padding:12px}nav button{text-align:left;color:#486053;cursor:pointer;background:0 0;border:0;border-radius:8px;width:100%;padding:10px;font:600 13px inherit}nav button[aria-current=true]{color:#183c2a;background:#e8f0eb}main{padding:25px 30px}.title,.actions,.row{align-items:center;gap:10px;display:flex}.title{justify-content:space-between;margin-bottom:18px}.actions{flex-wrap:wrap;justify-content:end}button{cursor:pointer}button:disabled{cursor:wait;opacity:.62}.primary,.quiet{border:0;border-radius:8px;padding:9px 12px;font:700 12px inherit}.primary{background:var(--accent);color:#fff}.quiet{color:#29523c;background:#edf3ed}.danger{color:#96332c;background:#fff2f0}.stats{grid-template-columns:repeat(4,1fr);gap:10px;display:grid}.stat,.panel{border:1px solid var(--line);background:#fff;border-radius:10px}.stat{padding:15px}.stat b{color:var(--accent);font:700 25px Georgia,serif;display:block}.panel{margin-top:20px;overflow:hidden}.row{border-bottom:1px solid #edf1ee;padding:13px 15px}.row:last-child{border:0}.grow{flex:1;min-width:0}.grow strong{font-size:13px;display:block}.method{color:#265482;min-width:54px;font:700 11px ui-monospace,monospace}.empty{color:#66776c;text-align:center;padding:25px;font-size:13px}.error{color:#96332c;background:#fff2f0;border-left:3px solid #b7473d;padding:11px;font-size:13px}.backdrop{z-index:1;background:#17263c66;place-items:center;padding:16px;display:grid;position:fixed;inset:0}.dialog{background:#fff;border-radius:14px;width:min(460px,100%);padding:23px;box-shadow:0 25px 70px #0005}label{gap:6px;margin-top:12px;font-size:12px;font-weight:700;display:grid}input,select,textarea{border:1px solid #cad8d0;border-radius:8px;width:100%;padding:10px;font:13px inherit}textarea{resize:vertical;min-height:72px}.bottom{margin-top:20px}.field-hint{color:#66776c;margin:6px 0 0;font-size:12px;line-height:1.35}.field-hint.is-error{color:#96332c}.user-result-list{background:#f8faf7;border:1px solid #cad8d0;border-radius:10px;max-height:216px;margin-top:8px;overflow-y:auto;box-shadow:0 10px 24px #17263c12}.user-result-status{color:#66776c;margin:0;padding:11px 13px;font-size:12px}.user-result{color:#17263c;text-align:left;background:0 0;border:0;border-bottom:1px solid #dce4de;border-radius:0;gap:2px;width:100%;padding:11px 13px;display:grid}.user-result:last-child{border-bottom:0}.user-result:hover,.user-result:focus-visible,.user-result[aria-selected=true]{color:#173d30;background:#e8f0e9;outline:none}.user-result span{font-weight:700}.user-result small,.selected-user small{color:#66776c;font-size:12px}.selected-user{background:#edf4ed;border-left:3px solid #4c8065;border-radius:7px;gap:2px;margin-top:10px;padding:10px 12px;display:grid}.selected-user>span{color:#49705a;letter-spacing:.08em;text-transform:uppercase;font-size:10px;font-weight:800}.selected-user strong{color:#173d30;font-size:13px}.access-workbench{--paper:#fffdfa;--ledger:#f5f1e8;--ink:#17263c;--muted-ink:#68776f;--sage:#dfe9df;--sage-deep:#2d5947;--ochre:#9a6c32;--rule:#dce4de;--inset:#f8faf7;border:1px solid var(--rule);background:var(--paper);border-radius:14px;margin-top:18px;overflow:hidden}.access-heading{border-bottom:1px solid var(--rule);background:#fffefa;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px 18px;display:flex}.access-heading h4,.result-title h5{color:var(--ink);letter-spacing:-.025em;margin:2px 0 4px;font:700 22px Georgia,serif}.access-heading p:last-child{color:var(--muted-ink);margin:0;font-size:13px}.kicker{color:var(--ochre);letter-spacing:.12em;text-transform:uppercase;margin:0;font:700 10px ui-monospace,monospace}.scope-mark,.count-badge,.admin-mark{background:var(--ledger);color:var(--sage-deep);white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}.perspective-tabs{border-bottom:1px solid var(--rule);background:#fbfcf9;grid-template-columns:repeat(3,1fr);gap:0;padding:8px;display:grid}.perspective-tabs button{color:#64736a;text-align:left;background:0 0;border:0;border-radius:9px;min-height:56px;padding:9px 12px;transition:background .16s,color .16s}.perspective-tabs button:hover{color:var(--sage-deep);background:#eff4ee}.perspective-tabs button.active{color:var(--ink);background:var(--paper);box-shadow:0 1px 3px #20352414,inset 0 0 0 1px #d4dfd6}.perspective-tabs strong,.perspective-tabs small{display:block}.perspective-tabs strong{font-size:13px}.perspective-tabs small{color:inherit;opacity:.72;margin-top:3px;font-size:11px;font-weight:500}.access-layout{grid-template-columns:minmax(220px,.8fr) minmax(0,1.7fr);min-height:390px;display:grid}.access-query{border-right:1px solid var(--rule);background:#fafbf8;padding:20px}.access-query label,.query-label{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:700;display:block}.query-help{color:var(--muted-ink);margin:8px 0 14px;font-size:12px;line-height:1.45}.search-field{background:#f1f5f0;border:1px solid #c9d8ce;border-radius:9px;align-items:center;gap:8px;padding:0 10px;transition:border-color .16s,box-shadow .16s;display:flex}.search-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)}.search-field span{color:var(--sage-deep);font-size:20px;line-height:1}.search-field input{background:0 0;border:0;border-radius:0;outline:0;padding:11px 0}.choices,.option-grid{gap:6px;display:grid}.choice,.option-grid button{color:var(--ink);text-align:left;background:0 0;border:1px solid #0000;border-radius:9px;padding:9px}.choice{align-items:center;gap:9px;display:flex}.choice:hover,.option-grid button:hover{background:#edf3ed}.choice.selected,.option-grid button.selected{background:var(--sage);color:#183c2a;border-color:#b8d0be}.choice strong,.choice small{display:block}.choice small{text-overflow:ellipsis;white-space:nowrap;margin-top:2px;overflow:hidden}.option-grid button{font-size:12px;font-weight:700}.access-results{background:var(--paper);min-width:0;padding:20px 24px}.empty-state{text-align:center;min-height:300px;color:var(--muted-ink);place-content:center;display:grid}.empty-state span{width:38px;height:38px;color:var(--ochre);background:var(--ledger);border-radius:50%;place-items:center;margin:0 auto 10px;font-size:23px;display:grid}.empty-state strong{color:var(--ink);font-size:14px}.empty-state p{max-width:260px;margin:6px 0 0;font-size:12px;line-height:1.5}.identity-strip,.result-title{border-bottom:1px solid var(--rule);align-items:center;gap:10px;padding-bottom:16px;display:flex}.identity-strip>div{flex:1;min-width:0}.identity-strip strong,.identity-strip small{display:block}.identity-strip small{margin-top:2px}.admin-mark{background:#eff5ef}.avatar{color:#315745;text-transform:uppercase;background:#e0ebe1;border-radius:50%;flex:0 0 28px;place-items:center;width:28px;height:28px;font-size:11px;font-weight:800;display:grid}.avatar.large{background:#dce8df;flex-basis:38px;width:38px;height:38px;font-size:15px}.access-group{border:1px solid #e5ebe5;border-radius:10px;margin-top:18px;overflow:hidden}.group-title{color:#506258;background:#f7f9f6;justify-content:space-between;align-items:center;padding:9px 12px;font-size:12px;font-weight:700;display:flex}.group-title b{min-width:20px;color:var(--sage-deep);background:var(--sage);text-align:center;border-radius:99px;padding:1px 6px;font-size:11px}.access-row{border-top:1px solid #edf1ed;align-items:center;gap:10px;min-height:58px;padding:11px 12px;display:flex}.access-row>div{flex:1;min-width:0}.access-row strong,.access-row small{display:block}.access-row strong{color:var(--ink);font-size:13px}.access-row small{margin-top:3px}.person-row{padding-left:0;padding-right:0}.person-row>div{flex:1}.access-meta{color:#718078!important}.result-title{justify-content:space-between}.result-title h5{font-size:20px}.count-badge{text-align:center;background:#eef3ee;min-width:28px}.compact{text-align:left;padding:14px 12px}@media (width<=700px){header{padding:20px;display:block}.chip{margin-top:14px;display:inline-block}.grid{grid-template-columns:1fr}nav{border-right:0;border-bottom:1px solid var(--line);display:flex;overflow:auto}nav button{min-width:max-content}main{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}.access-heading{padding:18px}.access-heading h4{font-size:20px}.access-layout{grid-template-columns:1fr}.access-query{border-right:0;border-bottom:1px solid var(--rule)}.access-results{padding:18px}.perspective-tabs{grid-template-columns:repeat(3,minmax(122px,1fr));overflow-x:auto}.scope-mark,.admin-mark{display:none}}", Yc = "uco-security-administration", Xc = class extends HTMLElement {
 	root = this.attachShadow({ mode: "open" });
 	options = /* @__PURE__ */ Wt();
 	app;
@@ -4547,9 +4559,9 @@ var Vo = {
 	start() {
 		if (this.app || !this.options.value) return;
 		let e = document.createElement("style");
-		e.textContent = Gc;
+		e.textContent = Jc;
 		let t = document.createElement("div");
-		this.root.replaceChildren(e, t), this.app = Co({ setup: () => () => va(Wc, {
+		this.root.replaceChildren(e, t), this.app = Co({ setup: () => () => va(qc, {
 			options: this.options.value,
 			ref: (e) => {
 				this.component = e;
@@ -4557,9 +4569,9 @@ var Vo = {
 		}) }), this.app.mount(t);
 	}
 };
-function Jc(e, t) {
+function Zc(e, t) {
 	if (!(e instanceof HTMLElement)) throw TypeError("El contenedor debe ser un HTMLElement.");
-	let n = new qc();
+	let n = new Xc();
 	return n.configure(t), e.replaceChildren(n), {
 		element: n,
 		refresh: () => n.refresh(),
@@ -4568,6 +4580,6 @@ function Jc(e, t) {
 		}
 	};
 }
-customElements.get(Kc) || customElements.define(Kc, qc);
+customElements.get(Yc) || customElements.define(Yc, Xc);
 //#endregion
-export { qc as SecurityAdministrationElement, Jc as mount };
+export { Xc as SecurityAdministrationElement, Zc as mount };

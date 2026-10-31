@@ -28,6 +28,25 @@ describe("useSecurityAdministration", () => {
     expect(urls.filter((url) => url.includes("/security/resources?page=0"))).toHaveLength(1);
     scope.stop();
   });
+  it("refetches a role's assignments after an assignment changes, instead of serving the stale cached page", async () => {
+    let calls = 0;
+    const fetch = vi.fn(async (url: string) => {
+      if (url.endsWith("/summary")) return envelope({ application: { id: "app", name: "Notas" }, counts: { resources: 0, roles: 1, profiles: 0, administrators: 1, roleAssignments: 0, profileAssignments: 0 } });
+      if (url.includes("/roles/r1/assignments")) { calls++; return envelope(page([], 0, 0)); }
+      return envelope(page([], 0, 0));
+    });
+    vi.stubGlobal("fetch", fetch);
+    const scope = effectScope();
+    const store = scope.run(() => useSecurityAdministration(ref({ applicationId: "app", apiBaseUrl: "https://pdp.test" })))!;
+    await store.loadSummary();
+    await store.loadAssignmentsForRole("r1", 0);
+    await store.loadAssignmentsForRole("r1", 0);
+    expect(calls).toBe(1);
+    await store.mutate(async () => undefined, ["roleAssignments", "summary"], "assignment:new");
+    await store.loadAssignmentsForRole("r1", 0);
+    expect(calls).toBe(2);
+    scope.stop();
+  });
   it("ignores an obsolete page response after fast pagination", async () => {
     let resolveFirst: ((value: Response) => void) | undefined;
     const fetch = vi.fn((url: string) => {
