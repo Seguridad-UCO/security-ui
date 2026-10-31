@@ -11,8 +11,13 @@ defineEmits<{ cancel: []; confirm: [] }>();
       aria-modal="true"
       aria-labelledby="confirm-title"
     >
-      <h3 id="confirm-title">Confirmar acción destructiva</h3>
-      <p class="sub">{{ message }}</p>
+      <div class="dialog-head">
+        <p class="eyebrow">Acción irreversible</p>
+        <h3 id="confirm-title">Confirmar acción destructiva</h3>
+      </div>
+      <div class="dialog-body">
+        <p class="sub">{{ message }}</p>
+      </div>
       <div class="actions bottom">
         <button class="quiet" :disabled="busy" @click="$emit('cancel')">
           Cancelar

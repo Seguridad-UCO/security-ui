@@ -9,6 +9,12 @@ export type SecurityUiOptions = {
   applicationName?: string;
   apiBaseUrl: string;
   theme?: SecurityUiTheme;
+  /**
+   * Carga IBM Plex Sans/Mono (la tipografía de la consola de seguridad) desde Google Fonts, una sola vez por página.
+   * Por defecto `true`. Ponlo en `false` si tu página ya las carga o tu política de contenido no permite ese origen: el
+   * panel usa una fuente de sistema equivalente.
+   */
+  loadFonts?: boolean;
   /** Enables PATCH application metadata; deletion is never rendered. */ allowApplicationLifecycleManagement?: boolean;
   /**
    * Canal bearer (ADR-031). Devuelve un access token vigente con audiencia del PDP; se invoca antes de cada

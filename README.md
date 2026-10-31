@@ -44,6 +44,10 @@ mount(document.querySelector("#security")!, {
 });
 ```
 
+### Apariencia
+
+El panel usa el mismo sistema de diseño que la consola de seguridad (verde institucional, IBM Plex Sans/Mono, botones, tablas y diálogos equivalentes). Para que la tipografía coincida, el componente agrega **una sola vez** la hoja de Google Fonts de IBM Plex al `<head>`; si tu página ya la carga o tu política de contenido no permite ese origen, pasa `loadFonts: false` (se usa una fuente de sistema parecida). `theme: { accent, fontFamily, radius }` sigue permitiendo ajustar el acento, la fuente y el radio.
+
 ### Aviso de sesión por vencer (opcional)
 
 Solo aplica al canal Bearer. El componente lee el `exp` de cada token que el host le entrega con `getAccessToken` (solo lo

@@ -124,6 +124,14 @@ const titles: Record<Tab, string> = {
   resources: "Recursos protegidos",
   admins: "Administradores",
 };
+const subtitles: Record<Tab, string> = {
+  summary: "Un vistazo a cómo está protegida esta aplicación.",
+  people: "Quién tiene acceso y por cuál rol o perfil. Asigna o revoca desde aquí.",
+  roles: "Un rol agrupa los recursos (rutas) que puede usar quien lo recibe.",
+  profiles: "Un perfil agrupa varios roles para asignarlos de una vez.",
+  resources: "Rutas y métodos HTTP que la aplicación pone bajo el control de la plataforma.",
+  admins: "Personas que pueden administrar la seguridad de esta aplicación.",
+};
 const actions: Record<Tab, string> = {
   summary: "Configurar accesos",
   people: "Asignar acceso",
@@ -154,9 +162,9 @@ const state = computed<PaginatedState<any> | undefined>(
     ],
 );
 const theme = computed(() => ({
-  "--accent": props.options.theme?.accent ?? "#295181",
-  "--font": props.options.theme?.fontFamily ?? "Inter, system-ui, sans-serif",
-  "--radius": props.options.theme?.radius ?? "14px",
+  "--accent": props.options.theme?.accent ?? "#018b51",
+  "--font": props.options.theme?.fontFamily ?? "'IBM Plex Sans', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+  "--radius": props.options.theme?.radius ?? "12px",
 }));
 watch(
   activeTab,
@@ -541,17 +549,15 @@ function date(value: string) {
           :aria-current="activeTab === tab.id"
           @click="activeTab = tab.id"
         >
-          {{ tab.label
-          }}<template v-if="tab.id !== 'summary'">
-            · {{ counts[tab.id] }}</template
-          >
+          <span>{{ tab.label }}</span
+          ><span v-if="tab.id !== 'summary'" class="nav-count">{{ counts[tab.id] }}</span>
         </button>
       </nav>
       <main>
         <div class="title">
           <div>
             <h3>{{ titles[activeTab] }}</h3>
-            <p class="sub">Alcance exclusivo de la aplicación abierta.</p>
+            <p class="sub">{{ subtitles[activeTab] }}</p>
           </div>
           <div class="actions">
             <button
@@ -595,16 +601,20 @@ function date(value: string) {
     </div>
     <div v-if="dialog" class="backdrop" @click.self="close">
       <form v-if="dialog !== 'confirm'" class="dialog" @submit.prevent="submit">
-        <h3>
-          {{
-            dialog === "role-resource"
-              ? "Administrar recursos del rol"
-              : dialog === "profile-role"
-                ? "Administrar roles del perfil"
-                : actions[activeTab]
-          }}
-        </h3>
-        <p class="sub">La acción se aplica solo a esta aplicación.</p>
+        <div class="dialog-head">
+          <p class="eyebrow">Esta aplicación</p>
+          <h3>
+            {{
+              dialog === "role-resource"
+                ? "Administrar recursos del rol"
+                : dialog === "profile-role"
+                  ? "Administrar roles del perfil"
+                  : actions[activeTab]
+            }}
+          </h3>
+          <p class="sub">La acción se aplica solo a esta aplicación.</p>
+        </div>
+        <div class="dialog-body">
         <template v-if="dialog === 'admin' || dialog === 'access'">
           <label
             >Buscar usuario<input
@@ -766,6 +776,7 @@ function date(value: string) {
               @next="relationPage(1)"
             />
           </div></template
+        ></div
         ><div class="actions bottom">
           <button class="quiet" type="button" :disabled="saving" @click="close">
             Cancelar</button
