@@ -26,36 +26,30 @@ describe("SecurityApi", () => {
     expect(init.headers.get("X-XSRF-TOKEN")).toBe("csrf value");
     expect(init.body).toBe('{"path":"/notes","method":"PATCH"}');
   });
-  it("replaces PDP messages that carry internal identifiers with a readable one", async () => {
+  it("shows the name of what each identifier in a server message refers to, and omits unknown ones", async () => {
     browser();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            code: "ASSIGNMENT_ALREADY_ACTIVE",
-            detail: "El usuario 54cc7a8f ya tiene una asignación activa del rol 5141683b",
-          }),
-          { status: 409 },
-        ),
-      ),
-    );
-    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    const user = "54cc7a8f-419f-4bce-8053-7867000ab1d3", role = "5141683b-3c07-4b62-9cd4-11b8b5f1f4ab";
+    const unknown = "11111111-2222-4333-8444-555555555555";
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { content: [{ id: user, name: "Ana Pérez", email: "ana@example.test" }, { id: role, name: "Editor" }] } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ code: "ASSIGNMENT_ALREADY_ACTIVE", detail: `El usuario ${user} ya tiene una asignación activa del rol ${role} en la aplicación ${unknown}` }), { status: 409 }));
+    vi.stubGlobal("fetch", fetch);
+    const api = new SecurityApi(options);
+    await api.searchUsers("app", "ana", { page: 0, size: 20 });
+    const failure = await api.deleteRole("role").catch((cause: ApiError) => cause);
     expect(failure).toMatchObject({ status: 409, code: "ASSIGNMENT_ALREADY_ACTIVE" });
-    expect((failure as ApiError).message).toBe("Esta persona ya tiene ese rol vigente en la aplicación.");
-    expect((failure as ApiError).message).not.toMatch(/54cc7a8f|5141683b/);
+    expect((failure as ApiError).message).toBe("El usuario Ana Pérez ya tiene una asignación activa del rol Editor en la aplicación");
   });
-  it("strips UUIDs from any other server message", async () => {
+  it("explains the protected ADMIN role without identifiers", async () => {
     browser();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({ code: "ROLE_NOT_FOUND", detail: "No existe el rol 5141683b-3c07-4b62-9cd4-11b8b5f1f4ab para este inquilino" }),
-          { status: 404 },
-        ),
-      ),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "PROTECTED_ROLE", detail: "No se puede modificar el rol protegido ADMIN 5141683b-3c07-4b62-9cd4-11b8b5f1f4ab" }), { status: 409 })));
+    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    expect((failure as ApiError).message).toBe("El rol ADMIN administra la aplicación y no se puede modificar ni eliminar.");
+  });
+  it("omits identifiers of entities it has never seen", async () => {
+    browser();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "ROLE_NOT_FOUND", detail: "No existe el rol 5141683b-3c07-4b62-9cd4-aaaaaaaaaaaa para este inquilino" }), { status: 404 })));
     const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
     expect((failure as ApiError).message).toBe("No existe el rol para este inquilino");
   });
