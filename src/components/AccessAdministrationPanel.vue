@@ -10,7 +10,7 @@ const props = defineProps<{
   personRoleAssignments: PaginatedState<RoleAssignment>; personProfileAssignments: PaginatedState<ProfileAssignment>; roleAssignments: PaginatedState<RoleAssignment>; profileAssignments: PaginatedState<ProfileAssignment>; busy?: boolean;
 }>();
 const emit = defineEmits<{
-  searchUsers: [query: string, page?: number]; selectPerson: [user: User]; selectRole: [role: Role]; selectProfile: [profile: Profile];
+  searchUsers: [query: string, page?: number, append?: boolean]; selectPerson: [user: User]; selectRole: [role: Role]; selectProfile: [profile: Profile];
   personPage: [direction: -1 | 1]; rolePage: [direction: -1 | 1]; profilePage: [direction: -1 | 1]; revoke: [item: Assignment];
 }>();
 const view = ref<View>("person"), query = ref(""), selectedPerson = ref<User>(), selectedRole = ref<Role>(), selectedProfile = ref<Profile>();
@@ -20,7 +20,12 @@ watch(query, value => { if (searchTimer) clearTimeout(searchTimer); searchTimer 
 watch(view, value => { if (value === "person" && !props.users.loaded) emit("searchUsers", query.value); });
 onMounted(() => emit("searchUsers", query.value));
 onBeforeUnmount(() => { if (searchTimer) clearTimeout(searchTimer); });
-function userPage(direction: -1 | 1) { emit("searchUsers", query.value, props.users.page + direction); }
+// Desplazamiento infinito: al llegar al final de la lista se agrega la página siguiente.
+function onPeopleScroll(event: Event) {
+  const list = event.target as HTMLElement;
+  if (list.scrollHeight - list.scrollTop - list.clientHeight < 32 && !props.users.loading && props.users.content.length < props.users.total)
+    emit("searchUsers", query.value, props.users.page + 1, true);
+}
 const current = computed<PaginatedState<Assignment>>(() => view.value === "role" ? props.roleAssignments : props.profileAssignments);
 function choosePerson(user: User) { selectedPerson.value = user; emit("selectPerson", user); }
 function chooseRole(role: Role) { selectedRole.value = role; emit("selectRole", role); }
@@ -46,10 +51,10 @@ function page(direction: -1 | 1) { if (view.value === "person") emit("personPage
           <label for="person-search">Buscar una persona</label>
           <div class="search-field"><span aria-hidden="true">⌕</span><input id="person-search" v-model.trim="query" autocomplete="off" placeholder="Nombre o correo" /></div>
           <p class="query-help">Personas del tenant actual, en orden alfabético. Escribe para filtrar por nombre o correo.</p>
-          <div class="choices" aria-label="Resultados de personas">
+          <div class="choices" aria-label="Resultados de personas" @scroll.passive="onPeopleScroll">
             <button v-for="user in users.content" :key="user.id" type="button" class="choice" :class="{ selected: selectedPerson?.id === user.id }" @click="choosePerson(user)"><span class="avatar">{{ user.name.slice(0, 1) }}</span><span><strong>{{ user.name }}</strong><small>{{ user.email }}</small></span></button>
             <p v-if="users.loaded && !users.content.length" class="empty compact">No se encontraron personas.</p>
-            <PaginationControls :page="users.page" :limit="users.limit" :total="users.total" :loading="users.loading" label="Paginación de personas" @previous="userPage(-1)" @next="userPage(1)" />
+            <p v-if="users.content.length" class="empty compact people-count">{{ users.loading ? "Cargando más personas…" : users.content.length < users.total ? `Mostrando ${users.content.length} de ${users.total} · desliza para ver más` : `${users.total} ${users.total === 1 ? "persona" : "personas"}` }}</p>
           </div>
         </template>
         <template v-else-if="view === 'role'">

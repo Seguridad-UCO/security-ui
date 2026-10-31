@@ -168,7 +168,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       if (state.abortController === controller) state.loading = false;
     }
   }
-  async function searchUsers(query: string, page = 0) {
+  async function searchUsers(query: string, page = 0, append = false) {
     // Una búsqueda vacía lista a las personas del tenant en orden alfabético (el PDP ordena por nombre y pagina).
     if (!applicationId.value) return;
     users.abortController?.abort();
@@ -184,7 +184,14 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
         controller.signal,
       );
       if (users.abortController !== controller) return;
-      apply(users, response);
+      // append: desplazamiento infinito, se agregan las personas de la página siguiente a las ya mostradas.
+      if (append) {
+        users.content = [...users.content, ...response.content];
+        users.total = response.total;
+        users.page = response.page;
+        users.limit = response.limit;
+        users.loaded = true;
+      } else apply(users, response);
     } catch (cause) {
       if (!aborted(cause)) users.error = message(cause);
     } finally {

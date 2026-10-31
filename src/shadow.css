@@ -482,7 +482,8 @@ textarea {
 
 /* Búsqueda de personas dentro de los diálogos */
 .user-result-list {
-  max-height: 216px;
+  max-height: min(240px, 38vh);
+  overscroll-behavior: contain;
   margin-top: 8px;
   overflow-y: auto;
   border: 1px solid var(--line);
@@ -495,6 +496,13 @@ textarea {
   padding: 11px 13px;
   color: var(--text);
   font-size: 12px;
+}
+.user-result-count {
+  position: sticky;
+  bottom: 0;
+  border-top: 1px solid var(--soft-line);
+  background: var(--field);
+  font-size: 11px;
 }
 .user-result {
   display: grid;
@@ -688,6 +696,20 @@ textarea {
 .option-grid {
   display: grid;
   gap: 4px;
+}
+.choices {
+  max-height: min(380px, 50vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  align-content: start;
+}
+.people-count {
+  position: sticky;
+  bottom: 0;
+  padding: 8px 4px;
+  background: #fafbfa;
+  font-size: 11px;
+  text-align: center;
 }
 .choice,
 .option-grid button {
@@ -922,5 +944,97 @@ textarea {
   .scope-mark,
   .admin-mark {
     display: none;
+  }
+}
+
+/* Pantallas pequeñas: filas que envuelven, diálogos a casi todo el ancho y listas que no desbordan */
+@media (max-width: 560px) {
+  .shell {
+    border-radius: min(var(--radius), 10px);
+  }
+  header {
+    padding: 16px;
+  }
+  h2 {
+    font-size: 23px;
+  }
+  main {
+    padding: 16px;
+  }
+  .title {
+    gap: 12px;
+  }
+  .actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .actions .primary,
+  .actions .quiet {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .row {
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+  .row .grow {
+    flex-basis: calc(100% - 70px);
+  }
+  .stats {
+    gap: 8px;
+  }
+  .stat {
+    padding: 12px;
+  }
+  .stat b {
+    font-size: 22px;
+  }
+  .backdrop {
+    padding: 10px;
+    align-items: end;
+  }
+  .dialog {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+  }
+  .dialog-head {
+    padding: 18px 18px 12px;
+  }
+  .dialog-head h3 {
+    font-size: 19px;
+  }
+  .dialog-body {
+    padding: 14px 18px 18px;
+  }
+  .actions.bottom,
+  .dialog-foot {
+    padding: 12px 18px;
+  }
+  .actions.bottom .primary,
+  .actions.bottom .quiet {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+  .access-query,
+  .access-results {
+    padding: 14px;
+  }
+  .access-heading {
+    padding: 14px;
+  }
+  .access-layout {
+    min-height: 0;
+  }
+  .empty-state {
+    min-height: 180px;
+  }
+  .identity-strip {
+    flex-wrap: wrap;
+  }
+  .access-row {
+    flex-wrap: wrap;
+  }
+  .pager {
+    justify-content: space-between;
   }
 }

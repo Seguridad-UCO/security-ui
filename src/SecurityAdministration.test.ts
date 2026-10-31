@@ -50,7 +50,10 @@ describe("SecurityAdministration", () => {
     await wrapper.get("button.primary").trigger("click");
     await flushPromises();
 
-    // Sin escribir nada ya hay una lista (el servidor la entrega ordenada por nombre).
+    // La primera página se precarga, pero la lista solo se despliega al hacer clic en el campo.
+    expect(wrapper.findAll(".user-result")).toHaveLength(0);
+    await wrapper.get('input[placeholder="Nombre o correo"]').trigger("click");
+    await flushPromises();
     expect(wrapper.findAll(".user-result").map((item) => item.text())).toEqual([expect.stringContaining("Aldo Ruiz"), expect.stringContaining("Ana Gómez")]);
     expect(wrapper.text()).toContain("Escriba para filtrar");
 

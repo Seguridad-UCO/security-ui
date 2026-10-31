@@ -234,8 +234,9 @@ function open(kind?: Dialog, entity?: Selected) {
   }
   if (dialog.value === "admin" || dialog.value === "access") {
     // Al abrir se muestran las personas del tenant en orden alfabético; escribir filtra desde la primera letra.
+    // Se precarga la primera página; la lista se despliega al hacer clic en el campo.
     lastUserQuery = "";
-    userPickerOpen.value = true;
+    userPickerOpen.value = false;
     void searchUsers("");
   }
   if (dialog.value === "access" || dialog.value === "profile-role")
@@ -262,8 +263,14 @@ function queueUserSearch() {
   lastUserQuery = query;
   userSearchTimer = setTimeout(() => void searchUsers(query), USER_SEARCH_DELAY_MS);
 }
-function userPage(direction: -1 | 1) {
-  void searchUsers(lastUserQuery, users.page + direction);
+function moreUsers() {
+  if (users.loading || users.content.length >= users.total) return;
+  void searchUsers(lastUserQuery, users.page + 1, true);
+}
+// Desplazamiento infinito: al acercarse al final de la lista se pide la página siguiente.
+function onUserListScroll(event: Event) {
+  const list = event.target as HTMLElement;
+  if (list.scrollHeight - list.scrollTop - list.clientHeight < 32) moreUsers();
 }
 function selectUser(user: User) {
   form.value.userId = user.id;
@@ -589,7 +596,7 @@ function date(value: string) {
         <SecuritySummaryPanel v-if="activeTab === 'summary'" :summary="summary" :loading="summaryLoading" :assignment-count="counts.people" />
         <template v-else-if="activeTab === 'people'">
           <AccessAdministrationPanel :users="users" :roles="roles" :profiles="profiles" :person-role-assignments="userRoleAssignments" :person-profile-assignments="userProfileAssignments" :role-assignments="assignmentsForRole" :profile-assignments="assignmentsForProfile" :busy="saving"
-            @search-users="(text: string, page?: number) => searchUsers(text, page)" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
+            @search-users="(text: string, page?: number, append?: boolean) => searchUsers(text, page, append)" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
             @person-page="direction => { if (selectedAccessPersonId && userRoleAssignments.page + direction >= 0) loadUserAssignments(selectedAccessPersonId, userRoleAssignments.page + direction) }"
             @role-page="direction => { if (selectedAccessRoleId && assignmentsForRole.page + direction >= 0) loadAssignmentsForRole(selectedAccessRoleId, assignmentsForRole.page + direction) }"
             @profile-page="direction => { if (selectedAccessProfileId && assignmentsForProfile.page + direction >= 0) loadAssignmentsForProfile(selectedAccessProfileId, assignmentsForProfile.page + direction) }" />
@@ -628,6 +635,8 @@ function date(value: string) {
               :aria-expanded="userPickerOpen"
               aria-controls="user-search-results"
               @focus="userPickerOpen = true"
+              @click="userPickerOpen = true"
+              @keydown.esc.stop.prevent="userPickerOpen = false"
               @input="queueUserSearch"
           /></label>
           <p id="user-search-hint" class="field-hint" :class="{ 'is-error': users.error }">
@@ -640,8 +649,9 @@ function date(value: string) {
             role="listbox"
             aria-label="Coincidencias de usuario"
             :aria-busy="users.loading"
+            @scroll.passive="onUserListScroll"
           >
-            <p v-if="users.loading" class="user-result-status">Buscando en el directorio…</p>
+            <p v-if="users.loading && !users.content.length" class="user-result-status">Buscando en el directorio…</p>
             <button
               v-for="item in users.content"
               :key="item.id"
@@ -653,15 +663,15 @@ function date(value: string) {
             >
               <span>{{ item.name || item.email }}</span><small>{{ item.email }}</small>
             </button>
-            <PaginationControls
-              :page="users.page"
-              :limit="users.limit"
-              :total="users.total"
-              :loading="users.loading"
-              label="Paginación de personas"
-              @previous="userPage(-1)"
-              @next="userPage(1)"
-            />
+            <p v-if="users.content.length" class="user-result-status user-result-count">
+              {{
+                users.loading
+                  ? "Cargando más personas…"
+                  : users.content.length < users.total
+                    ? `Mostrando ${users.content.length} de ${users.total} · desliza para ver más`
+                    : `${users.total} ${users.total === 1 ? "persona" : "personas"}`
+              }}
+            </p>
           </div>
           <div v-if="selectedUser" class="selected-user" role="status">
             <span>Persona seleccionada</span>
