@@ -80,7 +80,9 @@ nav button {
   text-align: left;
   background: transparent;
   color: #486053;
-  font: 600 13px inherit;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
 nav button[aria-current="true"] {
@@ -117,7 +119,9 @@ button:disabled {
   border: 0;
   border-radius: 8px;
   padding: 9px 12px;
-  font: 700 12px inherit;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
 }
 .primary {
   background: var(--accent);
@@ -221,7 +225,8 @@ textarea {
   padding: 10px;
   border: 1px solid #cad8d0;
   border-radius: 8px;
-  font: 13px inherit;
+  font-family: inherit;
+  font-size: 13px;
 }
 textarea {
   min-height: 72px;
