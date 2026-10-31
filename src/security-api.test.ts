@@ -41,6 +41,20 @@ describe("SecurityApi", () => {
     expect(failure).toMatchObject({ status: 409, code: "ASSIGNMENT_ALREADY_ACTIVE" });
     expect((failure as ApiError).message).toBe("El usuario Ana Pérez ya tiene una asignación activa del rol Editor en la aplicación");
   });
+  it("tells the host when the bearer token it just handed over is about to expire, without breaking the request", async () => {
+    browser();
+    const exp = Math.floor(Date.now() / 1000) + 30;
+    const token = `h.${btoa(JSON.stringify({ exp })).replace(/=+$/, "")}.s`;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: { content: [], total: 0, page: 0, offset: 0, limit: 20 } }), { status: 200 })));
+    const onSessionExpiring = vi.fn(() => { throw new Error("falla del host"); });
+    const onExpiring = vi.fn();
+    const api = new SecurityApi({ ...options, getAccessToken: () => token, onSessionExpiring, sessionWarningSeconds: 60 }, { onExpiring });
+    await expect(api.getRoles("app", { page: 0, size: 20 })).resolves.toBeTruthy();
+    expect(onSessionExpiring).toHaveBeenCalledTimes(1);
+    expect(onSessionExpiring.mock.calls[0]).toEqual([{ secondsLeft: expect.any(Number) }]);
+    expect(onExpiring).toHaveBeenCalledWith(exp * 1000);
+    api.dispose();
+  });
   it("explains the protected ADMIN role without identifiers", async () => {
     browser();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "PROTECTED_ROLE", detail: "No se puede modificar el rol protegido ADMIN 5141683b-3c07-4b62-9cd4-11b8b5f1f4ab" }), { status: 409 })));

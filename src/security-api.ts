@@ -1,3 +1,4 @@
+import { ExpiryWatcher, type ExpiryHooks } from "./session-expiry";
 import type {
   Administrator,
   ApiFieldError,
@@ -77,8 +78,30 @@ export class ApiError extends Error {
 
 export class SecurityApi {
   private readonly baseUrl: string;
-  constructor(private readonly options: SecurityUiOptions) {
+  private readonly expiry?: ExpiryWatcher;
+  constructor(
+    private readonly options: SecurityUiOptions,
+    hooks: Partial<ExpiryHooks> = {},
+  ) {
     this.baseUrl = options.apiBaseUrl.replace(/\/$/, "");
+    if (options.getAccessToken) {
+      const warn = options.sessionWarningSeconds ?? 60;
+      this.expiry = new ExpiryWatcher(warn, {
+        onExpiring: (expiresAt) => {
+          hooks.onExpiring?.(expiresAt);
+          try {
+            options.onSessionExpiring?.({ secondsLeft: Math.max(0, Math.round((expiresAt - Date.now()) / 1000)) });
+          } catch {
+            /* un callback del host no debe romper nada */
+          }
+        },
+        onRenewed: () => hooks.onRenewed?.(),
+      });
+    }
+  }
+  /** Libera el temporizador del aviso de expiración. */
+  dispose() {
+    this.expiry?.dispose();
   }
   async resolveApplicationId(signal?: AbortSignal) {
     if (this.options.applicationId) return this.options.applicationId;
@@ -331,7 +354,10 @@ export class SecurityApi {
     } catch {
       token = undefined;
     }
-    if (token) return token;
+    if (token) {
+      this.expiry?.observe(token);
+      return token;
+    }
     const failure = new ApiError(
       401,
       "UNAUTHENTICATED",

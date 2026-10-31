@@ -405,3 +405,11 @@ textarea {
   .scope-mark { display: none; }
   .admin-mark { display: none; }
 }
+.notice {
+  margin: 0 0 12px;
+  padding: 11px;
+  background: #fff8e8;
+  color: #6b4a0b;
+  border-left: 3px solid #c58a1c;
+  font-size: 13px;
+}

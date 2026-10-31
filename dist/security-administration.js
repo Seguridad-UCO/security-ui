@@ -8,19 +8,19 @@ function e(e) {
 var t = {}, n = [], r = () => {}, i = () => !1, a = (e) => e.charCodeAt(0) === 111 && e.charCodeAt(1) === 110 && (e.charCodeAt(2) > 122 || e.charCodeAt(2) < 97), o = (e) => e.startsWith("onUpdate:"), s = Object.assign, c = (e, t) => {
 	let n = e.indexOf(t);
 	n > -1 && e.splice(n, 1);
-}, l = Object.prototype.hasOwnProperty, u = (e, t) => l.call(e, t), d = Array.isArray, f = (e) => x(e) === "[object Map]", p = (e) => x(e) === "[object Set]", m = (e) => x(e) === "[object Date]", h = (e) => typeof e == "function", g = (e) => typeof e == "string", _ = (e) => typeof e == "symbol", v = (e) => typeof e == "object" && !!e, y = (e) => (v(e) || h(e)) && h(e.then) && h(e.catch), b = Object.prototype.toString, x = (e) => b.call(e), S = (e) => x(e).slice(8, -1), C = (e) => x(e) === "[object Object]", w = (e) => g(e) && e !== "NaN" && e[0] !== "-" && "" + parseInt(e, 10) === e, ee = /* @__PURE__ */ e(",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"), T = (e) => {
+}, l = Object.prototype.hasOwnProperty, u = (e, t) => l.call(e, t), d = Array.isArray, f = (e) => x(e) === "[object Map]", p = (e) => x(e) === "[object Set]", m = (e) => x(e) === "[object Date]", h = (e) => typeof e == "function", g = (e) => typeof e == "string", _ = (e) => typeof e == "symbol", v = (e) => typeof e == "object" && !!e, y = (e) => (v(e) || h(e)) && h(e.then) && h(e.catch), b = Object.prototype.toString, x = (e) => b.call(e), S = (e) => x(e).slice(8, -1), C = (e) => x(e) === "[object Object]", w = (e) => g(e) && e !== "NaN" && e[0] !== "-" && "" + parseInt(e, 10) === e, T = /* @__PURE__ */ e(",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"), ee = (e) => {
 	let t = /* @__PURE__ */ Object.create(null);
 	return ((n) => t[n] || (t[n] = e(n)));
-}, te = /-\w/g, E = T((e) => e.replace(te, (e) => e.slice(1).toUpperCase())), ne = /\B([A-Z])/g, D = T((e) => e.replace(ne, "-$1").toLowerCase()), O = T((e) => e.charAt(0).toUpperCase() + e.slice(1)), k = T((e) => e ? `on${O(e)}` : ""), A = (e, t) => !Object.is(e, t), re = (e, ...t) => {
+}, te = /-\w/g, E = ee((e) => e.replace(te, (e) => e.slice(1).toUpperCase())), ne = /\B([A-Z])/g, D = ee((e) => e.replace(ne, "-$1").toLowerCase()), re = ee((e) => e.charAt(0).toUpperCase() + e.slice(1)), ie = ee((e) => e ? `on${re(e)}` : ""), O = (e, t) => !Object.is(e, t), k = (e, ...t) => {
 	for (let n = 0; n < e.length; n++) e[n](...t);
-}, j = (e, t, n, r = !1) => {
+}, A = (e, t, n, r = !1) => {
 	Object.defineProperty(e, t, {
 		configurable: !0,
 		enumerable: !1,
 		writable: r,
 		value: n
 	});
-}, ie = (e) => {
+}, j = (e) => {
 	let t = parseFloat(e);
 	return isNaN(t) ? e : t;
 }, ae, oe = () => ae ||= typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : typeof window < "u" ? window : typeof global < "u" ? global : {};
@@ -28,35 +28,35 @@ function se(e) {
 	if (d(e)) {
 		let t = {};
 		for (let n = 0; n < e.length; n++) {
-			let r = e[n], i = g(r) ? ue(r) : se(r);
+			let r = e[n], i = g(r) ? de(r) : se(r);
 			if (i) for (let e in i) t[e] = i[e];
 		}
 		return t;
 	}
 	if (g(e) || v(e)) return e;
 }
-var ce = /;(?![^(]*\))/g, M = /:([^]+)/, le = /"(?:[^"\\]|\\[^])*"|'(?:[^'\\]|\\[^])*'|\\[^]|\/\*[^]*?\*\//g;
-function ue(e) {
+var ce = /;(?![^(]*\))/g, le = /:([^]+)/, ue = /"(?:[^"\\]|\\[^])*"|'(?:[^'\\]|\\[^])*'|\\[^]|\/\*[^]*?\*\//g;
+function de(e) {
 	let t = {};
-	return e.replace(le, (e) => e.startsWith("/*") ? "" : e).split(ce).forEach((e) => {
+	return e.replace(ue, (e) => e.startsWith("/*") ? "" : e).split(ce).forEach((e) => {
 		if (e) {
-			let n = e.split(M);
+			let n = e.split(le);
 			n.length > 1 && (t[n[0].trim()] = n[1].trim());
 		}
 	}), t;
 }
-function N(e) {
+function M(e) {
 	let t = "";
 	if (g(e)) t = e;
 	else if (d(e)) for (let n = 0; n < e.length; n++) {
-		let r = N(e[n]);
+		let r = M(e[n]);
 		r && (t += r + " ");
 	}
 	else if (v(e)) for (let n in e) e[n] && (t += n + " ");
 	return t.trim();
 }
-var de = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", fe = /* @__PURE__ */ e(de);
-de + "";
+var fe = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", N = /* @__PURE__ */ e(fe);
+fe + "";
 function pe(e) {
 	return !!e || e === "";
 }
@@ -287,7 +287,7 @@ function Le(e) {
 	try {
 		Pe(e);
 		let n = e.fn(e._value);
-		(t.version === 0 || A(n, e._value)) && (e.flags |= 128, e._value = n, t.version++);
+		(t.version === 0 || O(n, e._value)) && (e.flags |= 128, e._value = n, t.version++);
 	} catch (e) {
 		throw t.version++, e;
 	} finally {
@@ -589,7 +589,7 @@ var mt = class {
 			if (!/* @__PURE__ */ zt(n) && !/* @__PURE__ */ Rt(n) && (i = /* @__PURE__ */ z(i), n = /* @__PURE__ */ z(n)), !a && /* @__PURE__ */ B(i) && !/* @__PURE__ */ B(n)) return e || (i.value = n), !0;
 		}
 		let o = a ? Number(t) < e.length : u(e, t), s = Reflect.set(e, t, n, /* @__PURE__ */ B(e) ? e : r);
-		return e === /* @__PURE__ */ z(r) && s && (o ? A(n, i) && $e(e, "set", t, n, i) : $e(e, "add", t, n)), s;
+		return e === /* @__PURE__ */ z(r) && s && (o ? O(n, i) && $e(e, "set", t, n, i) : $e(e, "add", t, n)), s;
 	}
 	deleteProperty(e, t) {
 		let n = u(e, t), r = e[t], i = Reflect.deleteProperty(e, t);
@@ -637,7 +637,7 @@ function wt(e, t) {
 	let n = {
 		get(n) {
 			let r = this.__v_raw, i = /* @__PURE__ */ z(r), a = /* @__PURE__ */ z(n);
-			e || (A(n, a) && L(i, "get", n), L(i, "get", a));
+			e || (O(n, a) && L(i, "get", n), L(i, "get", a));
 			let { has: o } = xt(i), s = t ? bt : e ? Ut : Ht;
 			if (o.call(i, n)) return s(r.get(n));
 			if (o.call(i, a)) return s(r.get(a));
@@ -649,7 +649,7 @@ function wt(e, t) {
 		},
 		has(t) {
 			let n = this.__v_raw, r = /* @__PURE__ */ z(n), i = /* @__PURE__ */ z(t);
-			return e || (A(t, i) && L(r, "has", t), L(r, "has", i)), t === i ? n.has(t) : n.has(t) || n.has(i);
+			return e || (O(t, i) && L(r, "has", t), L(r, "has", i)), t === i ? n.has(t) : n.has(t) || n.has(i);
 		},
 		forEach(n, r) {
 			let i = this, a = i.__v_raw, o = /* @__PURE__ */ z(a), s = t ? bt : e ? Ut : Ht;
@@ -664,14 +664,14 @@ function wt(e, t) {
 	} : {
 		add(e) {
 			let n = /* @__PURE__ */ z(this), r = xt(n), i = /* @__PURE__ */ z(e), a = !t && !/* @__PURE__ */ zt(e) && !/* @__PURE__ */ Rt(e) ? i : e;
-			return r.has.call(n, a) || A(e, a) && r.has.call(n, e) || A(i, a) && r.has.call(n, i) || (n.add(a), $e(n, "add", a, a)), this;
+			return r.has.call(n, a) || O(e, a) && r.has.call(n, e) || O(i, a) && r.has.call(n, i) || (n.add(a), $e(n, "add", a, a)), this;
 		},
 		set(e, n) {
 			!t && !/* @__PURE__ */ zt(n) && !/* @__PURE__ */ Rt(n) && (n = /* @__PURE__ */ z(n));
 			let r = /* @__PURE__ */ z(this), { has: i, get: a } = xt(r), o = i.call(r, e);
 			o ||= (e = /* @__PURE__ */ z(e), i.call(r, e));
 			let s = a.call(r, e);
-			return r.set(e, n), o ? A(n, s) && $e(r, "set", e, n, s) : $e(r, "add", e, n), this;
+			return r.set(e, n), o ? O(n, s) && $e(r, "set", e, n, s) : $e(r, "add", e, n), this;
 		},
 		delete(e) {
 			let t = /* @__PURE__ */ z(this), { has: n, get: r } = xt(t), i = n.call(t, e);
@@ -751,7 +751,7 @@ function z(e) {
 	return t ? /* @__PURE__ */ z(t) : e;
 }
 function Vt(e) {
-	return !u(e, "__v_skip") && Object.isExtensible(e) && j(e, "__v_skip", !0), e;
+	return !u(e, "__v_skip") && Object.isExtensible(e) && A(e, "__v_skip", !0), e;
 }
 var Ht = (e) => v(e) ? /* @__PURE__ */ R(e) : e, Ut = (e) => v(e) ? /* @__PURE__ */ Ft(e) : e;
 // @__NO_SIDE_EFFECTS__
@@ -778,7 +778,7 @@ var Kt = class {
 	}
 	set value(e) {
 		let t = this._rawValue, n = this.__v_isShallow || /* @__PURE__ */ zt(e) || /* @__PURE__ */ Rt(e);
-		e = n ? e : /* @__PURE__ */ z(e), A(e, t) && (this._rawValue = e, this._value = n ? e : Ht(e), this.dep.trigger());
+		e = n ? e : /* @__PURE__ */ z(e), O(e, t) && (this._rawValue = e, this._value = n ? e : Ht(e), this.dep.trigger());
 	}
 };
 function H(e) {
@@ -902,7 +902,7 @@ function on(e, n, i = t) {
 		if (m.flags & 1 && (m.dirty || e)) {
 			if (n) {
 				let t = m.run();
-				if (e || o || y || (b ? t.some((e, t) => A(e, C[t])) : A(t, C))) {
+				if (e || o || y || (b ? t.some((e, t) => O(e, C[t])) : O(t, C))) {
 					_ && _();
 					let e = rn;
 					rn = m;
@@ -1381,7 +1381,7 @@ var Cr = !0;
 function wr(e) {
 	let t = Or(e), n = e.proxy, i = e.ctx;
 	Cr = !1, t.beforeCreate && Er(t.beforeCreate, e, "bc");
-	let { data: a, computed: o, methods: s, watch: c, provide: l, inject: u, created: f, beforeMount: p, mounted: m, beforeUpdate: g, updated: _, activated: y, deactivated: b, beforeDestroy: x, beforeUnmount: S, destroyed: C, unmounted: w, render: ee, renderTracked: T, renderTriggered: te, errorCaptured: E, serverPrefetch: ne, expose: D, inheritAttrs: O, components: k, directives: A, filters: re } = t;
+	let { data: a, computed: o, methods: s, watch: c, provide: l, inject: u, created: f, beforeMount: p, mounted: m, beforeUpdate: g, updated: _, activated: y, deactivated: b, beforeDestroy: x, beforeUnmount: S, destroyed: C, unmounted: w, render: T, renderTracked: ee, renderTriggered: te, errorCaptured: E, serverPrefetch: ne, expose: D, inheritAttrs: re, components: ie, directives: O, filters: k } = t;
 	if (u && Tr(u, i, null), s) for (let e in s) {
 		let t = s[e];
 		h(t) && (i[e] = t.bind(n));
@@ -1410,10 +1410,10 @@ function wr(e) {
 		});
 	}
 	f && Er(f, e, "c");
-	function j(e, t) {
+	function A(e, t) {
 		d(t) ? t.forEach((t) => e(t.bind(n))) : t && e(t.bind(n));
 	}
-	if (j(sr, p), j(cr, m), j(lr, g), j(ur, _), j(tr, y), j(nr, b), j(gr, E), j(hr, T), j(mr, te), j(dr, S), j(fr, w), j(pr, ne), d(D)) {
+	if (A(sr, p), A(cr, m), A(lr, g), A(ur, _), A(tr, y), A(nr, b), A(gr, E), A(hr, ee), A(mr, te), A(dr, S), A(fr, w), A(pr, ne), d(D)) {
 		if (D.length) {
 			let t = e.exposed ||= {};
 			D.forEach((e) => {
@@ -1425,7 +1425,7 @@ function wr(e) {
 			});
 		} else e.exposed ||= {};
 	}
-	ee && e.render === r && (e.render = ee), O != null && (e.inheritAttrs = O), k && (e.components = k), A && (e.directives = A), ne && Jn(e);
+	T && e.render === r && (e.render = T), re != null && (e.inheritAttrs = re), ie && (e.components = ie), O && (e.directives = O), ne && Jn(e);
 }
 function Tr(e, t, n = r) {
 	d(e) && (e = Nr(e));
@@ -1608,9 +1608,9 @@ var Br = null, Vr = (e, t) => t === "modelValue" || t === "model-value" ? e.mode
 function Hr(e, n, ...r) {
 	if (e.isUnmounted) return;
 	let i = e.vnode.props || t, a = r, o = n.startsWith("update:"), s = o && Vr(i, n.slice(7));
-	s && (s.trim && (a = r.map((e) => g(e) ? e.trim() : e)), s.number && (a = a.map(ie)));
-	let c, l = i[c = k(n)] || i[c = k(E(n))];
-	!l && o && (l = i[c = k(D(n))]), l && ln(l, e, 6, a);
+	s && (s.trim && (a = r.map((e) => g(e) ? e.trim() : e)), s.number && (a = a.map(j)));
+	let c, l = i[c = ie(n)] || i[c = ie(E(n))];
+	!l && o && (l = i[c = ie(D(n))]), l && ln(l, e, 6, a);
 	let u = i[c + "Once"];
 	if (u) {
 		if (!e.emitted) e.emitted = {};
@@ -1741,7 +1741,7 @@ function ri(e, t, n, r) {
 function ii(e, n, r, i) {
 	let [a, o] = e.propsOptions, s = !1, c;
 	if (n) for (let t in n) {
-		if (ee(t)) continue;
+		if (T(t)) continue;
 		let l = n[t], d;
 		a && u(a, d = E(t)) ? !o || !o.includes(d) ? r[d] = l : (c ||= {})[d] = l : Gr(e.emitsOptions, t) || (!(t in i) || l !== i[t]) && (i[t] = l, s = !0);
 	}
@@ -1812,7 +1812,7 @@ function si(e, r, i = !1) {
 	return v(e) && a.set(e, m), m;
 }
 function ci(e) {
-	return e[0] !== "$" && !ee(e);
+	return e[0] !== "$" && !T(e);
 }
 var li = (e) => e === "_" || e === "_ctx" || e === "$stable", ui = (e) => d(e) ? e.map(qi) : [qi(e)], di = (e, t, n) => {
 	if (t._n) return t;
@@ -1838,7 +1838,7 @@ var li = (e) => e === "_" || e === "_ctx" || e === "$stable", ui = (e) => d(e) ?
 	let r = e.slots = ei();
 	if (e.vnode.shapeFlag & 32) {
 		let e = t._;
-		e ? (mi(r, t, n), n && j(r, "_", e, !0)) : fi(t, r);
+		e ? (mi(r, t, n), n && A(r, "_", e, !0)) : fi(t, r);
 	} else t && pi(e, t);
 }, gi = (e, n, r) => {
 	let { vnode: i, slots: a } = e, o = !0, s = t;
@@ -1856,7 +1856,7 @@ function yi(e, i) {
 	a.__VUE__ = !0;
 	let { insert: o, remove: s, patchProp: c, createElement: l, createText: u, createComment: d, setText: f, setElementText: p, parentNode: m, nextSibling: h, setScopeId: g = r, insertStaticContent: _ } = e, v = (e, t, r, i = null, a = null, o = null, s = void 0, c = null, l = !!t.dynamicChildren) => {
 		if (e === t) return;
-		e && !Vi(e, t) && (i = he(e), N(e, a, o, !0), e = null), t.patchFlag === -2 && (l = !1, t.dynamicChildren = null), t.dynamicChildren && e && e.dynamicChildren && e.dynamicChildren.hasOnce && (t.dynamicChildren === n && (t.dynamicChildren = []), t.dynamicChildren.hasOnce = !0);
+		e && !Vi(e, t) && (i = he(e), M(e, a, o, !0), e = null), t.patchFlag === -2 && (l = !1, t.dynamicChildren = null), t.dynamicChildren && e && e.dynamicChildren && e.dynamicChildren.hasOnce && (t.dynamicChildren === n && (t.dynamicChildren = []), t.dynamicChildren.hasOnce = !0);
 		let { type: u, ref: d, shapeFlag: f } = t;
 		switch (u) {
 			case Ai:
@@ -1869,9 +1869,9 @@ function yi(e, i) {
 				e ?? x(t, r, i, s);
 				break;
 			case K:
-				k(e, t, r, i, a, o, s, c, l);
+				ie(e, t, r, i, a, o, s, c, l);
 				break;
-			default: f & 1 ? w(e, t, r, i, a, o, s, c, l) : f & 6 ? A(e, t, r, i, a, o, s, c, l) : (f & 64 || f & 128) && u.process(e, t, r, i, a, o, s, c, l, ve);
+			default: f & 1 ? w(e, t, r, i, a, o, s, c, l) : f & 6 ? O(e, t, r, i, a, o, s, c, l) : (f & 64 || f & 128) && u.process(e, t, r, i, a, o, s, c, l, ve);
 		}
 		d != null && a ? Zn(d, e && e.ref, o, t || e, !t) : d == null && e && e.ref != null && Zn(e.ref, null, o, e, !0);
 	}, y = (e, t, n, r) => {
@@ -1893,7 +1893,7 @@ function yi(e, i) {
 		for (; e && e !== t;) n = h(e), s(e), e = n;
 		s(t);
 	}, w = (e, t, n, r, i, a, o, s, c) => {
-		if (t.type === "svg" ? o = "svg" : t.type === "math" && (o = "mathml"), e == null) T(t, n, r, i, a, o, s, c);
+		if (t.type === "svg" ? o = "svg" : t.type === "math" && (o = "mathml"), e == null) ee(t, n, r, i, a, o, s, c);
 		else {
 			let n = e.el && e.el._isVueCE ? e.el : null;
 			try {
@@ -1902,10 +1902,10 @@ function yi(e, i) {
 				n && n._endPatch();
 			}
 		}
-	}, T = (e, t, n, r, i, a, s, u) => {
+	}, ee = (e, t, n, r, i, a, s, u) => {
 		let d, f, { props: m, shapeFlag: h, transition: g, dirs: _ } = e;
 		if (d = e.el = l(e.type, a, m && m.is, m), h & 8 ? p(d, e.children) : h & 16 && E(e.children, d, null, r, i, bi(e, a), s, u), _ && Mn(e, null, r, "created"), te(d, e, e.scopeId, s, r), m) {
-			for (let e in m) e !== "value" && !ee(e) && c(d, e, null, m[e], a, r);
+			for (let e in m) e !== "value" && !T(e) && c(d, e, null, m[e], a, r);
 			"value" in m && c(d, "value", null, m.value, a), (f = m.onVnodeBeforeMount) && Zi(f, r, e);
 		}
 		_ && Mn(e, null, r, "beforeMount");
@@ -1934,7 +1934,7 @@ function yi(e, i) {
 		u |= e.patchFlag & 16;
 		let m = e.props || t, h = n.props || t, g;
 		if (r && xi(r, !1), (g = h.onVnodeBeforeUpdate) && Zi(g, r, n, e), f && Mn(n, e, r, "beforeUpdate"), r && xi(r, !0), d && (!e.dynamicChildren || e.dynamicChildren.length !== d.length) && (u = 0, s = !1, d = null), (m.innerHTML && h.innerHTML == null || m.textContent && h.textContent == null) && p(l, ""), d ? D(e.dynamicChildren, d, l, r, i, bi(n, a), o) : s || ce(e, n, l, null, r, i, bi(n, a), o, !1), u > 0) {
-			if (u & 16) O(l, m, h, r, a);
+			if (u & 16) re(l, m, h, r, a);
 			else if (u & 2 && m.class !== h.class && c(l, "class", null, h.class, a), u & 4 && c(l, "style", m.style, h.style, a), u & 8) {
 				let e = n.dynamicProps;
 				for (let t = 0; t < e.length; t++) {
@@ -1943,7 +1943,7 @@ function yi(e, i) {
 				}
 			}
 			u & 1 && e.children !== n.children && p(l, n.children);
-		} else !s && d == null && O(l, m, h, r, a);
+		} else !s && d == null && re(l, m, h, r, a);
 		((g = h.onVnodeUpdated) || f) && _i(() => {
 			g && Zi(g, r, n, e), f && Mn(n, e, r, "updated");
 		}, i);
@@ -1952,22 +1952,22 @@ function yi(e, i) {
 			let c = e[s], l = t[s], u = c.el && (c.type === K || !Vi(c, l) || c.shapeFlag & 198) ? m(c.el) : n;
 			v(c, l, u, null, r, i, a, o, !0);
 		}
-	}, O = (e, n, r, i, a) => {
+	}, re = (e, n, r, i, a) => {
 		if (n !== r) {
-			if (n !== t) for (let t in n) !ee(t) && !(t in r) && c(e, t, n[t], null, a, i);
+			if (n !== t) for (let t in n) !T(t) && !(t in r) && c(e, t, n[t], null, a, i);
 			for (let t in r) {
-				if (ee(t)) continue;
+				if (T(t)) continue;
 				let o = r[t], s = n[t];
 				o !== s && t !== "value" && c(e, t, s, o, a, i);
 			}
 			"value" in r && c(e, "value", n.value, r.value, a);
 		}
-	}, k = (e, t, n, r, i, a, s, c, l) => {
+	}, ie = (e, t, n, r, i, a, s, c, l) => {
 		let d = t.el = e ? e.el : u(""), f = t.anchor = e ? e.anchor : u(""), { patchFlag: p, dynamicChildren: m, slotScopeIds: h } = t;
 		h && (c = c ? c.concat(h) : h), e == null ? (o(d, n, r), o(f, n, r), E(t.children || [], n, f, i, a, s, c, l)) : p > 0 && p & 64 && m && e.dynamicChildren && e.dynamicChildren.length === m.length ? (D(e.dynamicChildren, m, n, i, a, s, c), (t.key != null || i && t === i.subTree) && Ci(e, t, !0)) : ce(e, t, n, f, i, a, s, c, l);
-	}, A = (e, t, n, r, i, a, o, s, c) => {
-		t.slotScopeIds = s, e == null ? t.shapeFlag & 512 ? i.ctx.activate(t, n, r, o, c) : j(t, n, r, i, a, o, c) : ie(e, t, c);
-	}, j = (e, t, n, r, i, a, o) => {
+	}, O = (e, t, n, r, i, a, o, s, c) => {
+		t.slotScopeIds = s, e == null ? t.shapeFlag & 512 ? i.ctx.activate(t, n, r, o, c) : A(t, n, r, i, a, o, c) : j(e, t, c);
+	}, A = (e, t, n, r, i, a, o) => {
 		let s = e.component = ea(e, r, i);
 		if (er(e) && (s.ctx.renderer = ve), la(s, !1, o), s.asyncDep) {
 			if (i && i.registerDep(s, ae, o), !e.el) {
@@ -1975,7 +1975,7 @@ function yi(e, i) {
 				b(null, r, t, n), e.placeholder = r.el;
 			}
 		} else ae(s, e, t, n, i, a, o);
-	}, ie = (e, t, n) => {
+	}, j = (e, t, n) => {
 		let r = t.component = e.component;
 		if (Yr(e, t, n)) {
 			if (r.asyncDep && !r.asyncResolved) {
@@ -2000,12 +2000,12 @@ function yi(e, i) {
 					}
 				}
 				let u = t, d;
-				xi(e, !1), t ? (t.el = c.el, se(e, t, o)) : t = c, n && re(n), (d = t.props && t.props.onVnodeBeforeUpdate) && Zi(d, s, t, c), xi(e, !0);
+				xi(e, !1), t ? (t.el = c.el, se(e, t, o)) : t = c, n && k(n), (d = t.props && t.props.onVnodeBeforeUpdate) && Zi(d, s, t, c), xi(e, !0);
 				let f = Kr(e), p = e.subTree;
 				e.subTree = f, v(p, f, m(p.el), he(p), e, i, a), t.el = f.el, u === null && Qr(e, f.el), r && _i(r, i), (d = t.props && t.props.onVnodeUpdated) && _i(() => Zi(d, s, t, c), i);
 			} else {
 				let o, { el: s, props: c } = t, { bm: l, m: u, parent: d, root: f, type: p } = e, m = $n(t);
-				if (xi(e, !1), l && re(l), !m && (o = c && c.onVnodeBeforeMount) && Zi(o, d, t), xi(e, !0), s && be) {
+				if (xi(e, !1), l && k(l), !m && (o = c && c.onVnodeBeforeMount) && Zi(o, d, t), xi(e, !0), s && be) {
 					let t = () => {
 						e.subTree = Kr(e), be(s, e.subTree, e, i, null);
 					};
@@ -2035,16 +2035,16 @@ function yi(e, i) {
 		let l = e && e.children, u = e ? e.shapeFlag : 0, d = t.children, { patchFlag: f, shapeFlag: m } = t;
 		if (f > 0) {
 			if (f & 128) {
-				le(l, d, n, r, i, a, o, s, c);
+				ue(l, d, n, r, i, a, o, s, c);
 				return;
 			}
 			if (f & 256) {
-				M(l, d, n, r, i, a, o, s, c);
+				le(l, d, n, r, i, a, o, s, c);
 				return;
 			}
 		}
-		m & 8 ? (u & 16 && me(l, i, a), d !== l && p(n, d)) : u & 16 ? m & 16 ? le(l, d, n, r, i, a, o, s, c) : me(l, i, a, !0) : (u & 8 && p(n, ""), m & 16 && E(d, n, r, i, a, o, s, c));
-	}, M = (e, t, r, i, a, o, s, c, l) => {
+		m & 8 ? (u & 16 && me(l, i, a), d !== l && p(n, d)) : u & 16 ? m & 16 ? ue(l, d, n, r, i, a, o, s, c) : me(l, i, a, !0) : (u & 8 && p(n, ""), m & 16 && E(d, n, r, i, a, o, s, c));
+	}, le = (e, t, r, i, a, o, s, c, l) => {
 		e ||= n, t ||= n;
 		let u = e.length, d = t.length, f = Math.min(u, d), p = 0;
 		for (; p < f; p++) {
@@ -2052,7 +2052,7 @@ function yi(e, i) {
 			v(e[p], n, r, null, a, o, s, c, l);
 		}
 		u > d ? me(e, a, o, !0, !1, f) : E(t, r, i, a, o, s, c, l, f);
-	}, le = (e, t, r, i, a, o, s, c, l) => {
+	}, ue = (e, t, r, i, a, o, s, c, l) => {
 		let u = 0, d = t.length, f = e.length - 1, p = d - 1;
 		for (; u <= f && u <= p;) {
 			let n = e[u], i = t[u] = l ? Ji(t[u]) : qi(t[u]);
@@ -2071,7 +2071,7 @@ function yi(e, i) {
 				let e = p + 1, n = e < d ? t[e].el : i;
 				for (; u <= p;) v(null, t[u] = l ? Ji(t[u]) : qi(t[u]), r, n, a, o, s, c, l), u++;
 			}
-		} else if (u > p) for (; u <= f;) N(e[u], a, o, !0), u++;
+		} else if (u > p) for (; u <= f;) M(e[u], a, o, !0), u++;
 		else {
 			let m = u, h = u, g = /* @__PURE__ */ new Map();
 			for (u = h; u <= p; u++) {
@@ -2083,7 +2083,7 @@ function yi(e, i) {
 			for (u = m; u <= f; u++) {
 				let n = e[u];
 				if (y >= b) {
-					N(n, a, o, !0);
+					M(n, a, o, !0);
 					continue;
 				}
 				let i;
@@ -2092,18 +2092,18 @@ function yi(e, i) {
 					i = _;
 					break;
 				}
-				i === void 0 ? N(n, a, o, !0) : (C[i - h] = u + 1, i >= S ? S = i : x = !0, v(n, t[i], r, null, a, o, s, c, l), y++);
+				i === void 0 ? M(n, a, o, !0) : (C[i - h] = u + 1, i >= S ? S = i : x = !0, v(n, t[i], r, null, a, o, s, c, l), y++);
 			}
 			let w = x ? wi(C) : n;
 			for (_ = w.length - 1, u = b - 1; u >= 0; u--) {
 				let e = h + u, n = t[e], f = t[e + 1], p = e + 1 < d ? f.el || Di(f) : i;
-				C[u] === 0 ? v(null, n, r, p, a, o, s, c, l) : x && (_ < 0 || u !== w[_] ? ue(n, r, p, 2) : _--);
+				C[u] === 0 ? v(null, n, r, p, a, o, s, c, l) : x && (_ < 0 || u !== w[_] ? de(n, r, p, 2) : _--);
 			}
 		}
-	}, ue = (e, t, n, r, i = null) => {
+	}, de = (e, t, n, r, i = null) => {
 		let { el: a, type: c, transition: l, children: u, shapeFlag: d } = e;
 		if (d & 6) {
-			ue(e.component.subTree, t, n, r);
+			de(e.component.subTree, t, n, r);
 			return;
 		}
 		if (d & 128) {
@@ -2116,7 +2116,7 @@ function yi(e, i) {
 		}
 		if (c === K) {
 			o(a, t, n);
-			for (let e = 0; e < u.length; e++) ue(u[e], t, n, r);
+			for (let e = 0; e < u.length; e++) de(u[e], t, n, r);
 			o(e.anchor, t, n);
 			return;
 		}
@@ -2138,7 +2138,7 @@ function yi(e, i) {
 				i ? i(a, u, d) : d();
 			}
 		} else o(a, t, n);
-	}, N = (e, t, n, r = !1, i = !1) => {
+	}, M = (e, t, n, r = !1, i = !1) => {
 		let { type: a, props: o, ref: s, children: c, dynamicChildren: l, shapeFlag: u, patchFlag: d, dirs: f, cacheIndex: p, memo: m } = e;
 		if ((d === -2 || l && l.hasOnce) && (i = !1), s != null && (He(), Zn(s, null, n, e, !0), Ue()), p != null && (!e.ctx || e.ctx === t) && (t.renderCache[p] = void 0), u & 256) {
 			t.ctx.deactivate(e);
@@ -2151,16 +2151,16 @@ function yi(e, i) {
 				e.suspense.unmount(n, r);
 				return;
 			}
-			h && Mn(e, null, t, "beforeUnmount"), u & 64 ? e.type.remove(e, t, n, ve, r) : l && !l.hasOnce && (a !== K || d > 0 && d & 64) ? me(l, t, n, !1, !0) : (a === K && d & 384 || !i && u & 16) && me(c, t, n), r && de(e);
+			h && Mn(e, null, t, "beforeUnmount"), u & 64 ? e.type.remove(e, t, n, ve, r) : l && !l.hasOnce && (a !== K || d > 0 && d & 64) ? me(l, t, n, !1, !0) : (a === K && d & 384 || !i && u & 16) && me(c, t, n), r && fe(e);
 		}
 		let v = m != null && p == null;
 		(g && (_ = o && o.onVnodeUnmounted) || h || v) && _i(() => {
 			_ && Zi(_, t, e), h && Mn(e, null, t, "unmounted"), v && (e.el = null);
 		}, n);
-	}, de = (e) => {
+	}, fe = (e) => {
 		let { type: t, el: n, anchor: r, transition: i } = e;
 		if (t === K) {
-			fe(n, r);
+			N(n, r);
 			return;
 		}
 		if (t === Mi) {
@@ -2174,17 +2174,17 @@ function yi(e, i) {
 			let { leave: t, delayLeave: r } = i, o = () => t(n, a);
 			r ? r(e.el, a, o) : o();
 		} else a();
-	}, fe = (e, t) => {
+	}, N = (e, t) => {
 		let n;
 		for (; e !== t;) n = h(e), s(e), e = n;
 		s(t);
 	}, pe = (e, t, n) => {
 		let { bum: r, scope: i, job: a, subTree: o, um: s, m: c, a: l } = e;
-		Ei(c), Ei(l), r && re(r), i.stop(), a ? (a.flags |= 8, N(o, e, t, n)) : e.vnode.el && o && (o.transition = e.vnode.transition, N(o, e, t, n)), s && _i(s, t), _i(() => {
+		Ei(c), Ei(l), r && k(r), i.stop(), a ? (a.flags |= 8, M(o, e, t, n)) : e.vnode.el && o && (o.transition = e.vnode.transition, M(o, e, t, n)), s && _i(s, t), _i(() => {
 			e.isUnmounted = !0;
 		}, t);
 	}, me = (e, t, n, r = !1, i = !1, a = 0) => {
-		for (let o = a; o < e.length; o++) N(e[o], t, n, r, i);
+		for (let o = a; o < e.length; o++) M(e[o], t, n, r, i);
 	}, he = (e) => {
 		if (e.shapeFlag & 6) return he(e.component.subTree);
 		if (e.shapeFlag & 128) return e.suspense.next();
@@ -2192,13 +2192,13 @@ function yi(e, i) {
 		return n ? h(n) : t;
 	}, ge = !1, _e = (e, t, n) => {
 		let r;
-		e == null ? t._vnode && (N(t._vnode, null, null, !0), r = t._vnode.component) : v(t._vnode || null, e, t, null, null, null, n), t._vnode = e, ge ||= (ge = !0, Cn(r), wn(), !1);
+		e == null ? t._vnode && (M(t._vnode, null, null, !0), r = t._vnode.component) : v(t._vnode || null, e, t, null, null, null, n), t._vnode = e, ge ||= (ge = !0, Cn(r), wn(), !1);
 	}, ve = {
 		p: v,
-		um: N,
-		m: ue,
-		r: de,
-		mt: j,
+		um: M,
+		m: de,
+		r: fe,
+		mt: A,
 		mc: E,
 		pc: ce,
 		pbc: D,
@@ -2332,7 +2332,7 @@ function Wi(e, t = null, n = null, r = 0, i = null, a = !1) {
 	if (ga(e) && (e = e.__vccOpts), t) {
 		t = Gi(t);
 		let { class: e, style: n } = t;
-		e && !g(e) && (t.class = N(e)), v(n) && (/* @__PURE__ */ Bt(n) && !d(n) && (n = s({}, n)), t.style = se(n));
+		e && !g(e) && (t.class = M(e)), v(n) && (/* @__PURE__ */ Bt(n) && !d(n) && (n = s({}, n)), t.style = se(n));
 	}
 	let o = g(e) ? 1 : Oi(e) ? 128 : Hn(e) ? 64 : v(e) ? 4 : h(e) ? 2 : 0;
 	return Y(e, t, n, r, i, o, a, !0);
@@ -2418,7 +2418,7 @@ function Xi(...e) {
 	let t = {};
 	for (let n = 0; n < e.length; n++) {
 		let r = e[n];
-		for (let e in r) if (e === "class") t.class !== r.class && (t.class = N([t.class, r.class]));
+		for (let e in r) if (e === "class") t.class !== r.class && (t.class = M([t.class, r.class]));
 		else if (e === "style") t.style = se([t.style, r.style]);
 		else if (a(e)) {
 			let n = t[e], i = r[e];
@@ -2695,7 +2695,7 @@ function za(e, t) {
 	if (n) return n;
 	let r = E(t);
 	if (r !== "filter" && r in e) return Ra[t] = r;
-	r = O(r);
+	r = re(r);
 	for (let n = 0; n < La.length; n++) {
 		let i = La[n] + r;
 		if (i in e) return Ra[t] = i;
@@ -2706,7 +2706,7 @@ function Ba(e, t, n, r) {
 	return e.tagName === "TEXTAREA" && (t === "width" || t === "height") && g(r) && n === r;
 }
 var Va = "http://www.w3.org/1999/xlink";
-function Ha(e, t, n, r, i, a = fe(t)) {
+function Ha(e, t, n, r, i, a = N(t)) {
 	r && t.startsWith("xlink:") ? n == null ? e.removeAttributeNS(Va, t.slice(6, t.length)) : e.setAttributeNS(Va, t, n) : n == null || a && !pe(n) ? e.removeAttribute(t) : e.setAttribute(t, a ? "" : _(n) ? String(n) : n);
 }
 function Ua(e, t, n, r, i) {
@@ -2792,7 +2792,7 @@ function io(e, t) {
 }
 var ao = (e) => {
 	let t = e.props["onUpdate:modelValue"] || !1;
-	return d(t) ? (e) => re(t, e) : t;
+	return d(t) ? (e) => k(t, e) : t;
 };
 function oo(e) {
 	e.target.composing = !0;
@@ -2803,7 +2803,7 @@ function so(e) {
 }
 var co = /* @__PURE__ */ Symbol("_assign"), lo = /* @__PURE__ */ Symbol("_initialValue");
 function uo(e, t, n) {
-	return t && (e = e.trim()), n && (e = ie(e)), e;
+	return t && (e = e.trim()), n && (e = j(e)), e;
 }
 var fo = {
 	created(e, { modifiers: { lazy: t, trim: n, number: r } }, i) {
@@ -2821,7 +2821,7 @@ var fo = {
 	},
 	beforeUpdate(e, { value: t, oldValue: n, modifiers: { lazy: r, trim: i, number: a } }, o) {
 		if (e[co] = ao(o), e.composing) return;
-		let s = (a || e.type === "number") && !/^0\d/.test(e.value) ? ie(e.value) : e.value, c = t ?? "";
+		let s = (a || e.type === "number") && !/^0\d/.test(e.value) ? j(e.value) : e.value, c = t ?? "";
 		if (s === c) return;
 		let l = e.getRootNode();
 		(l instanceof Document || l instanceof ShadowRoot) && l.activeElement === e && e.type !== "range" && (r && t === n || i && e.value.trim() === c) || (e.value = c);
@@ -2830,7 +2830,7 @@ var fo = {
 	deep: !0,
 	created(e, { value: t, modifiers: { number: n } }, r) {
 		e._modelValue = t, Wa(e, "change", () => {
-			let t = Array.prototype.filter.call(e.options, (e) => e.selected).map((e) => n ? ie(go(e)) : go(e)), r = e.multiple, i = r ? p(e._modelValue) ? new Set(t) : t : t[0], a = e._pendingValue = [r, r ? d(i) ? t.slice() : t : i];
+			let t = Array.prototype.filter.call(e.options, (e) => e.selected).map((e) => n ? j(go(e)) : go(e)), r = e.multiple, i = r ? p(e._modelValue) ? new Set(t) : t : t[0], a = e._pendingValue = [r, r ? d(i) ? t.slice() : t : i];
 			try {
 				e[co](i);
 			} finally {
@@ -2931,39 +2931,92 @@ function To(e) {
 	return g(e) ? document.querySelector(e) : e;
 }
 //#endregion
-//#region src/security-api.ts
+//#region src/session-expiry.ts
 function Eo(e) {
+	try {
+		let t = e.split(".")[1];
+		if (!t) return;
+		let n = atob(t.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(t.length / 4) * 4, "=")), r = JSON.parse(n).exp;
+		return typeof r == "number" && Number.isFinite(r) ? r * 1e3 : void 0;
+	} catch {
+		return;
+	}
+}
+var Do = class {
+	warnSeconds;
+	hooks;
+	timer;
+	current;
+	warned = !1;
+	constructor(e, t) {
+		this.warnSeconds = e, this.hooks = t;
+	}
+	observe(e) {
+		let t = Eo(e);
+		if (t === void 0 || t === this.current) return;
+		this.warned && this.hooks.onRenewed(), this.warned = !1, this.current = t, this.clear();
+		let n = t - this.warnSeconds * 1e3 - Date.now();
+		n <= 0 ? this.fire(t) : this.timer = setTimeout(() => this.fire(t), n);
+	}
+	dispose() {
+		this.clear();
+	}
+	fire(e) {
+		this.warned = !0, this.hooks.onExpiring(e);
+	}
+	clear() {
+		this.timer !== void 0 && clearTimeout(this.timer), this.timer = void 0;
+	}
+};
+//#endregion
+//#region src/security-api.ts
+function Oo(e) {
 	return e === "MFA_REQUIRED" ? "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo." : e === "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG" ? "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación." : "No tiene permisos para administrar la seguridad de esta aplicación.";
 }
-var Do = { PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar." }, Oo = /* @__PURE__ */ new Map(), ko = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
-function Ao(e, t = 0) {
+var ko = { PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar." }, Ao = /* @__PURE__ */ new Map(), jo = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+function Mo(e, t = 0) {
 	if (!e || typeof e != "object" || t > 6) return;
 	if (Array.isArray(e)) {
-		for (let n of e) Ao(n, t + 1);
+		for (let n of e) Mo(n, t + 1);
 		return;
 	}
 	let n = e;
 	if (typeof n.id == "string") {
 		let e = typeof n.name == "string" && n.name ? n.name : typeof n.email == "string" && n.email ? n.email : typeof n.path == "string" && typeof n.method == "string" ? `${n.method} ${n.path}` : void 0;
-		e && (Oo.size > 5e3 && Oo.clear(), Oo.set(n.id.toLowerCase(), e));
+		e && (Ao.size > 5e3 && Ao.clear(), Ao.set(n.id.toLowerCase(), e));
 	}
-	for (let e of Object.values(n)) e && typeof e == "object" && Ao(e, t + 1);
+	for (let e of Object.values(n)) e && typeof e == "object" && Mo(e, t + 1);
 }
-function jo(e) {
-	if (e) return e.replace(ko, (e) => Oo.get(e.toLowerCase()) ?? "").replace(/\s{2,}/g, " ").trim() || void 0;
+function No(e) {
+	if (e) return e.replace(jo, (e) => Ao.get(e.toLowerCase()) ?? "").replace(/\s{2,}/g, " ").trim() || void 0;
 }
-var Mo = class extends Error {
+var Po = class extends Error {
 	status;
 	code;
 	fields;
 	constructor(e, t, n = "No fue posible completar la solicitud.", r = []) {
 		super(n), this.status = e, this.code = t, this.fields = r, this.name = "ApiError";
 	}
-}, No = class {
+}, Fo = class {
 	options;
 	baseUrl;
-	constructor(e) {
-		this.options = e, this.baseUrl = e.apiBaseUrl.replace(/\/$/, "");
+	expiry;
+	constructor(e, t = {}) {
+		if (this.options = e, this.baseUrl = e.apiBaseUrl.replace(/\/$/, ""), e.getAccessToken) {
+			let n = e.sessionWarningSeconds ?? 60;
+			this.expiry = new Do(n, {
+				onExpiring: (n) => {
+					t.onExpiring?.(n);
+					try {
+						e.onSessionExpiring?.({ secondsLeft: Math.max(0, Math.round((n - Date.now()) / 1e3)) });
+					} catch {}
+				},
+				onRenewed: () => t.onRenewed?.()
+			});
+		}
+	}
+	dispose() {
+		this.expiry?.dispose();
 	}
 	async resolveApplicationId(e) {
 		if (this.options.applicationId) return this.options.applicationId;
@@ -3129,8 +3182,8 @@ var Mo = class extends Error {
 		} catch {
 			t = void 0;
 		}
-		if (t) return t;
-		let n = new Mo(401, "UNAUTHENTICATED", "No hay una sesión vigente. Inicie sesión de nuevo.");
+		if (t) return this.expiry?.observe(t), t;
+		let n = new Po(401, "UNAUTHENTICATED", "No hay una sesión vigente. Inicie sesión de nuevo.");
 		throw this.report(n), n;
 	}
 	report(e) {
@@ -3164,15 +3217,15 @@ var Mo = class extends Error {
 				headers: n
 			});
 		} catch (e) {
-			throw e instanceof DOMException && e.name === "AbortError" ? e : new Mo(0, "NETWORK_ERROR", "No fue posible conectar con el PDP.");
+			throw e instanceof DOMException && e.name === "AbortError" ? e : new Po(0, "NETWORK_ERROR", "No fue posible conectar con el PDP.");
 		}
 		if (!i.ok) {
-			let e = await i.json().catch(() => null), t = i.status === 403 ? Eo(e?.code) : i.status === 404 ? "El elemento ya no existe o no pertenece a esta aplicación." : i.status === 409 ? "La operación entra en conflicto con el estado actual." : i.status === 400 ? "Revise los datos ingresados." : i.status === 429 ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo." : i.status === 503 ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos." : `El servicio respondió ${i.status}.`, n = new Mo(i.status, e?.code, i.status === 403 ? t : (e?.code ? Do[e.code] : void 0) ?? jo(e?.detail ?? e?.message) ?? t, e?.fieldErrors ?? e?.errors ?? []);
+			let e = await i.json().catch(() => null), t = i.status === 403 ? Oo(e?.code) : i.status === 404 ? "El elemento ya no existe o no pertenece a esta aplicación." : i.status === 409 ? "La operación entra en conflicto con el estado actual." : i.status === 400 ? "Revise los datos ingresados." : i.status === 429 ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo." : i.status === 503 ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos." : `El servicio respondió ${i.status}.`, n = new Po(i.status, e?.code, i.status === 403 ? t : (e?.code ? ko[e.code] : void 0) ?? No(e?.detail ?? e?.message) ?? t, e?.fieldErrors ?? e?.errors ?? []);
 			throw this.report(n), n;
 		}
 		if (i.status === 204) return;
 		let a = (await i.json()).data;
-		return Ao(a), a;
+		return Mo(a), a;
 	}
 }, $ = () => ({
 	content: [],
@@ -3183,8 +3236,15 @@ var Mo = class extends Error {
 	error: null,
 	loaded: !1
 });
-function Po(e) {
-	let t = /* @__PURE__ */ V(""), n = /* @__PURE__ */ V(), r = /* @__PURE__ */ V(!1), i = /* @__PURE__ */ V(""), a = /* @__PURE__ */ V(!1), o = /* @__PURE__ */ R(/* @__PURE__ */ new Set()), s = /* @__PURE__ */ R($()), c = /* @__PURE__ */ R($()), l = /* @__PURE__ */ R($()), u = /* @__PURE__ */ R($()), d = /* @__PURE__ */ R($()), f = /* @__PURE__ */ R($()), p = /* @__PURE__ */ R($()), m = /* @__PURE__ */ R($()), h = /* @__PURE__ */ R($()), g = /* @__PURE__ */ R($()), _ = /* @__PURE__ */ R($()), v = /* @__PURE__ */ R($()), y = /* @__PURE__ */ R($()), b = /* @__PURE__ */ R($()), x = /* @__PURE__ */ new Map(), S, C = _a(() => new No(e.value)), w = _a(() => !!n.value && !r.value), ee = {
+function Io(e) {
+	let t = /* @__PURE__ */ V(""), n = /* @__PURE__ */ V(), r = /* @__PURE__ */ V(!1), i = /* @__PURE__ */ V(""), a = /* @__PURE__ */ V(!1), o = /* @__PURE__ */ R(/* @__PURE__ */ new Set()), s = /* @__PURE__ */ R($()), c = /* @__PURE__ */ R($()), l = /* @__PURE__ */ R($()), u = /* @__PURE__ */ R($()), d = /* @__PURE__ */ R($()), f = /* @__PURE__ */ R($()), p = /* @__PURE__ */ R($()), m = /* @__PURE__ */ R($()), h = /* @__PURE__ */ R($()), g = /* @__PURE__ */ R($()), _ = /* @__PURE__ */ R($()), v = /* @__PURE__ */ R($()), y = /* @__PURE__ */ R($()), b = /* @__PURE__ */ R($()), x = /* @__PURE__ */ new Map(), S, C = /* @__PURE__ */ V(null), w, T = _a(() => (w?.dispose(), w = new Fo(e.value, {
+		onExpiring: (e) => {
+			C.value = e;
+		},
+		onRenewed: () => {
+			C.value = null;
+		}
+	}), w)), ee = _a(() => !!n.value && !r.value), te = {
 		resources: (e, t, n, r, i) => e.getResources(t, {
 			page: n,
 			size: r
@@ -3209,47 +3269,47 @@ function Po(e) {
 			page: n,
 			size: r
 		}, i)
-	}, T = {
+	}, E = {
 		resources: s,
 		roles: c,
 		profiles: l,
 		administrators: u,
 		roleAssignments: d,
 		profileAssignments: f
-	}, te = (e, n, r) => `${t.value}:${e}:${n}:${r}`;
-	function E() {
+	}, ne = (e, n, r) => `${t.value}:${e}:${n}:${r}`;
+	function D() {
 		x.clear(), n.value = void 0;
-		for (let e of Object.values(T)) Object.assign(e, $(), { limit: e.limit });
+		for (let e of Object.values(E)) Object.assign(e, $(), { limit: e.limit });
 		Object.assign(p, $()), Object.assign(m, $()), Object.assign(h, $()), Object.assign(g, $()), Object.assign(_, $()), Object.assign(v, $()), Object.assign(y, $()), Object.assign(b, $());
 	}
-	async function ne() {
+	async function re() {
 		S?.abort(), S = new AbortController(), r.value = !0, i.value = "";
 		try {
-			let e = await C.value.resolveApplicationId(S.signal);
-			t.value = e, n.value = await C.value.getSummary(e, S.signal);
+			let e = await T.value.resolveApplicationId(S.signal);
+			t.value = e, n.value = await T.value.getSummary(e, S.signal);
 		} catch (e) {
-			Wo(e) || (i.value = Go(e));
+			Ko(e) || (i.value = qo(e));
 		} finally {
 			r.value = !1;
 		}
 	}
-	async function D(e, n = T[e].page, r = !1) {
+	async function ie(e, n = E[e].page, r = !1) {
 		if (!t.value) return;
-		let i = T[e], a = te(e, n, i.limit);
+		let i = E[e], a = ne(e, n, i.limit);
 		i.abortController?.abort(), i.error = null;
 		let o = !r && x.get(a);
 		if (o) {
-			Uo(i, o);
+			Go(i, o);
 			return;
 		}
 		let s = new AbortController();
 		i.abortController = s, i.loading = !0;
 		try {
-			let r = await ee[e](C.value, t.value, n, i.limit, s.signal);
+			let r = await te[e](T.value, t.value, n, i.limit, s.signal);
 			if (i.abortController !== s) return;
-			x.set(a, r), Uo(i, r);
+			x.set(a, r), Go(i, r);
 		} catch (e) {
-			!Wo(e) && i.abortController === s && (i.error = Go(e));
+			!Ko(e) && i.abortController === s && (i.error = qo(e));
 		} finally {
 			i.abortController === s && (i.loading = !1);
 		}
@@ -3263,76 +3323,76 @@ function Po(e) {
 		let r = new AbortController();
 		p.abortController = r, p.loading = !0, p.error = null;
 		try {
-			let i = await C.value.searchUsers(t.value, e.trim(), {
+			let i = await T.value.searchUsers(t.value, e.trim(), {
 				page: n,
 				size: p.limit
 			}, r.signal);
 			if (p.abortController !== r) return;
-			Uo(p, i);
+			Go(p, i);
 		} catch (e) {
-			Wo(e) || (p.error = Go(e));
+			Ko(e) || (p.error = qo(e));
 		} finally {
 			p.abortController === r && (p.loading = !1);
 		}
 	}
 	async function k(e, n = m.page, r = !1) {
-		return ae("role-resources", e, m, (r) => C.value.getRoleResources(t.value, e, {
+		return se("role-resources", e, m, (r) => T.value.getRoleResources(t.value, e, {
 			page: n,
 			size: m.limit
 		}, r), n, r);
 	}
 	async function A(e, n = h.page, r = !1) {
-		return ae("profile-roles", e, h, (r) => C.value.getProfileRoles(t.value, e, {
+		return se("profile-roles", e, h, (r) => T.value.getProfileRoles(t.value, e, {
 			page: n,
 			size: h.limit
 		}, r), n, r);
 	}
-	async function re(e, n = _.page, r = !1) {
+	async function j(e, n = _.page, r = !1) {
 		if (!t.value) return;
 		let i = `${t.value}:${e}:user-assignments:${n}:${_.limit}`;
 		_.abortController?.abort();
 		let a = r ? void 0 : x.get(i);
 		if (a) {
-			Uo(_, a.roleAssignments), Uo(v, a.profileAssignments);
+			Go(_, a.roleAssignments), Go(v, a.profileAssignments);
 			return;
 		}
 		let o = new AbortController();
 		_.abortController = o, v.abortController = o, _.loading = v.loading = !0;
 		try {
-			let r = await C.value.getUserAssignments(t.value, e, {
+			let r = await T.value.getUserAssignments(t.value, e, {
 				page: n,
 				size: _.limit
 			}, o.signal);
 			if (_.abortController !== o) return;
-			x.set(i, r), Uo(_, r.roleAssignments), Uo(v, r.profileAssignments);
+			x.set(i, r), Go(_, r.roleAssignments), Go(v, r.profileAssignments);
 		} catch (e) {
-			if (!Wo(e)) {
-				let t = Go(e);
+			if (!Ko(e)) {
+				let t = qo(e);
 				_.error = v.error = t;
 			}
 		} finally {
 			_.abortController === o && (_.loading = v.loading = !1);
 		}
 	}
-	async function j(e, n = y.page, r = !1) {
-		return ae("role-assignments", e, y, (r) => C.value.getAssignmentsForRole(t.value, e, {
+	async function ae(e, n = y.page, r = !1) {
+		return se("role-assignments", e, y, (r) => T.value.getAssignmentsForRole(t.value, e, {
 			page: n,
 			size: y.limit
 		}, r), n, r);
 	}
-	async function ie(e, n = b.page, r = !1) {
-		return ae("profile-assignments", e, b, (r) => C.value.getAssignmentsForProfile(t.value, e, {
+	async function oe(e, n = b.page, r = !1) {
+		return se("profile-assignments", e, b, (r) => T.value.getAssignmentsForProfile(t.value, e, {
 			page: n,
 			size: b.limit
 		}, r), n, r);
 	}
-	async function ae(e, n, r, i, a, o) {
+	async function se(e, n, r, i, a, o) {
 		if (!t.value) return;
 		let s = `${t.value}:${n}:${e}:${a}:${r.limit}`;
 		r.abortController?.abort(), r.error = null;
 		let c = o ? void 0 : x.get(s);
 		if (c) {
-			Uo(r, c);
+			Go(r, c);
 			return;
 		}
 		let l = new AbortController();
@@ -3340,70 +3400,71 @@ function Po(e) {
 		try {
 			let e = await i(l.signal);
 			if (r.abortController !== l) return;
-			x.set(s, e), Uo(r, e);
+			x.set(s, e), Go(r, e);
 		} catch (e) {
-			!Wo(e) && r.abortController === l && (r.error = Go(e));
+			!Ko(e) && r.abortController === l && (r.error = qo(e));
 		} finally {
 			r.abortController === l && (r.loading = !1);
 		}
 	}
-	let oe = [
+	let ce = [
 		":user-assignments:",
 		":role-assignments:",
 		":profile-assignments:"
 	];
-	function se(...e) {
-		if (e.includes("roleAssignments") || e.includes("profileAssignments")) for (let e of [...x.keys()]) e.startsWith(`${t.value}:`) && oe.some((t) => e.includes(t)) && x.delete(e);
+	function le(...e) {
+		if (e.includes("roleAssignments") || e.includes("profileAssignments")) for (let e of [...x.keys()]) e.startsWith(`${t.value}:`) && ce.some((t) => e.includes(t)) && x.delete(e);
 		for (let r of e) {
 			if (r === "summary") {
 				n.value = void 0;
 				continue;
 			}
 			for (let e of x.keys()) e.startsWith(`${t.value}:${r}:`) && x.delete(e);
-			T[r].loaded = !1;
+			E[r].loaded = !1;
 		}
 	}
-	function ce(e, n) {
+	function ue(e, n) {
 		for (let r of x.keys()) r.startsWith(`${t.value}:${n}:${e}:`) && x.delete(r);
 	}
-	async function M() {
-		E(), await ne();
+	async function de() {
+		D(), await re();
 	}
-	function le(e) {
+	function M(e) {
 		return e ? o.has(e) : o.size > 0;
 	}
-	async function ue(e, n, r = "global", s = !1) {
+	async function fe(e, n, r = "global", s = !1) {
 		if (!t.value || o.has(r)) return !1;
 		o.add(r), a.value = !0, i.value = "";
 		try {
-			await e(C.value, t.value), se(...n);
+			await e(T.value, t.value), le(...n);
 			let r = n.filter((e) => e !== "summary");
-			return await Promise.all(r.map((e) => D(e, T[e].page, !0))), s && await Promise.all(r.filter((e) => T[e].page > 0 && T[e].content.length === 0).map((e) => D(e, T[e].page - 1, !0))), n.includes("summary") && await ne(), !0;
+			return await Promise.all(r.map((e) => ie(e, E[e].page, !0))), s && await Promise.all(r.filter((e) => E[e].page > 0 && E[e].content.length === 0).map((e) => ie(e, E[e].page - 1, !0))), n.includes("summary") && await re(), !0;
 		} catch (e) {
-			return i.value = Go(e), !1;
+			return i.value = qo(e), !1;
 		} finally {
 			o.delete(r), a.value = o.size > 0;
 		}
 	}
 	return Ln(e, () => {
-		E(), ne();
+		D(), re();
 	}, {
 		immediate: !0,
 		deep: !0
 	}), Te(() => {
-		S?.abort();
-		for (let e of Object.values(T)) e.abortController?.abort();
+		w?.dispose(), S?.abort();
+		for (let e of Object.values(E)) e.abortController?.abort();
 		p.abortController?.abort(), m.abortController?.abort(), h.abortController?.abort(), g.abortController?.abort(), _.abortController?.abort(), v.abortController?.abort(), y.abortController?.abort(), b.abortController?.abort();
 	}), {
 		applicationId: t,
+		sessionExpiresAt: C,
 		summary: n,
 		summaryLoading: r,
 		loading: r,
 		saving: a,
 		mutations: o,
-		isMutating: le,
+		isMutating: M,
 		error: i,
-		ready: w,
+		ready: ee,
 		resources: s,
 		roles: c,
 		profiles: l,
@@ -3418,68 +3479,68 @@ function Po(e) {
 		assignmentsForRole: y,
 		assignmentsForProfile: b,
 		users: p,
-		load: D,
-		loadSummary: ne,
+		load: ie,
+		loadSummary: re,
 		loadRoleResources: k,
 		loadProfileRoles: A,
-		loadUserAssignments: re,
-		loadAssignmentsForRole: j,
-		loadAssignmentsForProfile: ie,
+		loadUserAssignments: j,
+		loadAssignmentsForRole: ae,
+		loadAssignmentsForProfile: oe,
 		searchUsers: O,
-		refresh: M,
-		mutate: ue,
-		invalidate: se,
-		invalidateRelation: ce
+		refresh: de,
+		mutate: fe,
+		invalidate: le,
+		invalidateRelation: ue
 	};
 }
-function Fo(e) {
+function Lo(e) {
 	return {
 		summary: e.summary,
 		loading: e.summaryLoading,
 		load: e.loadSummary
 	};
 }
-function Io(e) {
+function Ro(e) {
 	return e.resources;
 }
-function Lo(e) {
+function zo(e) {
 	return e.roles;
 }
-function Ro(e) {
+function Bo(e) {
 	return e.profiles;
 }
-function zo(e) {
+function Vo(e) {
 	return e.administrators;
 }
-function Bo(e) {
+function Ho(e) {
 	return e.roleAssignments;
 }
-function Vo(e) {
+function Uo(e) {
 	return e.profileAssignments;
 }
-function Ho(e) {
+function Wo(e) {
 	return {
 		state: e.users,
 		search: e.searchUsers
 	};
 }
-function Uo(e, t) {
+function Go(e, t) {
 	e.content = t.content, e.total = t.total, e.page = t.page, e.limit = t.limit, e.loaded = !0;
 }
-function Wo(e) {
+function Ko(e) {
 	return e instanceof DOMException && e.name === "AbortError";
 }
-function Go(e) {
+function qo(e) {
 	return e instanceof Error ? e.message : "No fue posible cargar la seguridad.";
 }
 //#endregion
 //#region src/components/ConfirmDangerDialog.vue?vue&type=script&setup=true&lang.ts
-var Ko = {
+var Jo = {
 	class: "dialog",
 	role: "alertdialog",
 	"aria-modal": "true",
 	"aria-labelledby": "confirm-title"
-}, qo = { class: "sub" }, Jo = { class: "actions bottom" }, Yo = ["disabled"], Xo = ["disabled"], Zo = /* @__PURE__ */ qn({
+}, Yo = { class: "sub" }, Xo = { class: "actions bottom" }, Zo = ["disabled"], Qo = ["disabled"], $o = /* @__PURE__ */ qn({
 	__name: "ConfirmDangerDialog",
 	props: {
 		open: { type: Boolean },
@@ -3492,22 +3553,22 @@ var Ko = {
 			key: 0,
 			class: "backdrop",
 			onClick: n[2] ||= yo((e) => t.$emit("cancel"), ["self"])
-		}, [Y("div", Ko, [
+		}, [Y("div", Jo, [
 			n[3] ||= Y("h3", { id: "confirm-title" }, "Confirmar acción destructiva", -1),
-			Y("p", qo, P(e.message), 1),
-			Y("div", Jo, [Y("button", {
+			Y("p", Yo, P(e.message), 1),
+			Y("div", Xo, [Y("button", {
 				class: "quiet",
 				disabled: e.busy,
 				onClick: n[0] ||= (e) => t.$emit("cancel")
-			}, " Cancelar ", 8, Yo), Y("button", {
+			}, " Cancelar ", 8, Zo), Y("button", {
 				"data-testid": "confirm-danger",
 				class: "primary danger",
 				disabled: e.busy,
 				onClick: n[1] ||= (e) => t.$emit("confirm")
-			}, " Confirmar ", 8, Xo)])
+			}, " Confirmar ", 8, Qo)])
 		])])) : Q("", !0);
 	}
-}), Qo = ["aria-label"], $o = ["disabled"], es = ["disabled"], ts = /* @__PURE__ */ qn({
+}), es = ["aria-label"], ts = ["disabled"], ns = ["disabled"], rs = /* @__PURE__ */ qn({
 	__name: "PaginationControls",
 	props: {
 		page: {},
@@ -3527,22 +3588,22 @@ var Ko = {
 				class: "quiet",
 				disabled: e.page === 0 || e.loading,
 				onClick: n[0] ||= (e) => t.$emit("previous")
-			}, " Anterior ", 8, $o),
+			}, " Anterior ", 8, ts),
 			Y("span", null, "Página " + P(e.page + 1) + " de " + P(Math.ceil(e.total / e.limit)), 1),
 			Y("button", {
 				class: "quiet",
 				disabled: (e.page + 1) * e.limit >= e.total || e.loading,
 				onClick: n[1] ||= (e) => t.$emit("next")
-			}, " Siguiente ", 8, es)
-		], 8, Qo)) : Q("", !0);
+			}, " Siguiente ", 8, ns)
+		], 8, es)) : Q("", !0);
 	}
-}), ns = {
+}), is = {
 	key: 0,
 	class: "empty"
-}, rs = {
+}, as = {
 	key: 1,
 	class: "stats"
-}, is = /* @__PURE__ */ qn({
+}, os = /* @__PURE__ */ qn({
 	__name: "SecuritySummaryPanel",
 	props: {
 		summary: {},
@@ -3550,7 +3611,7 @@ var Ko = {
 		assignmentCount: {}
 	},
 	setup(e) {
-		return (t, n) => e.loading ? (q(), J("p", ns, "Consultando políticas de seguridad…")) : e.summary ? (q(), J("div", rs, [(q(!0), J(K, null, W([
+		return (t, n) => e.loading ? (q(), J("p", is, "Consultando políticas de seguridad…")) : e.summary ? (q(), J("div", as, [(q(!0), J(K, null, W([
 			[e.summary.counts.administrators, "administradores"],
 			[e.assignmentCount, "asignaciones"],
 			[e.summary.counts.roles, "roles"],
@@ -3560,16 +3621,16 @@ var Ko = {
 			class: "stat"
 		}, [Y("b", null, P(e[0]), 1), Y("small", null, P(e[1]), 1)]))), 128))])) : Q("", !0);
 	}
-}), as = ["aria-busy"], os = {
+}), ss = ["aria-busy"], cs = {
 	key: 0,
 	class: "empty"
-}, ss = {
+}, ls = {
 	key: 1,
 	class: "error"
-}, cs = { class: "method" }, ls = { class: "grow" }, us = ["disabled", "onClick"], ds = ["disabled", "onClick"], fs = {
+}, us = { class: "method" }, ds = { class: "grow" }, fs = ["disabled", "onClick"], ps = ["disabled", "onClick"], ms = {
 	key: 2,
 	class: "empty"
-}, ps = /* @__PURE__ */ qn({
+}, hs = /* @__PURE__ */ qn({
 	__name: "ResourceList",
 	props: {
 		state: {},
@@ -3587,27 +3648,27 @@ var Ko = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", os, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", ss, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", cs, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", ls, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("span", cs, P(t.method), 1),
-				Y("div", ls, [Y("strong", null, P(t.path), 1), r[2] ||= Y("small", null, "Recurso protegido", -1)]),
+				Y("span", us, P(t.method), 1),
+				Y("div", ds, [Y("strong", null, P(t.path), 1), r[2] ||= Y("small", null, "Recurso protegido", -1)]),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("edit", t)
-				}, "Editar", 8, us),
+				}, "Editar", 8, fs),
 				Y("button", {
 					class: "quiet danger",
 					disabled: e.busy,
 					onClick: (e) => n("remove", t)
-				}, "Eliminar", 8, ds)
+				}, "Eliminar", 8, ps)
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", fs, "No hay datos en esta página.")) : Q("", !0)
-		], 8, as), X(ts, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", ms, "No hay datos en esta página.")) : Q("", !0)
+		], 8, ss), X(rs, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3621,16 +3682,16 @@ var Ko = {
 			"loading"
 		])], 64));
 	}
-}), ms = ["aria-busy"], hs = {
+}), gs = ["aria-busy"], _s = {
 	key: 0,
 	class: "empty"
-}, gs = {
+}, vs = {
 	key: 1,
 	class: "error"
-}, _s = { class: "grow" }, vs = { class: "pill" }, ys = ["disabled", "onClick"], bs = ["disabled", "onClick"], xs = ["disabled", "onClick"], Ss = { key: 1 }, Cs = {
+}, ys = { class: "grow" }, bs = { class: "pill" }, xs = ["disabled", "onClick"], Ss = ["disabled", "onClick"], Cs = ["disabled", "onClick"], ws = { key: 1 }, Ts = {
 	key: 2,
 	class: "empty"
-}, ws = /* @__PURE__ */ qn({
+}, Es = /* @__PURE__ */ qn({
 	__name: "RoleList",
 	props: {
 		state: {},
@@ -3649,34 +3710,34 @@ var Ko = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", hs, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", gs, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", _s, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", vs, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("div", _s, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.resourceCount ?? 0) + " recursos autorizados", 1)]),
-				Y("span", vs, P(n(t) ? "Protegido" : "Aplicación"), 1),
-				n(t) ? (q(), J("small", Ss, "Administra la aplicación; no se edita.")) : (q(), J(K, { key: 0 }, [
+				Y("div", ys, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.resourceCount ?? 0) + " recursos autorizados", 1)]),
+				Y("span", bs, P(n(t) ? "Protegido" : "Aplicación"), 1),
+				n(t) ? (q(), J("small", ws, "Administra la aplicación; no se edita.")) : (q(), J(K, { key: 0 }, [
 					Y("button", {
 						class: "quiet",
 						disabled: e.busy,
 						onClick: (e) => r("manage", t)
-					}, "Administrar recursos", 8, ys),
+					}, "Administrar recursos", 8, xs),
 					Y("button", {
 						class: "quiet",
 						disabled: e.busy,
 						onClick: (e) => r("edit", t)
-					}, "Editar", 8, bs),
+					}, "Editar", 8, Ss),
 					Y("button", {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("remove", t)
-					}, "Eliminar", 8, xs)
+					}, "Eliminar", 8, Cs)
 				], 64))
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", Cs, "No hay datos en esta página.")) : Q("", !0)
-		], 8, ms), X(ts, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", Ts, "No hay datos en esta página.")) : Q("", !0)
+		], 8, gs), X(rs, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3690,16 +3751,16 @@ var Ko = {
 			"loading"
 		])], 64));
 	}
-}), Ts = ["aria-busy"], Es = {
+}), Ds = ["aria-busy"], Os = {
 	key: 0,
 	class: "empty"
-}, Ds = {
+}, ks = {
 	key: 1,
 	class: "error"
-}, Os = { class: "grow" }, ks = ["disabled", "onClick"], As = ["disabled", "onClick"], js = ["disabled", "onClick"], Ms = {
+}, As = { class: "grow" }, js = ["disabled", "onClick"], Ms = ["disabled", "onClick"], Ns = ["disabled", "onClick"], Ps = {
 	key: 2,
 	class: "empty"
-}, Ns = /* @__PURE__ */ qn({
+}, Fs = /* @__PURE__ */ qn({
 	__name: "ProfileList",
 	props: {
 		state: {},
@@ -3718,32 +3779,32 @@ var Ko = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", Es, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", Ds, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", Os, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", ks, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.id,
 				class: "row"
 			}, [
-				Y("div", Os, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.roleCount ?? 0) + " roles agrupados", 1)]),
+				Y("div", As, [Y("strong", null, P(t.name), 1), Y("small", null, P(t.roleCount ?? 0) + " roles agrupados", 1)]),
 				r[2] ||= Y("span", { class: "pill" }, "Aplicación", -1),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("manage", t)
-				}, "Administrar roles", 8, ks),
+				}, "Administrar roles", 8, js),
 				Y("button", {
 					class: "quiet",
 					disabled: e.busy,
 					onClick: (e) => n("edit", t)
-				}, "Editar", 8, As),
+				}, "Editar", 8, Ms),
 				Y("button", {
 					class: "quiet danger",
 					disabled: e.busy,
 					onClick: (e) => n("remove", t)
-				}, "Eliminar", 8, js)
+				}, "Eliminar", 8, Ns)
 			]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", Ms, "No hay datos en esta página.")) : Q("", !0)
-		], 8, Ts), X(ts, {
+			e.state.loaded && !e.state.content.length ? (q(), J("p", Ps, "No hay datos en esta página.")) : Q("", !0)
+		], 8, Ds), X(rs, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3757,16 +3818,16 @@ var Ko = {
 			"loading"
 		])], 64));
 	}
-}), Ps = ["aria-busy"], Fs = {
+}), Is = ["aria-busy"], Ls = {
 	key: 0,
 	class: "empty"
-}, Is = {
+}, Rs = {
 	key: 1,
 	class: "error"
-}, Ls = { class: "grow" }, Rs = ["disabled", "onClick"], zs = {
+}, zs = { class: "grow" }, Bs = ["disabled", "onClick"], Vs = {
 	key: 2,
 	class: "empty"
-}, Bs = /* @__PURE__ */ qn({
+}, Hs = /* @__PURE__ */ qn({
 	__name: "AdministratorList",
 	props: {
 		state: {},
@@ -3786,12 +3847,12 @@ var Ko = {
 			class: "panel",
 			"aria-busy": e.state.loading
 		}, [
-			e.state.loading ? (q(), J("div", Fs, "Actualizando página…")) : Q("", !0),
-			e.state.error ? (q(), J("p", Is, P(e.state.error), 1)) : Q("", !0),
+			e.state.loading ? (q(), J("div", Ls, "Actualizando página…")) : Q("", !0),
+			e.state.error ? (q(), J("p", Rs, P(e.state.error), 1)) : Q("", !0),
 			(q(!0), J(K, null, W(e.state.content, (t) => (q(), J("div", {
 				key: t.user.id,
 				class: "row"
-			}, [Y("div", Ls, [
+			}, [Y("div", zs, [
 				Y("strong", null, P(t.user.name), 1),
 				Y("small", null, P(t.user.email), 1),
 				Y("small", null, "Administrador · desde " + P(r(t.validFrom)), 1)
@@ -3799,9 +3860,9 @@ var Ko = {
 				class: "quiet danger",
 				disabled: e.busy,
 				onClick: (e) => n("remove", t.user.id)
-			}, "Retirar", 8, Rs)]))), 128)),
-			e.state.loaded && !e.state.content.length ? (q(), J("p", zs, "No hay datos en esta página.")) : Q("", !0)
-		], 8, Ps), X(ts, {
+			}, "Retirar", 8, Bs)]))), 128)),
+			e.state.loaded && !e.state.content.length ? (q(), J("p", Vs, "No hay datos en esta página.")) : Q("", !0)
+		], 8, Is), X(rs, {
 			page: e.state.page,
 			limit: e.state.limit,
 			total: e.state.total,
@@ -3815,51 +3876,51 @@ var Ko = {
 			"loading"
 		])], 64));
 	}
-}), Vs = {
+}), Us = {
 	class: "access-workbench",
 	"aria-label": "Administración de personas y accesos"
-}, Hs = {
+}, Ws = {
 	class: "perspective-tabs",
 	role: "tablist",
 	"aria-label": "Perspectiva de consulta"
-}, Us = ["aria-selected", "onClick"], Ws = { class: "access-layout" }, Gs = { class: "access-query" }, Ks = { class: "search-field" }, qs = {
+}, Gs = ["aria-selected", "onClick"], Ks = { class: "access-layout" }, qs = { class: "access-query" }, Js = { class: "search-field" }, Ys = {
 	key: 0,
 	class: "choices",
 	"aria-label": "Resultados de personas"
-}, Js = ["onClick"], Ys = { class: "avatar" }, Xs = {
+}, Xs = ["onClick"], Zs = { class: "avatar" }, Qs = {
 	key: 0,
 	class: "empty compact"
-}, Zs = { class: "option-grid" }, Qs = ["onClick"], $s = {
+}, $s = { class: "option-grid" }, ec = ["onClick"], tc = {
 	key: 0,
 	class: "empty compact"
-}, ec = { class: "option-grid" }, tc = ["onClick"], nc = {
+}, nc = { class: "option-grid" }, rc = ["onClick"], ic = {
 	key: 0,
 	class: "empty compact"
-}, rc = { class: "access-results" }, ic = {
+}, ac = { class: "access-results" }, oc = {
 	key: 0,
 	class: "empty-state"
-}, ac = { class: "identity-strip" }, oc = { class: "avatar large" }, sc = {
+}, sc = { class: "identity-strip" }, cc = { class: "avatar large" }, lc = {
 	key: 0,
 	class: "admin-mark"
-}, cc = {
+}, uc = {
 	key: 0,
 	class: "error"
-}, lc = { class: "access-group" }, uc = { class: "group-title" }, dc = ["disabled", "onClick"], fc = {
+}, dc = { class: "access-group" }, fc = { class: "group-title" }, pc = ["disabled", "onClick"], mc = {
 	key: 0,
 	class: "empty compact"
-}, pc = { class: "access-group" }, mc = { class: "group-title" }, hc = ["disabled", "onClick"], gc = {
+}, hc = { class: "access-group" }, gc = { class: "group-title" }, _c = ["disabled", "onClick"], vc = {
 	key: 0,
 	class: "empty compact"
-}, _c = { class: "result-title" }, vc = { class: "count-badge" }, yc = {
+}, yc = { class: "result-title" }, bc = { class: "count-badge" }, xc = {
 	key: 0,
 	class: "error"
-}, bc = { class: "avatar" }, xc = { class: "access-meta" }, Sc = ["disabled", "onClick"], Cc = {
+}, Sc = { class: "avatar" }, Cc = { class: "access-meta" }, wc = ["disabled", "onClick"], Tc = {
 	key: 1,
 	class: "empty compact"
-}, wc = {
+}, Ec = {
 	key: 3,
 	class: "empty-state"
-}, Tc = /* @__PURE__ */ qn({
+}, Dc = /* @__PURE__ */ qn({
 	__name: "AccessAdministrationPanel",
 	props: {
 		users: {},
@@ -3903,13 +3964,13 @@ var Ko = {
 		function h(e) {
 			i.value === "person" ? r("personPage", e) : i.value === "role" ? r("rolePage", e) : r("profilePage", e);
 		}
-		return (t, n) => (q(), J("section", Vs, [
+		return (t, n) => (q(), J("section", Us, [
 			n[18] ||= Y("header", { class: "access-heading" }, [Y("div", null, [
 				Y("p", { class: "kicker" }, "Consultar y ajustar"),
 				Y("h4", null, "Personas y accesos"),
 				Y("p", null, "Encuentre una relación vigente y actúe desde el mismo lugar.")
 			]), Y("span", { class: "scope-mark" }, "Aplicación actual")], -1),
-			Y("div", Hs, [(q(), J(K, null, W([
+			Y("div", Ws, [(q(), J(K, null, W([
 				{
 					id: "person",
 					label: "Por persona",
@@ -3930,12 +3991,12 @@ var Ko = {
 				type: "button",
 				role: "tab",
 				"aria-selected": i.value === e.id,
-				class: N({ active: i.value === e.id }),
+				class: M({ active: i.value === e.id }),
 				onClick: (t) => i.value = e.id
-			}, [Y("strong", null, P(e.label), 1), Y("small", null, P(e.hint), 1)], 10, Us)), 64))]),
-			Y("div", Ws, [Y("aside", Gs, [i.value === "person" ? (q(), J(K, { key: 0 }, [
+			}, [Y("strong", null, P(e.label), 1), Y("small", null, P(e.hint), 1)], 10, Gs)), 64))]),
+			Y("div", Ks, [Y("aside", qs, [i.value === "person" ? (q(), J(K, { key: 0 }, [
 				n[6] ||= Y("label", { for: "person-search" }, "Buscar una persona", -1),
-				Y("div", Ks, [n[5] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
+				Y("div", Js, [n[5] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
 					id: "person-search",
 					"onUpdate:modelValue": n[0] ||= (e) => a.value = e,
 					autocomplete: "off",
@@ -3947,43 +4008,43 @@ var Ko = {
 					{ trim: !0 }
 				]])]),
 				n[7] ||= Y("p", { class: "query-help" }, "Los resultados pertenecen al tenant actual.", -1),
-				a.value ? (q(), J("div", qs, [(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
+				a.value ? (q(), J("div", Ys, [(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
-					class: N(["choice", { selected: o.value?.id === e.id }]),
+					class: M(["choice", { selected: o.value?.id === e.id }]),
 					onClick: (t) => u(e)
-				}, [Y("span", Ys, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Js))), 128)), e.users.loaded && !e.users.content.length ? (q(), J("p", Xs, "No se encontraron personas.")) : Q("", !0)])) : Q("", !0)
+				}, [Y("span", Zs, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Xs))), 128)), e.users.loaded && !e.users.content.length ? (q(), J("p", Qs, "No se encontraron personas.")) : Q("", !0)])) : Q("", !0)
 			], 64)) : i.value === "role" ? (q(), J(K, { key: 1 }, [
 				n[8] ||= Y("p", { class: "query-label" }, "Elija un rol", -1),
 				n[9] ||= Y("p", { class: "query-help" }, "Muestra únicamente roles de esta aplicación.", -1),
-				Y("div", Zs, [(q(!0), J(K, null, W(e.roles.content, (e) => (q(), J("button", {
+				Y("div", $s, [(q(!0), J(K, null, W(e.roles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
-					class: N({ selected: s.value?.id === e.id }),
+					class: M({ selected: s.value?.id === e.id }),
 					onClick: (t) => d(e)
-				}, P(e.name), 11, Qs))), 128)), e.roles.loaded && !e.roles.content.length ? (q(), J("p", $s, "No hay roles disponibles.")) : Q("", !0)])
+				}, P(e.name), 11, ec))), 128)), e.roles.loaded && !e.roles.content.length ? (q(), J("p", tc, "No hay roles disponibles.")) : Q("", !0)])
 			], 64)) : (q(), J(K, { key: 2 }, [
 				n[10] ||= Y("p", { class: "query-label" }, "Elija un perfil", -1),
 				n[11] ||= Y("p", { class: "query-help" }, "Muestra únicamente perfiles de esta aplicación.", -1),
-				Y("div", ec, [(q(!0), J(K, null, W(e.profiles.content, (e) => (q(), J("button", {
+				Y("div", nc, [(q(!0), J(K, null, W(e.profiles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
-					class: N({ selected: c.value?.id === e.id }),
+					class: M({ selected: c.value?.id === e.id }),
 					onClick: (t) => f(e)
-				}, P(e.name), 11, tc))), 128)), e.profiles.loaded && !e.profiles.content.length ? (q(), J("p", nc, "No hay perfiles disponibles.")) : Q("", !0)])
-			], 64))]), Y("div", rc, [i.value === "person" && !o.value ? (q(), J("div", ic, [...n[12] ||= [
+				}, P(e.name), 11, rc))), 128)), e.profiles.loaded && !e.profiles.content.length ? (q(), J("p", ic, "No hay perfiles disponibles.")) : Q("", !0)])
+			], 64))]), Y("div", ac, [i.value === "person" && !o.value ? (q(), J("div", oc, [...n[12] ||= [
 				Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione una persona", -1),
 				Y("p", null, "Busque por nombre o correo para consultar sus accesos vigentes.", -1)
 			]])) : i.value === "person" && o.value ? (q(), J(K, { key: 1 }, [
-				Y("div", ac, [
-					Y("span", oc, P(o.value.name.slice(0, 1)), 1),
+				Y("div", sc, [
+					Y("span", cc, P(o.value.name.slice(0, 1)), 1),
 					Y("div", null, [Y("strong", null, P(o.value.name), 1), Y("small", null, P(o.value.email), 1)]),
-					e.personRoleAssignments.content.some((e) => e.role.name === "ADMIN") ? (q(), J("span", sc, "Administra esta aplicación")) : Q("", !0)
+					e.personRoleAssignments.content.some((e) => e.role.name === "ADMIN") ? (q(), J("span", lc, "Administra esta aplicación")) : Q("", !0)
 				]),
-				e.personRoleAssignments.error || e.personProfileAssignments.error ? (q(), J("p", cc, P(e.personRoleAssignments.error || e.personProfileAssignments.error), 1)) : Q("", !0),
-				Y("section", lc, [
-					Y("div", uc, [n[13] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
+				e.personRoleAssignments.error || e.personProfileAssignments.error ? (q(), J("p", uc, P(e.personRoleAssignments.error || e.personProfileAssignments.error), 1)) : Q("", !0),
+				Y("section", dc, [
+					Y("div", fc, [n[13] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personRoleAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
@@ -3991,11 +4052,11 @@ var Ko = {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, dc)]))), 128)),
-					e.personRoleAssignments.loaded && !e.personRoleAssignments.content.length ? (q(), J("p", fc, "Esta persona no tiene roles asignados.")) : Q("", !0)
+					}, "Revocar", 8, pc)]))), 128)),
+					e.personRoleAssignments.loaded && !e.personRoleAssignments.content.length ? (q(), J("p", mc, "Esta persona no tiene roles asignados.")) : Q("", !0)
 				]),
-				Y("section", pc, [
-					Y("div", mc, [n[14] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
+				Y("section", hc, [
+					Y("div", gc, [n[14] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personProfileAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
@@ -4003,10 +4064,10 @@ var Ko = {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, hc)]))), 128)),
-					e.personProfileAssignments.loaded && !e.personProfileAssignments.content.length ? (q(), J("p", gc, "Esta persona no tiene perfiles asignados.")) : Q("", !0)
+					}, "Revocar", 8, _c)]))), 128)),
+					e.personProfileAssignments.loaded && !e.personProfileAssignments.content.length ? (q(), J("p", vc, "Esta persona no tiene perfiles asignados.")) : Q("", !0)
 				]),
-				X(ts, {
+				X(rs, {
 					page: e.personRoleAssignments.page,
 					limit: e.personRoleAssignments.limit,
 					total: Math.max(e.personRoleAssignments.total, e.personProfileAssignments.total),
@@ -4021,26 +4082,26 @@ var Ko = {
 					"loading"
 				])
 			], 64)) : i.value === "role" && s.value || i.value === "profile" && c.value ? (q(), J(K, { key: 2 }, [
-				Y("div", _c, [Y("div", null, [n[15] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", vc, P(l.value.total), 1)]),
-				l.value.error ? (q(), J("p", yc, P(l.value.error), 1)) : Q("", !0),
+				Y("div", yc, [Y("div", null, [n[15] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", bc, P(l.value.total), 1)]),
+				l.value.error ? (q(), J("p", xc, P(l.value.error), 1)) : Q("", !0),
 				(q(!0), J(K, null, W(l.value.content, (t) => (q(), J("div", {
 					key: t.id,
 					class: "access-row person-row"
 				}, [
-					Y("span", bc, P(t.user.name.slice(0, 1)), 1),
+					Y("span", Sc, P(t.user.name.slice(0, 1)), 1),
 					Y("div", null, [
 						Y("strong", null, P(t.user.name), 1),
 						Y("small", null, P(t.user.email), 1),
-						Y("small", xc, [Z(P(p(t)) + " · desde " + P(m(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [Z(" hasta " + P(m(t.validUntil)), 1)], 64)) : Q("", !0)])
+						Y("small", Cc, [Z(P(p(t)) + " · desde " + P(m(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [Z(" hasta " + P(m(t.validUntil)), 1)], 64)) : Q("", !0)])
 					]),
 					Y("button", {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
-					}, "Revocar", 8, Sc)
+					}, "Revocar", 8, wc)
 				]))), 128)),
-				l.value.loaded && !l.value.content.length ? (q(), J("p", Cc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Q("", !0),
-				X(ts, {
+				l.value.loaded && !l.value.content.length ? (q(), J("p", Tc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Q("", !0),
+				X(rs, {
 					page: l.value.page,
 					limit: l.value.limit,
 					total: l.value.total,
@@ -4054,35 +4115,44 @@ var Ko = {
 					"total",
 					"loading"
 				])
-			], 64)) : (q(), J("div", wc, [
+			], 64)) : (q(), J("div", Ec, [
 				n[16] ||= Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione un " + P(i.value === "role" ? "rol" : "perfil"), 1),
 				n[17] ||= Y("p", null, "Las personas con ese acceso aparecerán aquí.", -1)
 			]))])])
 		]));
 	}
-}), Ec = { class: "chip" }, Dc = { class: "grid" }, Oc = { "aria-label": "Secciones de seguridad" }, kc = ["aria-current", "onClick"], Ac = { class: "title" }, jc = { class: "actions" }, Mc = ["disabled"], Nc = ["disabled"], Pc = {
+}), Oc = { class: "chip" }, kc = { class: "grid" }, Ac = { "aria-label": "Secciones de seguridad" }, jc = ["aria-current", "onClick"], Mc = { class: "title" }, Nc = { class: "actions" }, Pc = ["disabled"], Fc = ["disabled"], Ic = {
 	key: 0,
+	class: "notice",
+	role: "status",
+	"aria-live": "polite"
+}, Lc = {
+	key: 1,
 	class: "error"
-}, Fc = ["aria-expanded"], Ic = ["aria-busy"], Lc = {
+}, Rc = ["aria-expanded"], zc = ["aria-busy"], Bc = {
 	key: 0,
 	class: "user-result-status"
-}, Rc = ["aria-selected", "onClick"], zc = {
+}, Vc = ["aria-selected", "onClick"], Hc = {
 	key: 1,
 	class: "selected-user",
 	role: "status"
-}, Bc = ["value"], Vc = { key: 3 }, Hc = ["value"], Uc = ["aria-busy"], Wc = { class: "grow" }, Gc = ["disabled", "onClick"], Kc = {
+}, Uc = ["value"], Wc = { key: 3 }, Gc = ["value"], Kc = ["aria-busy"], qc = { class: "grow" }, Jc = ["disabled", "onClick"], Yc = {
 	key: 0,
 	class: "empty"
-}, qc = { class: "actions bottom" }, Jc = ["disabled"], Yc = ["disabled"], Xc = 3, Zc = /* @__PURE__ */ qn({
+}, Xc = { class: "actions bottom" }, Zc = ["disabled"], Qc = ["disabled"], $c = 3, el = /* @__PURE__ */ qn({
 	__name: "SecurityAdministration",
 	props: { options: {} },
 	setup(e, { expose: t }) {
-		let n = e, r = Po(/* @__PURE__ */ Zt(n, "options")), { summary: i, loading: a } = Fo(r), o = Io(r), s = Lo(r), c = Ro(r), l = zo(r);
-		Bo(r), Vo(r);
-		let { state: u, search: d } = Ho(r), { saving: f, error: p, ready: m, load: h, refresh: g, mutate: _, roleResources: v, profileRoles: y, loadRoleResources: b, loadProfileRoles: x, userRoleAssignments: S, userProfileAssignments: C, assignmentsForRole: w, assignmentsForProfile: ee, loadUserAssignments: T, loadAssignmentsForRole: te, loadAssignmentsForProfile: E, invalidateRelation: ne } = r;
+		let n = e, r = Io(/* @__PURE__ */ Zt(n, "options")), { summary: i, loading: a } = Lo(r), o = Ro(r), s = zo(r), c = Bo(r), l = Vo(r);
+		Ho(r), Uo(r);
+		let { state: u, search: d } = Wo(r), { saving: f, error: p, ready: m, load: h, refresh: g, mutate: _, roleResources: v, profileRoles: y, loadRoleResources: b, loadProfileRoles: x, userRoleAssignments: S, userProfileAssignments: C, assignmentsForRole: w, assignmentsForProfile: T, loadUserAssignments: ee, loadAssignmentsForRole: te, loadAssignmentsForProfile: E, invalidateRelation: ne, sessionExpiresAt: D } = r;
 		t({ refresh: g });
-		let D = /* @__PURE__ */ V("summary"), O = /* @__PURE__ */ V(null), k = /* @__PURE__ */ V(), A = /* @__PURE__ */ V(), re = /* @__PURE__ */ V(""), j = /* @__PURE__ */ V(""), ie = /* @__PURE__ */ V(""), ae = /* @__PURE__ */ V(), oe = /* @__PURE__ */ V(!1), ce, M = /* @__PURE__ */ V({
+		let re = /* @__PURE__ */ V(Date.now()), ie;
+		Ln(D, (e) => {
+			clearInterval(ie), ie = void 0, e !== null && (re.value = Date.now(), ie = setInterval(() => re.value = Date.now(), 1e3));
+		}), dr(() => clearInterval(ie));
+		let O = _a(() => D.value === null ? null : Math.max(0, Math.ceil((D.value - re.value) / 1e3))), k = /* @__PURE__ */ V("summary"), A = /* @__PURE__ */ V(null), j = /* @__PURE__ */ V(), ae = /* @__PURE__ */ V(), oe = /* @__PURE__ */ V(""), ce = /* @__PURE__ */ V(""), le = /* @__PURE__ */ V(""), ue = /* @__PURE__ */ V(), de = /* @__PURE__ */ V(!1), fe, N = /* @__PURE__ */ V({
 			userId: "",
 			userQuery: "",
 			description: "",
@@ -4092,7 +4162,7 @@ var Ko = {
 			name: "",
 			targetId: "",
 			accessKind: "role"
-		}), le = [
+		}), pe = [
 			{
 				id: "summary",
 				label: "Resumen"
@@ -4117,37 +4187,37 @@ var Ko = {
 				id: "admins",
 				label: "Administradores"
 			}
-		], ue = {
+		], me = {
 			summary: "Resumen de seguridad",
 			people: "Personas y asignaciones",
 			roles: "Roles de aplicación",
 			profiles: "Perfiles de acceso",
 			resources: "Recursos protegidos",
 			admins: "Administradores"
-		}, de = {
+		}, he = {
 			summary: "Configurar accesos",
 			people: "Asignar acceso",
 			roles: "Definir rol",
 			profiles: "Definir perfil",
 			resources: "Registrar recurso",
 			admins: "Agregar administrador"
-		}, fe = _a(() => ({
+		}, ge = _a(() => ({
 			people: (i.value?.counts.roleAssignments ?? 0) + (i.value?.counts.profileAssignments ?? 0),
 			roles: i.value?.counts.roles ?? 0,
 			profiles: i.value?.counts.profiles ?? 0,
 			resources: i.value?.counts.resources ?? 0,
 			admins: i.value?.counts.administrators ?? 0
-		})), pe = _a(() => D.value === "summary" && n.options.allowApplicationLifecycleManagement ? "Editar aplicación" : de[D.value]), me = _a(() => ({
+		})), _e = _a(() => k.value === "summary" && n.options.allowApplicationLifecycleManagement ? "Editar aplicación" : he[k.value]), ve = _a(() => ({
 			roles: s,
 			profiles: c,
 			resources: o,
 			admins: l
-		})[D.value]), he = _a(() => ({
+		})[k.value]), ye = _a(() => ({
 			"--accent": n.options.theme?.accent ?? "#295181",
 			"--font": n.options.theme?.fontFamily ?? "Inter, system-ui, sans-serif",
 			"--radius": n.options.theme?.radius ?? "14px"
 		}));
-		Ln(D, (e) => {
+		Ln(k, (e) => {
 			if (e === "people") {
 				h("roles"), h("profiles");
 				return;
@@ -4159,11 +4229,11 @@ var Ko = {
 				admins: "administrators"
 			}[e];
 			t && h(t);
-		}, { immediate: !0 }), Ln(() => M.value.accessKind, (e) => {
-			O.value === "access" && h(e === "role" ? "roles" : "profiles");
+		}, { immediate: !0 }), Ln(() => N.value.accessKind, (e) => {
+			A.value === "access" && h(e === "role" ? "roles" : "profiles");
 		});
-		function ge(e, t) {
-			O.value = e ?? (D.value === "summary" ? n.options.allowApplicationLifecycleManagement ? "application" : "access" : D.value === "people" ? "access" : D.value === "roles" ? "role" : D.value === "profiles" ? "profile" : D.value === "resources" ? "resource" : "admin"), k.value = t, M.value = {
+		function be(e, t) {
+			A.value = e ?? (k.value === "summary" ? n.options.allowApplicationLifecycleManagement ? "application" : "access" : k.value === "people" ? "access" : k.value === "roles" ? "role" : k.value === "profiles" ? "profile" : k.value === "resources" ? "resource" : "admin"), j.value = t, N.value = {
 				userId: "",
 				userQuery: "",
 				description: "",
@@ -4173,169 +4243,170 @@ var Ko = {
 				name: "",
 				targetId: "",
 				accessKind: "role"
-			}, t && "path" in t && (M.value.path = t.path, M.value.method = t.method), t && "name" in t && (M.value.name = t.name), O.value === "application" && i.value && (M.value.name = i.value.application.name, M.value.description = i.value.application.description ?? "", M.value.baseUrl = i.value.application.baseUrl ?? ""), (O.value === "admin" || O.value === "access") && d(""), (O.value === "access" || O.value === "profile-role") && h("roles"), O.value === "role-resource" && h("resources"), t && O.value === "role-resource" && b(t.id), t && O.value === "profile-role" && x(t.id);
+			}, t && "path" in t && (N.value.path = t.path, N.value.method = t.method), t && "name" in t && (N.value.name = t.name), A.value === "application" && i.value && (N.value.name = i.value.application.name, N.value.description = i.value.application.description ?? "", N.value.baseUrl = i.value.application.baseUrl ?? ""), (A.value === "admin" || A.value === "access") && d(""), (A.value === "access" || A.value === "profile-role") && h("roles"), A.value === "role-resource" && h("resources"), t && A.value === "role-resource" && b(t.id), t && A.value === "profile-role" && x(t.id);
 		}
-		function _e() {
-			ce && clearTimeout(ce), O.value = null, k.value = void 0, ae.value = void 0, oe.value = !1;
+		function xe() {
+			fe && clearTimeout(fe), A.value = null, j.value = void 0, ue.value = void 0, de.value = !1;
 		}
-		function ve() {
-			let e = M.value.userQuery.trim();
-			if (M.value.userId = "", ae.value = void 0, oe.value = !0, ce && clearTimeout(ce), e.length < Xc) {
+		function Se() {
+			let e = N.value.userQuery.trim();
+			if (N.value.userId = "", ue.value = void 0, de.value = !0, fe && clearTimeout(fe), e.length < $c) {
 				d("");
 				return;
 			}
-			ce = setTimeout(() => void d(e), 250);
+			fe = setTimeout(() => void d(e), 250);
 		}
-		function ye(e) {
-			M.value.userId = e.id, M.value.userQuery = `${e.name} · ${e.email}`, ae.value = e, oe.value = !1;
+		function F(e) {
+			N.value.userId = e.id, N.value.userQuery = `${e.name} · ${e.email}`, ue.value = e, de.value = !1;
 		}
-		let be = _a(() => M.value.userQuery.trim().length < Xc ? `Escriba al menos ${Xc} caracteres para buscar.` : u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : oe.value && !u.content.length ? "No hay coincidencias para esta búsqueda." : "Seleccione una persona de los resultados.");
+		let Ce = _a(() => N.value.userQuery.trim().length < $c ? `Escriba al menos ${$c} caracteres para buscar.` : u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : de.value && !u.content.length ? "No hay coincidencias para esta búsqueda." : "Seleccione una persona de los resultados.");
 		dr(() => {
-			ce && clearTimeout(ce);
+			fe && clearTimeout(fe);
 		});
-		async function xe() {
-			let e = M.value, t = O.value;
+		async function we() {
+			let e = N.value, t = A.value;
 			if (!t || t === "confirm") return;
-			let n = !!k.value, r = t === "application" ? ["summary"] : t === "admin" ? ["administrators", "summary"] : t === "resource" ? ["resources", "summary"] : t === "role" ? ["roles", "summary"] : t === "profile" ? ["profiles", "summary"] : t === "access" ? [e.accessKind === "role" ? "roleAssignments" : "profileAssignments", "summary"] : t === "role-resource" ? ["roles"] : ["profiles"], i = await _((r, i) => t === "application" ? r.updateApplication(i, {
+			let n = !!j.value, r = t === "application" ? ["summary"] : t === "admin" ? ["administrators", "summary"] : t === "resource" ? ["resources", "summary"] : t === "role" ? ["roles", "summary"] : t === "profile" ? ["profiles", "summary"] : t === "access" ? [e.accessKind === "role" ? "roleAssignments" : "profileAssignments", "summary"] : t === "role-resource" ? ["roles"] : ["profiles"], i = await _((r, i) => t === "application" ? r.updateApplication(i, {
 				name: e.name,
 				description: e.description,
 				baseUrl: e.baseUrl
-			}) : t === "admin" ? r.addAdministrator(i, e.userId) : t === "resource" ? n ? r.updateResource(i, k.value.id, {
+			}) : t === "admin" ? r.addAdministrator(i, e.userId) : t === "resource" ? n ? r.updateResource(i, j.value.id, {
 				path: e.path,
 				method: e.method
 			}) : r.createResource(i, {
 				path: e.path,
 				method: e.method
-			}) : t === "role" ? n ? r.updateRole(k.value.id, { name: e.name }) : r.createRole(i, e.name) : t === "profile" ? n ? r.updateProfile(k.value.id, { name: e.name }) : r.createProfile(i, e.name) : t === "access" ? r.assignAccess(i, e.accessKind, e.targetId, e.userId) : t === "role-resource" ? r.linkRoleResource(k.value.id, e.targetId) : r.linkProfileRole(k.value.id, e.targetId), [...r], `${t}:${k.value?.id ?? e.userId}`);
-			i && t === "access" && (re.value === e.userId && await T(e.userId, S.page, !0), e.accessKind === "role" && j.value === e.targetId && await te(e.targetId, w.page, !0), e.accessKind === "profile" && ie.value === e.targetId && await E(e.targetId, ee.page, !0)), i && _e();
+			}) : t === "role" ? n ? r.updateRole(j.value.id, { name: e.name }) : r.createRole(i, e.name) : t === "profile" ? n ? r.updateProfile(j.value.id, { name: e.name }) : r.createProfile(i, e.name) : t === "access" ? r.assignAccess(i, e.accessKind, e.targetId, e.userId) : t === "role-resource" ? r.linkRoleResource(j.value.id, e.targetId) : r.linkProfileRole(j.value.id, e.targetId), [...r], `${t}:${j.value?.id ?? e.userId}`);
+			i && t === "access" && (oe.value === e.userId && await ee(e.userId, S.page, !0), e.accessKind === "role" && ce.value === e.targetId && await te(e.targetId, w.page, !0), e.accessKind === "profile" && le.value === e.targetId && await E(e.targetId, T.page, !0)), i && xe();
 		}
-		function Se(e, t) {
-			F.value = e, A.value = t, O.value = "confirm";
+		function Te(e, t) {
+			I.value = e, ae.value = t, A.value = "confirm";
 		}
-		let F = /* @__PURE__ */ V("");
-		async function Ce() {
-			let e = A.value;
-			(!e || await e()) && _e();
-		}
-		function we(e) {
-			Se("Retirar este administrador puede dejar la aplicación sin administración. El PDP impedirá retirar el último administrador.", async () => _((t, n) => t.removeAdministrator(n, e), ["administrators", "summary"], `admin:${e}`, !0));
-		}
-		function Te(e) {
-			Se("Eliminar este recurso revoca su protección y puede estar bloqueado si tiene dependencias.", async () => _((t, n) => t.deleteResource(n, e), ["resources", "summary"], `resource:${e}`, !0));
-		}
-		function I(e) {
-			Se("Eliminar este rol requiere que no tenga perfiles ni asignaciones dependientes.", async () => _((t) => t.deleteRole(e), ["roles", "summary"], `role:${e}`, !0));
-		}
-		function Ee(e) {
-			Se("Eliminar este perfil requiere que no tenga asignaciones dependientes.", async () => _((t) => t.deleteProfile(e), ["profiles", "summary"], `profile:${e}`, !0));
+		let I = /* @__PURE__ */ V("");
+		async function Ee() {
+			let e = ae.value;
+			(!e || await e()) && xe();
 		}
 		function De(e) {
-			let t = "role" in e;
-			Se(`Revocar ${t ? `el rol ${e.role.name}` : `el perfil ${e.profile.name}`} de ${e.user.name} (${e.user.email}) retira su acceso vigente.`, async () => {
-				let n = await _((n) => t ? n.revokeRoleAssignment(e.role.id, e.id) : n.revokeProfileAssignment(e.profile.id, e.id), [t ? "roleAssignments" : "profileAssignments", "summary"], `assignment:${e.id}`, !0);
-				return n && re.value && await T(re.value, S.page, !0), n && t && j.value && await te(j.value, w.page, !0), n && !t && ie.value && await E(ie.value, ee.page, !0), n;
-			});
+			Te("Retirar este administrador puede dejar la aplicación sin administración. El PDP impedirá retirar el último administrador.", async () => _((t, n) => t.removeAdministrator(n, e), ["administrators", "summary"], `admin:${e}`, !0));
 		}
 		function Oe(e) {
-			let t = k.value.id;
-			Se("Retirar este recurso elimina el permiso que este rol concede sobre él.", async () => {
+			Te("Eliminar este recurso revoca su protección y puede estar bloqueado si tiene dependencias.", async () => _((t, n) => t.deleteResource(n, e), ["resources", "summary"], `resource:${e}`, !0));
+		}
+		function ke(e) {
+			Te("Eliminar este rol requiere que no tenga perfiles ni asignaciones dependientes.", async () => _((t) => t.deleteRole(e), ["roles", "summary"], `role:${e}`, !0));
+		}
+		function Ae(e) {
+			Te("Eliminar este perfil requiere que no tenga asignaciones dependientes.", async () => _((t) => t.deleteProfile(e), ["profiles", "summary"], `profile:${e}`, !0));
+		}
+		function je(e) {
+			let t = "role" in e;
+			Te(`Revocar ${t ? `el rol ${e.role.name}` : `el perfil ${e.profile.name}`} de ${e.user.name} (${e.user.email}) retira su acceso vigente.`, async () => {
+				let n = await _((n) => t ? n.revokeRoleAssignment(e.role.id, e.id) : n.revokeProfileAssignment(e.profile.id, e.id), [t ? "roleAssignments" : "profileAssignments", "summary"], `assignment:${e.id}`, !0);
+				return n && oe.value && await ee(oe.value, S.page, !0), n && t && ce.value && await te(ce.value, w.page, !0), n && !t && le.value && await E(le.value, T.page, !0), n;
+			});
+		}
+		function Me(e) {
+			let t = j.value.id;
+			Te("Retirar este recurso elimina el permiso que este rol concede sobre él.", async () => {
 				let n = await _((n) => n.unlinkRoleResource(t, e), ["roles"], `role-resource:${t}:${e}`);
 				return n && (ne("role-resources", t), await b(t, v.page, !0), v.page > 0 && !v.content.length && await b(t, v.page - 1, !0)), n;
 			});
 		}
-		function ke(e) {
-			let t = k.value.id;
-			Se("Retirar este rol cambia los permisos heredados por este perfil.", async () => {
+		function Ne(e) {
+			let t = j.value.id;
+			Te("Retirar este rol cambia los permisos heredados por este perfil.", async () => {
 				let n = await _((n) => n.unlinkProfileRole(t, e), ["profiles"], `profile-role:${t}:${e}`);
 				return n && (ne("profile-roles", t), await x(t, y.page, !0), y.page > 0 && !y.content.length && await x(t, y.page - 1, !0)), n;
 			});
 		}
-		function Ae(e) {
-			if (!k.value) return;
-			let t = O.value === "role-resource" ? v : y, n = t.page + e;
-			n < 0 || n * t.limit >= t.total || (O.value === "role-resource" ? b(k.value.id, n) : O.value === "profile-role" && x(k.value.id, n));
+		function Pe(e) {
+			if (!j.value) return;
+			let t = A.value === "role-resource" ? v : y, n = t.page + e;
+			n < 0 || n * t.limit >= t.total || (A.value === "role-resource" ? b(j.value.id, n) : A.value === "profile-role" && x(j.value.id, n));
 		}
-		function je() {
-			let e = me.value;
+		function Fe() {
+			let e = ve.value;
 			e && (e.page + 1) * e.limit < e.total && h({
 				roles: "roles",
 				profiles: "profiles",
 				resources: "resources",
 				admins: "administrators"
-			}[D.value], e.page + 1);
+			}[k.value], e.page + 1);
 		}
-		function Me() {
-			let e = me.value;
+		function Ie() {
+			let e = ve.value;
 			e && e.page > 0 && h({
 				roles: "roles",
 				profiles: "profiles",
 				resources: "resources",
 				admins: "administrators"
-			}[D.value], e.page - 1);
+			}[k.value], e.page - 1);
 		}
 		return (t, n) => (q(), J("section", {
 			class: "shell",
-			style: se(he.value),
+			style: se(ye.value),
 			"aria-live": "polite"
 		}, [
 			Y("header", null, [n[29] ||= Y("div", null, [
 				Y("p", { class: "eyebrow" }, "Seguridad · aplicación actual"),
 				Y("h2", null, "Control de acceso"),
 				Y("p", null, "La información y las acciones están acotadas a esta aplicación.")
-			], -1), Y("span", Ec, P(H(i)?.application.name ?? e.options.applicationName ?? "Cargando"), 1)]),
-			Y("div", Dc, [Y("nav", Oc, [(q(), J(K, null, W(le, (e) => Y("button", {
+			], -1), Y("span", Oc, P(H(i)?.application.name ?? e.options.applicationName ?? "Cargando"), 1)]),
+			Y("div", kc, [Y("nav", Ac, [(q(), J(K, null, W(pe, (e) => Y("button", {
 				key: e.id,
-				"aria-current": D.value === e.id,
-				onClick: (t) => D.value = e.id
-			}, [Z(P(e.label), 1), e.id === "summary" ? Q("", !0) : (q(), J(K, { key: 0 }, [Z(" · " + P(fe.value[e.id]), 1)], 64))], 8, kc)), 64))]), Y("main", null, [
-				Y("div", Ac, [Y("div", null, [Y("h3", null, P(ue[D.value]), 1), n[30] ||= Y("p", { class: "sub" }, "Alcance exclusivo de la aplicación abierta.", -1)]), Y("div", jc, [Y("button", {
+				"aria-current": k.value === e.id,
+				onClick: (t) => k.value = e.id
+			}, [Z(P(e.label), 1), e.id === "summary" ? Q("", !0) : (q(), J(K, { key: 0 }, [Z(" · " + P(ge.value[e.id]), 1)], 64))], 8, jc)), 64))]), Y("main", null, [
+				Y("div", Mc, [Y("div", null, [Y("h3", null, P(me[k.value]), 1), n[30] ||= Y("p", { class: "sub" }, "Alcance exclusivo de la aplicación abierta.", -1)]), Y("div", Nc, [Y("button", {
 					class: "quiet",
 					disabled: H(a) || H(f),
 					onClick: n[0] ||= (...e) => H(g) && H(g)(...e)
-				}, " Actualizar", 8, Mc), Y("button", {
+				}, " Actualizar", 8, Pc), Y("button", {
 					class: "primary",
 					disabled: !H(m) || H(f),
-					onClick: n[1] ||= (e) => ge()
-				}, P(pe.value), 9, Nc)])]),
-				H(p) ? (q(), J("p", Pc, P(H(p)), 1)) : Q("", !0),
-				D.value === "summary" ? (q(), zi(is, {
-					key: 1,
+					onClick: n[1] ||= (e) => be()
+				}, P(_e.value), 9, Fc)])]),
+				e.options.sessionNotice && O.value !== null ? (q(), J("p", Ic, P(O.value > 0 ? `Tu sesión vence en ${O.value} s. La aplicación la renueva con tu siguiente acción; si no, tendrás que iniciar sesión de nuevo.` : "Tu sesión venció. Pulsa Actualizar o vuelve a iniciar sesión en la aplicación."), 1)) : Q("", !0),
+				H(p) ? (q(), J("p", Lc, P(H(p)), 1)) : Q("", !0),
+				k.value === "summary" ? (q(), zi(os, {
+					key: 2,
 					summary: H(i),
 					loading: H(a),
-					"assignment-count": fe.value.people
+					"assignment-count": ge.value.people
 				}, null, 8, [
 					"summary",
 					"loading",
 					"assignment-count"
-				])) : D.value === "people" ? (q(), zi(Tc, {
-					key: 2,
+				])) : k.value === "people" ? (q(), zi(Dc, {
+					key: 3,
 					users: H(u),
 					roles: H(s),
 					profiles: H(c),
 					"person-role-assignments": H(S),
 					"person-profile-assignments": H(C),
 					"role-assignments": H(w),
-					"profile-assignments": H(ee),
+					"profile-assignments": H(T),
 					busy: H(f),
 					onSearchUsers: H(d),
 					onSelectPerson: n[2] ||= (e) => {
-						re.value = e.id, H(T)(e.id, 0);
+						oe.value = e.id, H(ee)(e.id, 0);
 					},
 					onSelectRole: n[3] ||= (e) => {
-						j.value = e.id, H(te)(e.id, 0);
+						ce.value = e.id, H(te)(e.id, 0);
 					},
 					onSelectProfile: n[4] ||= (e) => {
-						ie.value = e.id, H(E)(e.id, 0);
+						le.value = e.id, H(E)(e.id, 0);
 					},
-					onRevoke: De,
+					onRevoke: je,
 					onPersonPage: n[5] ||= (e) => {
-						re.value && H(S).page + e >= 0 && H(T)(re.value, H(S).page + e);
+						oe.value && H(S).page + e >= 0 && H(ee)(oe.value, H(S).page + e);
 					},
 					onRolePage: n[6] ||= (e) => {
-						j.value && H(w).page + e >= 0 && H(te)(j.value, H(w).page + e);
+						ce.value && H(w).page + e >= 0 && H(te)(ce.value, H(w).page + e);
 					},
 					onProfilePage: n[7] ||= (e) => {
-						ie.value && H(ee).page + e >= 0 && H(E)(ie.value, H(ee).page + e);
+						le.value && H(T).page + e >= 0 && H(E)(le.value, H(T).page + e);
 					}
 				}, null, 8, [
 					"users",
@@ -4347,209 +4418,209 @@ var Ko = {
 					"profile-assignments",
 					"busy",
 					"onSearchUsers"
-				])) : (q(), J(K, { key: 3 }, [D.value === "resources" ? (q(), zi(ps, {
+				])) : (q(), J(K, { key: 4 }, [k.value === "resources" ? (q(), zi(hs, {
 					key: 0,
 					state: H(o),
 					busy: H(f),
-					onEdit: n[8] ||= (e) => ge("resource", e),
-					onRemove: n[9] ||= (e) => Te(e.id),
-					onPrevious: Me,
-					onNext: je
-				}, null, 8, ["state", "busy"])) : D.value === "roles" ? (q(), zi(ws, {
+					onEdit: n[8] ||= (e) => be("resource", e),
+					onRemove: n[9] ||= (e) => Oe(e.id),
+					onPrevious: Ie,
+					onNext: Fe
+				}, null, 8, ["state", "busy"])) : k.value === "roles" ? (q(), zi(Es, {
 					key: 1,
 					state: H(s),
 					busy: H(f),
-					onManage: n[10] ||= (e) => ge("role-resource", e),
-					onEdit: n[11] ||= (e) => ge("role", e),
-					onRemove: n[12] ||= (e) => I(e.id),
-					onPrevious: Me,
-					onNext: je
-				}, null, 8, ["state", "busy"])) : D.value === "profiles" ? (q(), zi(Ns, {
+					onManage: n[10] ||= (e) => be("role-resource", e),
+					onEdit: n[11] ||= (e) => be("role", e),
+					onRemove: n[12] ||= (e) => ke(e.id),
+					onPrevious: Ie,
+					onNext: Fe
+				}, null, 8, ["state", "busy"])) : k.value === "profiles" ? (q(), zi(Fs, {
 					key: 2,
 					state: H(c),
 					busy: H(f),
-					onManage: n[13] ||= (e) => ge("profile-role", e),
-					onEdit: n[14] ||= (e) => ge("profile", e),
-					onRemove: n[15] ||= (e) => Ee(e.id),
-					onPrevious: Me,
-					onNext: je
-				}, null, 8, ["state", "busy"])) : (q(), zi(Bs, {
+					onManage: n[13] ||= (e) => be("profile-role", e),
+					onEdit: n[14] ||= (e) => be("profile", e),
+					onRemove: n[15] ||= (e) => Ae(e.id),
+					onPrevious: Ie,
+					onNext: Fe
+				}, null, 8, ["state", "busy"])) : (q(), zi(Hs, {
 					key: 3,
 					state: H(l),
 					busy: H(f),
-					onRemove: we,
-					onPrevious: Me,
-					onNext: je
+					onRemove: De,
+					onPrevious: Ie,
+					onNext: Fe
 				}, null, 8, ["state", "busy"]))], 64))
 			])]),
-			O.value ? (q(), J("div", {
+			A.value ? (q(), J("div", {
 				key: 0,
 				class: "backdrop",
-				onClick: yo(_e, ["self"])
-			}, [O.value === "confirm" ? (q(), zi(Zo, {
+				onClick: yo(xe, ["self"])
+			}, [A.value === "confirm" ? (q(), zi($o, {
 				key: 1,
 				open: !0,
-				message: F.value,
+				message: I.value,
 				busy: H(f),
-				onCancel: _e,
-				onConfirm: Ce
+				onCancel: xe,
+				onConfirm: Ee
 			}, null, 8, ["message", "busy"])) : (q(), J("form", {
 				key: 0,
 				class: "dialog",
-				onSubmit: yo(xe, ["prevent"])
+				onSubmit: yo(we, ["prevent"])
 			}, [
-				Y("h3", null, P(O.value === "role-resource" ? "Administrar recursos del rol" : O.value === "profile-role" ? "Administrar roles del perfil" : de[D.value]), 1),
+				Y("h3", null, P(A.value === "role-resource" ? "Administrar recursos del rol" : A.value === "profile-role" ? "Administrar roles del perfil" : he[k.value]), 1),
 				n[46] ||= Y("p", { class: "sub" }, "La acción se aplica solo a esta aplicación.", -1),
-				O.value === "admin" || O.value === "access" ? (q(), J(K, { key: 0 }, [
+				A.value === "admin" || A.value === "access" ? (q(), J(K, { key: 0 }, [
 					Y("label", null, [n[31] ||= Z("Buscar usuario", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[16] ||= (e) => M.value.userQuery = e,
+						"onUpdate:modelValue": n[16] ||= (e) => N.value.userQuery = e,
 						placeholder: "Nombre o correo",
 						autocomplete: "off",
 						"aria-describedby": "user-search-hint",
-						"aria-expanded": oe.value && M.value.userQuery.trim().length >= Xc,
+						"aria-expanded": de.value && N.value.userQuery.trim().length >= $c,
 						"aria-controls": "user-search-results",
-						onFocus: n[17] ||= (e) => oe.value = !0,
-						onInput: ve
-					}, null, 40, Fc), [[
+						onFocus: n[17] ||= (e) => de.value = !0,
+						onInput: Se
+					}, null, 40, Rc), [[
 						fo,
-						M.value.userQuery,
+						N.value.userQuery,
 						void 0,
 						{ trim: !0 }
 					]])]),
 					Y("p", {
 						id: "user-search-hint",
-						class: N(["field-hint", { "is-error": H(u).error }])
-					}, P(be.value), 3),
-					oe.value && M.value.userQuery.trim().length >= Xc && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
+						class: M(["field-hint", { "is-error": H(u).error }])
+					}, P(Ce.value), 3),
+					de.value && N.value.userQuery.trim().length >= $c && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
 						key: 0,
 						id: "user-search-results",
 						class: "user-result-list",
 						role: "listbox",
 						"aria-label": "Coincidencias de usuario",
 						"aria-busy": H(u).loading
-					}, [H(u).loading ? (q(), J("p", Lc, "Buscando en el directorio…")) : Q("", !0), (q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
+					}, [H(u).loading ? (q(), J("p", Bc, "Buscando en el directorio…")) : Q("", !0), (q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
 						key: e.id,
 						type: "button",
 						class: "user-result",
 						role: "option",
-						"aria-selected": M.value.userId === e.id,
-						onClick: (t) => ye(e)
-					}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, Rc))), 128))], 8, Ic)) : Q("", !0),
-					ae.value ? (q(), J("div", zc, [
+						"aria-selected": N.value.userId === e.id,
+						onClick: (t) => F(e)
+					}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, Vc))), 128))], 8, zc)) : Q("", !0),
+					ue.value ? (q(), J("div", Hc, [
 						n[32] ||= Y("span", null, "Persona seleccionada", -1),
-						Y("strong", null, P(ae.value.name || ae.value.email), 1),
-						Y("small", null, P(ae.value.email), 1)
+						Y("strong", null, P(ue.value.name || ue.value.email), 1),
+						Y("small", null, P(ue.value.email), 1)
 					])) : Q("", !0),
-					O.value === "access" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[34] ||= Z("Tipo", -1), jn(Y("select", { "onUpdate:modelValue": n[18] ||= (e) => M.value.accessKind = e }, [...n[33] ||= [Y("option", { value: "role" }, "Rol", -1), Y("option", { value: "profile" }, "Perfil", -1)]], 512), [[po, M.value.accessKind]])]), Y("label", null, [n[36] ||= Z("Acceso", -1), jn(Y("select", {
-						"onUpdate:modelValue": n[19] ||= (e) => M.value.targetId = e,
+					A.value === "access" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[34] ||= Z("Tipo", -1), jn(Y("select", { "onUpdate:modelValue": n[18] ||= (e) => N.value.accessKind = e }, [...n[33] ||= [Y("option", { value: "role" }, "Rol", -1), Y("option", { value: "profile" }, "Perfil", -1)]], 512), [[po, N.value.accessKind]])]), Y("label", null, [n[36] ||= Z("Acceso", -1), jn(Y("select", {
+						"onUpdate:modelValue": n[19] ||= (e) => N.value.targetId = e,
 						required: ""
 					}, [n[35] ||= Y("option", {
 						disabled: "",
 						value: ""
-					}, "Seleccione un acceso", -1), (q(!0), J(K, null, W(M.value.accessKind === "role" ? H(s).content : H(c).content, (e) => (q(), J("option", {
+					}, "Seleccione un acceso", -1), (q(!0), J(K, null, W(N.value.accessKind === "role" ? H(s).content : H(c).content, (e) => (q(), J("option", {
 						key: e.id,
 						value: e.id
-					}, P(e.name), 9, Bc))), 128))], 512), [[po, M.value.targetId]])])], 64)) : Q("", !0)
-				], 64)) : O.value === "application" ? (q(), J(K, { key: 1 }, [
+					}, P(e.name), 9, Uc))), 128))], 512), [[po, N.value.targetId]])])], 64)) : Q("", !0)
+				], 64)) : A.value === "application" ? (q(), J(K, { key: 1 }, [
 					Y("label", null, [n[37] ||= Z("Nombre", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[20] ||= (e) => M.value.name = e,
+						"onUpdate:modelValue": n[20] ||= (e) => N.value.name = e,
 						required: ""
 					}, null, 512), [[
 						fo,
-						M.value.name,
+						N.value.name,
 						void 0,
 						{ trim: !0 }
 					]])]),
-					Y("label", null, [n[38] ||= Z("Descripción", -1), jn(Y("textarea", { "onUpdate:modelValue": n[21] ||= (e) => M.value.description = e }, null, 512), [[
+					Y("label", null, [n[38] ||= Z("Descripción", -1), jn(Y("textarea", { "onUpdate:modelValue": n[21] ||= (e) => N.value.description = e }, null, 512), [[
 						fo,
-						M.value.description,
+						N.value.description,
 						void 0,
 						{ trim: !0 }
 					]])]),
 					Y("label", null, [n[39] ||= Z("URL base", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[22] ||= (e) => M.value.baseUrl = e,
+						"onUpdate:modelValue": n[22] ||= (e) => N.value.baseUrl = e,
 						type: "url"
 					}, null, 512), [[
 						fo,
-						M.value.baseUrl,
+						N.value.baseUrl,
 						void 0,
 						{ trim: !0 }
 					]])])
-				], 64)) : O.value === "resource" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[40] ||= Z("Ruta", -1), jn(Y("input", {
-					"onUpdate:modelValue": n[23] ||= (e) => M.value.path = e,
+				], 64)) : A.value === "resource" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[40] ||= Z("Ruta", -1), jn(Y("input", {
+					"onUpdate:modelValue": n[23] ||= (e) => N.value.path = e,
 					placeholder: "/api/v1/notas",
 					required: ""
 				}, null, 512), [[
 					fo,
-					M.value.path,
+					N.value.path,
 					void 0,
 					{ trim: !0 }
-				]])]), Y("label", null, [n[42] ||= Z("Método", -1), jn(Y("select", { "onUpdate:modelValue": n[24] ||= (e) => M.value.method = e }, [...n[41] ||= [
+				]])]), Y("label", null, [n[42] ||= Z("Método", -1), jn(Y("select", { "onUpdate:modelValue": n[24] ||= (e) => N.value.method = e }, [...n[41] ||= [
 					Y("option", null, "GET", -1),
 					Y("option", null, "POST", -1),
 					Y("option", null, "PUT", -1),
 					Y("option", null, "PATCH", -1),
 					Y("option", null, "DELETE", -1)
-				]], 512), [[po, M.value.method]])])], 64)) : O.value === "role" || O.value === "profile" ? (q(), J("label", Vc, [n[43] ||= Z("Nombre", -1), jn(Y("input", {
-					"onUpdate:modelValue": n[25] ||= (e) => M.value.name = e,
+				]], 512), [[po, N.value.method]])])], 64)) : A.value === "role" || A.value === "profile" ? (q(), J("label", Wc, [n[43] ||= Z("Nombre", -1), jn(Y("input", {
+					"onUpdate:modelValue": n[25] ||= (e) => N.value.name = e,
 					required: ""
 				}, null, 512), [[
 					fo,
-					M.value.name,
+					N.value.name,
 					void 0,
 					{ trim: !0 }
-				]])])) : (q(), J(K, { key: 4 }, [Y("label", null, [Z(P(O.value === "role-resource" ? "Agregar recurso" : "Agregar rol"), 1), jn(Y("select", {
-					"onUpdate:modelValue": n[26] ||= (e) => M.value.targetId = e,
+				]])])) : (q(), J(K, { key: 4 }, [Y("label", null, [Z(P(A.value === "role-resource" ? "Agregar recurso" : "Agregar rol"), 1), jn(Y("select", {
+					"onUpdate:modelValue": n[26] ||= (e) => N.value.targetId = e,
 					required: ""
 				}, [n[44] ||= Y("option", {
 					disabled: "",
 					value: ""
-				}, "Seleccione una opción", -1), (q(!0), J(K, null, W(O.value === "role-resource" ? H(o).content : H(s).content, (e) => (q(), J("option", {
+				}, "Seleccione una opción", -1), (q(!0), J(K, null, W(A.value === "role-resource" ? H(o).content : H(s).content, (e) => (q(), J("option", {
 					key: e.id,
 					value: e.id
-				}, P("path" in e ? `${e.method} · ${e.path}` : e.name), 9, Hc))), 128))], 512), [[po, M.value.targetId]])]), Y("div", {
+				}, P("path" in e ? `${e.method} · ${e.path}` : e.name), 9, Gc))), 128))], 512), [[po, N.value.targetId]])]), Y("div", {
 					class: "relation-list",
-					"aria-busy": O.value === "role-resource" ? H(v).loading : H(y).loading
+					"aria-busy": A.value === "role-resource" ? H(v).loading : H(y).loading
 				}, [
 					n[45] ||= Y("p", { class: "sub" }, "Relaciones vigentes", -1),
-					(q(!0), J(K, null, W(O.value === "role-resource" ? H(v).content : H(y).content, (e) => (q(), J("div", {
+					(q(!0), J(K, null, W(A.value === "role-resource" ? H(v).content : H(y).content, (e) => (q(), J("div", {
 						key: e.id,
 						class: "row"
-					}, [Y("div", Wc, [Y("strong", null, P("path" in e ? `${e.method} · ${e.path}` : e.name), 1)]), Y("button", {
+					}, [Y("div", qc, [Y("strong", null, P("path" in e ? `${e.method} · ${e.path}` : e.name), 1)]), Y("button", {
 						class: "quiet danger",
 						type: "button",
 						disabled: H(f),
-						onClick: (t) => O.value === "role-resource" ? Oe(e.id) : ke(e.id)
-					}, " Retirar ", 8, Gc)]))), 128)),
-					(O.value === "role-resource" ? H(v).content : H(y).content).length ? Q("", !0) : (q(), J("p", Kc, " No hay relaciones en esta página. ")),
-					X(ts, {
-						page: O.value === "role-resource" ? H(v).page : H(y).page,
-						limit: O.value === "role-resource" ? H(v).limit : H(y).limit,
-						total: O.value === "role-resource" ? H(v).total : H(y).total,
-						loading: O.value === "role-resource" ? H(v).loading : H(y).loading,
+						onClick: (t) => A.value === "role-resource" ? Me(e.id) : Ne(e.id)
+					}, " Retirar ", 8, Jc)]))), 128)),
+					(A.value === "role-resource" ? H(v).content : H(y).content).length ? Q("", !0) : (q(), J("p", Yc, " No hay relaciones en esta página. ")),
+					X(rs, {
+						page: A.value === "role-resource" ? H(v).page : H(y).page,
+						limit: A.value === "role-resource" ? H(v).limit : H(y).limit,
+						total: A.value === "role-resource" ? H(v).total : H(y).total,
+						loading: A.value === "role-resource" ? H(v).loading : H(y).loading,
 						label: "Paginación de relaciones",
-						onPrevious: n[27] ||= (e) => Ae(-1),
-						onNext: n[28] ||= (e) => Ae(1)
+						onPrevious: n[27] ||= (e) => Pe(-1),
+						onNext: n[28] ||= (e) => Pe(1)
 					}, null, 8, [
 						"page",
 						"limit",
 						"total",
 						"loading"
 					])
-				], 8, Uc)], 64)),
-				Y("div", qc, [Y("button", {
+				], 8, Kc)], 64)),
+				Y("div", Xc, [Y("button", {
 					class: "quiet",
 					type: "button",
 					disabled: H(f),
-					onClick: _e
-				}, " Cancelar", 8, Jc), Y("button", {
+					onClick: xe
+				}, " Cancelar", 8, Zc), Y("button", {
 					class: "primary",
 					disabled: H(f)
-				}, P(H(f) ? "Guardando…" : "Guardar"), 9, Yc)])
+				}, P(H(f) ? "Guardando…" : "Guardar"), 9, Qc)])
 			], 32))])) : Q("", !0)
 		], 4));
 	}
-}), Qc = ":host{all:initial;display:block}*{box-sizing:border-box}.shell{font-family:var(--font);color:#17263c;--line:#dce5df;border:1px solid var(--line);border-radius:var(--radius);background:#fffdfa;overflow:hidden;box-shadow:0 18px 42px #18321b14}header{border-bottom:1px solid var(--line);justify-content:space-between;gap:18px;padding:27px 30px 20px;display:flex}.eyebrow{color:#9a6c32;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;font:700 12px ui-monospace,monospace}h2{letter-spacing:-.03em;margin:0;font:700 28px Georgia,serif}h3{margin:0;font-size:19px}header p:last-child,.sub,small{color:#66776c;font-size:13px}.chip,.pill{color:#287045;background:#edf4ef;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}.chip{height:max-content;color:var(--accent);background:#f2f6fb}.grid{grid-template-columns:190px 1fr;min-height:470px;display:grid}nav{border-right:1px solid var(--line);background:#fafbf8;padding:12px}nav button{text-align:left;color:#486053;cursor:pointer;background:0 0;border:0;border-radius:8px;width:100%;padding:10px;font:600 13px inherit}nav button[aria-current=true]{color:#183c2a;background:#e8f0eb}main{padding:25px 30px}.title,.actions,.row{align-items:center;gap:10px;display:flex}.title{justify-content:space-between;margin-bottom:18px}.actions{flex-wrap:wrap;justify-content:end}button{cursor:pointer}button:disabled{cursor:wait;opacity:.62}.primary,.quiet{border:0;border-radius:8px;padding:9px 12px;font:700 12px inherit}.primary{background:var(--accent);color:#fff}.quiet{color:#29523c;background:#edf3ed}.danger{color:#96332c;background:#fff2f0}.stats{grid-template-columns:repeat(4,1fr);gap:10px;display:grid}.stat,.panel{border:1px solid var(--line);background:#fff;border-radius:10px}.stat{padding:15px}.stat b{color:var(--accent);font:700 25px Georgia,serif;display:block}.panel{margin-top:20px;overflow:hidden}.row{border-bottom:1px solid #edf1ee;padding:13px 15px}.row:last-child{border:0}.grow{flex:1;min-width:0}.grow strong{font-size:13px;display:block}.method{color:#265482;min-width:54px;font:700 11px ui-monospace,monospace}.empty{color:#66776c;text-align:center;padding:25px;font-size:13px}.error{color:#96332c;background:#fff2f0;border-left:3px solid #b7473d;padding:11px;font-size:13px}.backdrop{z-index:1;background:#17263c66;place-items:center;padding:16px;display:grid;position:fixed;inset:0}.dialog{background:#fff;border-radius:14px;width:min(460px,100%);padding:23px;box-shadow:0 25px 70px #0005}label{gap:6px;margin-top:12px;font-size:12px;font-weight:700;display:grid}input,select,textarea{border:1px solid #cad8d0;border-radius:8px;width:100%;padding:10px;font:13px inherit}textarea{resize:vertical;min-height:72px}.bottom{margin-top:20px}.field-hint{color:#66776c;margin:6px 0 0;font-size:12px;line-height:1.35}.field-hint.is-error{color:#96332c}.user-result-list{background:#f8faf7;border:1px solid #cad8d0;border-radius:10px;max-height:216px;margin-top:8px;overflow-y:auto;box-shadow:0 10px 24px #17263c12}.user-result-status{color:#66776c;margin:0;padding:11px 13px;font-size:12px}.user-result{color:#17263c;text-align:left;background:0 0;border:0;border-bottom:1px solid #dce4de;border-radius:0;gap:2px;width:100%;padding:11px 13px;display:grid}.user-result:last-child{border-bottom:0}.user-result:hover,.user-result:focus-visible,.user-result[aria-selected=true]{color:#173d30;background:#e8f0e9;outline:none}.user-result span{font-weight:700}.user-result small,.selected-user small{color:#66776c;font-size:12px}.selected-user{background:#edf4ed;border-left:3px solid #4c8065;border-radius:7px;gap:2px;margin-top:10px;padding:10px 12px;display:grid}.selected-user>span{color:#49705a;letter-spacing:.08em;text-transform:uppercase;font-size:10px;font-weight:800}.selected-user strong{color:#173d30;font-size:13px}.access-workbench{--paper:#fffdfa;--ledger:#f5f1e8;--ink:#17263c;--muted-ink:#68776f;--sage:#dfe9df;--sage-deep:#2d5947;--ochre:#9a6c32;--rule:#dce4de;--inset:#f8faf7;border:1px solid var(--rule);background:var(--paper);border-radius:14px;margin-top:18px;overflow:hidden}.access-heading{border-bottom:1px solid var(--rule);background:#fffefa;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px 18px;display:flex}.access-heading h4,.result-title h5{color:var(--ink);letter-spacing:-.025em;margin:2px 0 4px;font:700 22px Georgia,serif}.access-heading p:last-child{color:var(--muted-ink);margin:0;font-size:13px}.kicker{color:var(--ochre);letter-spacing:.12em;text-transform:uppercase;margin:0;font:700 10px ui-monospace,monospace}.scope-mark,.count-badge,.admin-mark{background:var(--ledger);color:var(--sage-deep);white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}.perspective-tabs{border-bottom:1px solid var(--rule);background:#fbfcf9;grid-template-columns:repeat(3,1fr);gap:0;padding:8px;display:grid}.perspective-tabs button{color:#64736a;text-align:left;background:0 0;border:0;border-radius:9px;min-height:56px;padding:9px 12px;transition:background .16s,color .16s}.perspective-tabs button:hover{color:var(--sage-deep);background:#eff4ee}.perspective-tabs button.active{color:var(--ink);background:var(--paper);box-shadow:0 1px 3px #20352414,inset 0 0 0 1px #d4dfd6}.perspective-tabs strong,.perspective-tabs small{display:block}.perspective-tabs strong{font-size:13px}.perspective-tabs small{color:inherit;opacity:.72;margin-top:3px;font-size:11px;font-weight:500}.access-layout{grid-template-columns:minmax(220px,.8fr) minmax(0,1.7fr);min-height:390px;display:grid}.access-query{border-right:1px solid var(--rule);background:#fafbf8;padding:20px}.access-query label,.query-label{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:700;display:block}.query-help{color:var(--muted-ink);margin:8px 0 14px;font-size:12px;line-height:1.45}.search-field{background:#f1f5f0;border:1px solid #c9d8ce;border-radius:9px;align-items:center;gap:8px;padding:0 10px;transition:border-color .16s,box-shadow .16s;display:flex}.search-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)}.search-field span{color:var(--sage-deep);font-size:20px;line-height:1}.search-field input{background:0 0;border:0;border-radius:0;outline:0;padding:11px 0}.choices,.option-grid{gap:6px;display:grid}.choice,.option-grid button{color:var(--ink);text-align:left;background:0 0;border:1px solid #0000;border-radius:9px;padding:9px}.choice{align-items:center;gap:9px;display:flex}.choice:hover,.option-grid button:hover{background:#edf3ed}.choice.selected,.option-grid button.selected{background:var(--sage);color:#183c2a;border-color:#b8d0be}.choice strong,.choice small{display:block}.choice small{text-overflow:ellipsis;white-space:nowrap;margin-top:2px;overflow:hidden}.option-grid button{font-size:12px;font-weight:700}.access-results{background:var(--paper);min-width:0;padding:20px 24px}.empty-state{text-align:center;min-height:300px;color:var(--muted-ink);place-content:center;display:grid}.empty-state span{width:38px;height:38px;color:var(--ochre);background:var(--ledger);border-radius:50%;place-items:center;margin:0 auto 10px;font-size:23px;display:grid}.empty-state strong{color:var(--ink);font-size:14px}.empty-state p{max-width:260px;margin:6px 0 0;font-size:12px;line-height:1.5}.identity-strip,.result-title{border-bottom:1px solid var(--rule);align-items:center;gap:10px;padding-bottom:16px;display:flex}.identity-strip>div{flex:1;min-width:0}.identity-strip strong,.identity-strip small{display:block}.identity-strip small{margin-top:2px}.admin-mark{background:#eff5ef}.avatar{color:#315745;text-transform:uppercase;background:#e0ebe1;border-radius:50%;flex:0 0 28px;place-items:center;width:28px;height:28px;font-size:11px;font-weight:800;display:grid}.avatar.large{background:#dce8df;flex-basis:38px;width:38px;height:38px;font-size:15px}.access-group{border:1px solid #e5ebe5;border-radius:10px;margin-top:18px;overflow:hidden}.group-title{color:#506258;background:#f7f9f6;justify-content:space-between;align-items:center;padding:9px 12px;font-size:12px;font-weight:700;display:flex}.group-title b{min-width:20px;color:var(--sage-deep);background:var(--sage);text-align:center;border-radius:99px;padding:1px 6px;font-size:11px}.access-row{border-top:1px solid #edf1ed;align-items:center;gap:10px;min-height:58px;padding:11px 12px;display:flex}.access-row>div{flex:1;min-width:0}.access-row strong,.access-row small{display:block}.access-row strong{color:var(--ink);font-size:13px}.access-row small{margin-top:3px}.person-row{padding-left:0;padding-right:0}.person-row>div{flex:1}.access-meta{color:#718078!important}.result-title{justify-content:space-between}.result-title h5{font-size:20px}.count-badge{text-align:center;background:#eef3ee;min-width:28px}.compact{text-align:left;padding:14px 12px}@media (width<=700px){header{padding:20px;display:block}.chip{margin-top:14px;display:inline-block}.grid{grid-template-columns:1fr}nav{border-right:0;border-bottom:1px solid var(--line);display:flex;overflow:auto}nav button{min-width:max-content}main{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}.access-heading{padding:18px}.access-heading h4{font-size:20px}.access-layout{grid-template-columns:1fr}.access-query{border-right:0;border-bottom:1px solid var(--rule)}.access-results{padding:18px}.perspective-tabs{grid-template-columns:repeat(3,minmax(122px,1fr));overflow-x:auto}.scope-mark,.admin-mark{display:none}}", $c = "uco-security-administration", el = class extends HTMLElement {
+}), tl = ":host{all:initial;display:block}*{box-sizing:border-box}.shell{font-family:var(--font);color:#17263c;--line:#dce5df;border:1px solid var(--line);border-radius:var(--radius);background:#fffdfa;overflow:hidden;box-shadow:0 18px 42px #18321b14}header{border-bottom:1px solid var(--line);justify-content:space-between;gap:18px;padding:27px 30px 20px;display:flex}.eyebrow{color:#9a6c32;letter-spacing:.1em;text-transform:uppercase;margin:0 0 7px;font:700 12px ui-monospace,monospace}h2{letter-spacing:-.03em;margin:0;font:700 28px Georgia,serif}h3{margin:0;font-size:19px}header p:last-child,.sub,small{color:#66776c;font-size:13px}.chip,.pill{color:#287045;background:#edf4ef;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}.chip{height:max-content;color:var(--accent);background:#f2f6fb}.grid{grid-template-columns:190px 1fr;min-height:470px;display:grid}nav{border-right:1px solid var(--line);background:#fafbf8;padding:12px}nav button{text-align:left;color:#486053;cursor:pointer;background:0 0;border:0;border-radius:8px;width:100%;padding:10px;font:600 13px inherit}nav button[aria-current=true]{color:#183c2a;background:#e8f0eb}main{padding:25px 30px}.title,.actions,.row{align-items:center;gap:10px;display:flex}.title{justify-content:space-between;margin-bottom:18px}.actions{flex-wrap:wrap;justify-content:end}button{cursor:pointer}button:disabled{cursor:wait;opacity:.62}.primary,.quiet{border:0;border-radius:8px;padding:9px 12px;font:700 12px inherit}.primary{background:var(--accent);color:#fff}.quiet{color:#29523c;background:#edf3ed}.danger{color:#96332c;background:#fff2f0}.stats{grid-template-columns:repeat(4,1fr);gap:10px;display:grid}.stat,.panel{border:1px solid var(--line);background:#fff;border-radius:10px}.stat{padding:15px}.stat b{color:var(--accent);font:700 25px Georgia,serif;display:block}.panel{margin-top:20px;overflow:hidden}.row{border-bottom:1px solid #edf1ee;padding:13px 15px}.row:last-child{border:0}.grow{flex:1;min-width:0}.grow strong{font-size:13px;display:block}.method{color:#265482;min-width:54px;font:700 11px ui-monospace,monospace}.empty{color:#66776c;text-align:center;padding:25px;font-size:13px}.error{color:#96332c;background:#fff2f0;border-left:3px solid #b7473d;padding:11px;font-size:13px}.backdrop{z-index:1;background:#17263c66;place-items:center;padding:16px;display:grid;position:fixed;inset:0}.dialog{background:#fff;border-radius:14px;width:min(460px,100%);padding:23px;box-shadow:0 25px 70px #0005}label{gap:6px;margin-top:12px;font-size:12px;font-weight:700;display:grid}input,select,textarea{border:1px solid #cad8d0;border-radius:8px;width:100%;padding:10px;font:13px inherit}textarea{resize:vertical;min-height:72px}.bottom{margin-top:20px}.field-hint{color:#66776c;margin:6px 0 0;font-size:12px;line-height:1.35}.field-hint.is-error{color:#96332c}.user-result-list{background:#f8faf7;border:1px solid #cad8d0;border-radius:10px;max-height:216px;margin-top:8px;overflow-y:auto;box-shadow:0 10px 24px #17263c12}.user-result-status{color:#66776c;margin:0;padding:11px 13px;font-size:12px}.user-result{color:#17263c;text-align:left;background:0 0;border:0;border-bottom:1px solid #dce4de;border-radius:0;gap:2px;width:100%;padding:11px 13px;display:grid}.user-result:last-child{border-bottom:0}.user-result:hover,.user-result:focus-visible,.user-result[aria-selected=true]{color:#173d30;background:#e8f0e9;outline:none}.user-result span{font-weight:700}.user-result small,.selected-user small{color:#66776c;font-size:12px}.selected-user{background:#edf4ed;border-left:3px solid #4c8065;border-radius:7px;gap:2px;margin-top:10px;padding:10px 12px;display:grid}.selected-user>span{color:#49705a;letter-spacing:.08em;text-transform:uppercase;font-size:10px;font-weight:800}.selected-user strong{color:#173d30;font-size:13px}.access-workbench{--paper:#fffdfa;--ledger:#f5f1e8;--ink:#17263c;--muted-ink:#68776f;--sage:#dfe9df;--sage-deep:#2d5947;--ochre:#9a6c32;--rule:#dce4de;--inset:#f8faf7;border:1px solid var(--rule);background:var(--paper);border-radius:14px;margin-top:18px;overflow:hidden}.access-heading{border-bottom:1px solid var(--rule);background:#fffefa;justify-content:space-between;align-items:flex-start;gap:16px;padding:22px 24px 18px;display:flex}.access-heading h4,.result-title h5{color:var(--ink);letter-spacing:-.025em;margin:2px 0 4px;font:700 22px Georgia,serif}.access-heading p:last-child{color:var(--muted-ink);margin:0;font-size:13px}.kicker{color:var(--ochre);letter-spacing:.12em;text-transform:uppercase;margin:0;font:700 10px ui-monospace,monospace}.scope-mark,.count-badge,.admin-mark{background:var(--ledger);color:var(--sage-deep);white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700}.perspective-tabs{border-bottom:1px solid var(--rule);background:#fbfcf9;grid-template-columns:repeat(3,1fr);gap:0;padding:8px;display:grid}.perspective-tabs button{color:#64736a;text-align:left;background:0 0;border:0;border-radius:9px;min-height:56px;padding:9px 12px;transition:background .16s,color .16s}.perspective-tabs button:hover{color:var(--sage-deep);background:#eff4ee}.perspective-tabs button.active{color:var(--ink);background:var(--paper);box-shadow:0 1px 3px #20352414,inset 0 0 0 1px #d4dfd6}.perspective-tabs strong,.perspective-tabs small{display:block}.perspective-tabs strong{font-size:13px}.perspective-tabs small{color:inherit;opacity:.72;margin-top:3px;font-size:11px;font-weight:500}.access-layout{grid-template-columns:minmax(220px,.8fr) minmax(0,1.7fr);min-height:390px;display:grid}.access-query{border-right:1px solid var(--rule);background:#fafbf8;padding:20px}.access-query label,.query-label{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:700;display:block}.query-help{color:var(--muted-ink);margin:8px 0 14px;font-size:12px;line-height:1.45}.search-field{background:#f1f5f0;border:1px solid #c9d8ce;border-radius:9px;align-items:center;gap:8px;padding:0 10px;transition:border-color .16s,box-shadow .16s;display:flex}.search-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)}.search-field span{color:var(--sage-deep);font-size:20px;line-height:1}.search-field input{background:0 0;border:0;border-radius:0;outline:0;padding:11px 0}.choices,.option-grid{gap:6px;display:grid}.choice,.option-grid button{color:var(--ink);text-align:left;background:0 0;border:1px solid #0000;border-radius:9px;padding:9px}.choice{align-items:center;gap:9px;display:flex}.choice:hover,.option-grid button:hover{background:#edf3ed}.choice.selected,.option-grid button.selected{background:var(--sage);color:#183c2a;border-color:#b8d0be}.choice strong,.choice small{display:block}.choice small{text-overflow:ellipsis;white-space:nowrap;margin-top:2px;overflow:hidden}.option-grid button{font-size:12px;font-weight:700}.access-results{background:var(--paper);min-width:0;padding:20px 24px}.empty-state{text-align:center;min-height:300px;color:var(--muted-ink);place-content:center;display:grid}.empty-state span{width:38px;height:38px;color:var(--ochre);background:var(--ledger);border-radius:50%;place-items:center;margin:0 auto 10px;font-size:23px;display:grid}.empty-state strong{color:var(--ink);font-size:14px}.empty-state p{max-width:260px;margin:6px 0 0;font-size:12px;line-height:1.5}.identity-strip,.result-title{border-bottom:1px solid var(--rule);align-items:center;gap:10px;padding-bottom:16px;display:flex}.identity-strip>div{flex:1;min-width:0}.identity-strip strong,.identity-strip small{display:block}.identity-strip small{margin-top:2px}.admin-mark{background:#eff5ef}.avatar{color:#315745;text-transform:uppercase;background:#e0ebe1;border-radius:50%;flex:0 0 28px;place-items:center;width:28px;height:28px;font-size:11px;font-weight:800;display:grid}.avatar.large{background:#dce8df;flex-basis:38px;width:38px;height:38px;font-size:15px}.access-group{border:1px solid #e5ebe5;border-radius:10px;margin-top:18px;overflow:hidden}.group-title{color:#506258;background:#f7f9f6;justify-content:space-between;align-items:center;padding:9px 12px;font-size:12px;font-weight:700;display:flex}.group-title b{min-width:20px;color:var(--sage-deep);background:var(--sage);text-align:center;border-radius:99px;padding:1px 6px;font-size:11px}.access-row{border-top:1px solid #edf1ed;align-items:center;gap:10px;min-height:58px;padding:11px 12px;display:flex}.access-row>div{flex:1;min-width:0}.access-row strong,.access-row small{display:block}.access-row strong{color:var(--ink);font-size:13px}.access-row small{margin-top:3px}.person-row{padding-left:0;padding-right:0}.person-row>div{flex:1}.access-meta{color:#718078!important}.result-title{justify-content:space-between}.result-title h5{font-size:20px}.count-badge{text-align:center;background:#eef3ee;min-width:28px}.compact{text-align:left;padding:14px 12px}@media (width<=700px){header{padding:20px;display:block}.chip{margin-top:14px;display:inline-block}.grid{grid-template-columns:1fr}nav{border-right:0;border-bottom:1px solid var(--line);display:flex;overflow:auto}nav button{min-width:max-content}main{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}.access-heading{padding:18px}.access-heading h4{font-size:20px}.access-layout{grid-template-columns:1fr}.access-query{border-right:0;border-bottom:1px solid var(--rule)}.access-results{padding:18px}.perspective-tabs{grid-template-columns:repeat(3,minmax(122px,1fr));overflow-x:auto}.scope-mark,.admin-mark{display:none}}.notice{color:#6b4a0b;background:#fff8e8;border-left:3px solid #c58a1c;margin:0 0 12px;padding:11px;font-size:13px}", nl = "uco-security-administration", rl = class extends HTMLElement {
 	root = this.attachShadow({ mode: "open" });
 	options = /* @__PURE__ */ Wt();
 	app;
@@ -4574,9 +4645,9 @@ var Ko = {
 	start() {
 		if (this.app || !this.options.value) return;
 		let e = document.createElement("style");
-		e.textContent = Qc;
+		e.textContent = tl;
 		let t = document.createElement("div");
-		this.root.replaceChildren(e, t), this.app = Co({ setup: () => () => va(Zc, {
+		this.root.replaceChildren(e, t), this.app = Co({ setup: () => () => va(el, {
 			options: this.options.value,
 			ref: (e) => {
 				this.component = e;
@@ -4584,9 +4655,9 @@ var Ko = {
 		}) }), this.app.mount(t);
 	}
 };
-function tl(e, t) {
+function il(e, t) {
 	if (!(e instanceof HTMLElement)) throw TypeError("El contenedor debe ser un HTMLElement.");
-	let n = new el();
+	let n = new rl();
 	return n.configure(t), e.replaceChildren(n), {
 		element: n,
 		refresh: () => n.refresh(),
@@ -4595,6 +4666,6 @@ function tl(e, t) {
 		}
 	};
 }
-customElements.get($c) || customElements.define($c, el);
+customElements.get(nl) || customElements.define(nl, rl);
 //#endregion
-export { el as SecurityAdministrationElement, tl as mount };
+export { rl as SecurityAdministrationElement, il as mount };

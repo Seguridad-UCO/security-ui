@@ -62,7 +62,21 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     assignmentsForProfile = reactive(EMPTY<ProfileAssignment>());
   const cache = new Map<string, PageResponse<unknown>>();
   let summaryController: AbortController | undefined;
-  const api = computed(() => new SecurityApi(options.value));
+  // Instante (ms) en que vence el token del host cuando ya entró en la ventana de aviso; null si no hay aviso vigente.
+  const sessionExpiresAt = ref<number | null>(null);
+  let currentApi: SecurityApi | undefined;
+  const api = computed(() => {
+    currentApi?.dispose();
+    currentApi = new SecurityApi(options.value, {
+      onExpiring: (expiresAt) => {
+        sessionExpiresAt.value = expiresAt;
+      },
+      onRenewed: () => {
+        sessionExpiresAt.value = null;
+      },
+    });
+    return currentApi;
+  });
   const ready = computed(() => Boolean(summary.value) && !summaryLoading.value);
   const loaders: Record<Collection, Loader<any>> = {
     resources: (client, id, page, limit, signal) =>
@@ -359,6 +373,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     { immediate: true, deep: true },
   );
   onScopeDispose(() => {
+    currentApi?.dispose();
     summaryController?.abort();
     for (const state of Object.values(states)) state.abortController?.abort();
     users.abortController?.abort();
@@ -372,6 +387,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
   });
   return {
     applicationId,
+    sessionExpiresAt,
     summary,
     summaryLoading,
     loading: summaryLoading,

@@ -17,6 +17,15 @@ export type SecurityUiOptions = {
   getAccessToken?: () => string | Promise<string>;
   /** Avisa al host de fallos que le corresponden (login, MFA, indisponibilidad). El componente no reintenta. */
   onError?: (error: SecurityUiError) => void;
+  /**
+   * Opcional (canal bearer). Se llama una vez por token cuando faltan `sessionWarningSeconds` o menos para que venza el
+   * que el host entregó con `getAccessToken`. El componente no renueva: el host decide (renovar ya, avisar a la persona).
+   */
+  onSessionExpiring?: (info: { secondsLeft: number }) => void;
+  /** Segundos de antelación del aviso. Por defecto 60. */
+  sessionWarningSeconds?: number;
+  /** Opcional. Muestra dentro del panel un aviso discreto con la cuenta regresiva. Por defecto `false`. */
+  sessionNotice?: boolean;
 };
 export type SecurityUiError = {
   cause: "unauthenticated" | "mfa_required" | "forbidden" | "unavailable";

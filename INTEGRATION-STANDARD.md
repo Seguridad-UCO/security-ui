@@ -17,7 +17,9 @@ mount(container, {
 Opciones de identidad (ver el README para el ejemplo completo): `getAccessToken?: () => string | Promise<string>`
 activa el canal bearer de ADR-031 (token pedido al host en cada petición, nunca guardado, sin cookies ni CSRF) y
 `onError?: ({ cause, status, code }) => void` avisa al host de `unauthenticated`, `mfa_required`, `forbidden` y
-`unavailable`. Sin `getAccessToken` rige la cookie BFF, solo para el panel propio del PDP en el mismo sitio.
+`unavailable`. Opcionales del canal bearer: `onSessionExpiring?: ({ secondsLeft }) => void` (una vez por token, `sessionWarningSeconds` antes de
+que venza; por omisión 60) y `sessionNotice?: boolean` (aviso con cuenta regresiva dentro del panel). Sin `getAccessToken` rige la
+cookie BFF, solo para el panel propio del PDP en el mismo sitio.
 
 El host es dueño de navegación e identidad; Security UI es dueña de su interfaz y ciclo de datos.
 No se importan componentes internos ni se comparte Vue/React con el host.

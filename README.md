@@ -37,8 +37,20 @@ mount(document.querySelector("#security")!, {
     if (cause === "mfa_required") auth.stepUpWithMfa();  // 403 MFA_REQUIRED
     // "forbidden" (403) y "unavailable" (429/503, reintentable) normalmente solo se muestran.
   },
+  // Opcional: aviso antes de que venza el token que el host entregó (por omisión 60 s antes).
+  onSessionExpiring: ({ secondsLeft }) => auth.refreshNow(), // o avisar a la persona
+  // sessionWarningSeconds: 90,   // antelación del aviso
+  // sessionNotice: true,         // además, un aviso con cuenta regresiva dentro del panel
 });
 ```
+
+### Aviso de sesión por vencer (opcional)
+
+Solo aplica al canal Bearer. El componente lee el `exp` de cada token que el host le entrega con `getAccessToken` (solo lo
+lee: no lo valida ni lo guarda) y, cuando faltan `sessionWarningSeconds` (60 por omisión) o menos, llama **una vez por token** a
+`onSessionExpiring({ secondsLeft })`. No renueva ni hace peticiones nuevas: el host decide (renovar ya, avisar a la persona).
+Si el siguiente `getAccessToken` entrega un token nuevo, el aviso integrado se retira solo. Las tres opciones son opcionales:
+sin ellas el comportamiento es el de siempre.
 
 ## API que consume
 

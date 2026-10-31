@@ -57,8 +57,24 @@ const {
   loadAssignmentsForRole,
   loadAssignmentsForProfile,
   invalidateRelation,
+  sessionExpiresAt,
 } = administration;
 defineExpose({ refresh });
+// Aviso opcional de sesión por vencer (sessionNotice): cuenta regresiva solo mientras haya un aviso vigente.
+const nowMs = ref(Date.now());
+let noticeTick: ReturnType<typeof setInterval> | undefined;
+watch(sessionExpiresAt, (at) => {
+  clearInterval(noticeTick);
+  noticeTick = undefined;
+  if (at !== null) {
+    nowMs.value = Date.now();
+    noticeTick = setInterval(() => (nowMs.value = Date.now()), 1000);
+  }
+});
+onBeforeUnmount(() => clearInterval(noticeTick));
+const sessionSecondsLeft = computed(() =>
+  sessionExpiresAt.value === null ? null : Math.max(0, Math.ceil((sessionExpiresAt.value - nowMs.value) / 1000)),
+);
 type Tab = "summary" | "people" | "roles" | "profiles" | "resources" | "admins";
 type Dialog =
   | "admin"
@@ -553,6 +569,13 @@ function date(value: string) {
             </button>
           </div>
         </div>
+        <p v-if="options.sessionNotice && sessionSecondsLeft !== null" class="notice" role="status" aria-live="polite">
+          {{
+            sessionSecondsLeft > 0
+              ? `Tu sesión vence en ${sessionSecondsLeft} s. La aplicación la renueva con tu siguiente acción; si no, tendrás que iniciar sesión de nuevo.`
+              : "Tu sesión venció. Pulsa Actualizar o vuelve a iniciar sesión en la aplicación."
+          }}
+        </p>
         <p v-if="error" class="error">{{ error }}</p>
         <SecuritySummaryPanel v-if="activeTab === 'summary'" :summary="summary" :loading="summaryLoading" :assignment-count="counts.people" />
         <template v-else-if="activeTab === 'people'">
