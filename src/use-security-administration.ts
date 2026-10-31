@@ -169,10 +169,8 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     }
   }
   async function searchUsers(query: string, page = 0) {
-    if (!applicationId.value || !query.trim()) {
-      Object.assign(users, EMPTY<User>());
-      return;
-    }
+    // Una búsqueda vacía lista a las personas del tenant en orden alfabético (el PDP ordena por nombre y pagina).
+    if (!applicationId.value) return;
     users.abortController?.abort();
     const controller = new AbortController();
     users.abortController = controller;

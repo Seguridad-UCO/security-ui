@@ -95,7 +95,8 @@ const activeTab = ref<Tab>("summary"),
 const selectedAccessPersonId = ref(""), selectedAccessRoleId = ref(""), selectedAccessProfileId = ref("");
 const selectedUser = ref<User>();
 const userPickerOpen = ref(false);
-const MINIMUM_USER_QUERY_LENGTH = 3;
+const USER_SEARCH_DELAY_MS = 200;
+let lastUserQuery = "";
 let userSearchTimer: ReturnType<typeof setTimeout> | undefined;
 const form = ref({
   userId: "",
@@ -231,8 +232,12 @@ function open(kind?: Dialog, entity?: Selected) {
     form.value.description = summary.value.application.description ?? "";
     form.value.baseUrl = summary.value.application.baseUrl ?? "";
   }
-  if (dialog.value === "admin" || dialog.value === "access")
+  if (dialog.value === "admin" || dialog.value === "access") {
+    // Al abrir se muestran las personas del tenant en orden alfabético; escribir filtra desde la primera letra.
+    lastUserQuery = "";
+    userPickerOpen.value = true;
     void searchUsers("");
+  }
   if (dialog.value === "access" || dialog.value === "profile-role")
     void load("roles");
   if (dialog.value === "role-resource") void load("resources");
@@ -254,11 +259,11 @@ function queueUserSearch() {
   selectedUser.value = undefined;
   userPickerOpen.value = true;
   if (userSearchTimer) clearTimeout(userSearchTimer);
-  if (query.length < MINIMUM_USER_QUERY_LENGTH) {
-    void searchUsers("");
-    return;
-  }
-  userSearchTimer = setTimeout(() => void searchUsers(query), 250);
+  lastUserQuery = query;
+  userSearchTimer = setTimeout(() => void searchUsers(query), USER_SEARCH_DELAY_MS);
+}
+function userPage(direction: -1 | 1) {
+  void searchUsers(lastUserQuery, users.page + direction);
 }
 function selectUser(user: User) {
   form.value.userId = user.id;
@@ -267,12 +272,10 @@ function selectUser(user: User) {
   userPickerOpen.value = false;
 }
 const userSearchHint = computed(() => {
-  const length = form.value.userQuery.trim().length;
-  if (length < MINIMUM_USER_QUERY_LENGTH)
-    return `Escriba al menos ${MINIMUM_USER_QUERY_LENGTH} caracteres para buscar.`;
   if (users.loading) return "Buscando coincidencias…";
   if (users.error) return "No fue posible buscar personas. Inténtelo de nuevo.";
-  if (userPickerOpen.value && !users.content.length) return "No hay coincidencias para esta búsqueda.";
+  if (userPickerOpen.value && users.loaded && !users.content.length) return "No hay coincidencias para esta búsqueda.";
+  if (!form.value.userQuery.trim()) return "Personas del tenant en orden alfabético. Escriba para filtrar por nombre o correo.";
   return "Seleccione una persona de los resultados.";
 });
 onBeforeUnmount(() => {
@@ -586,7 +589,7 @@ function date(value: string) {
         <SecuritySummaryPanel v-if="activeTab === 'summary'" :summary="summary" :loading="summaryLoading" :assignment-count="counts.people" />
         <template v-else-if="activeTab === 'people'">
           <AccessAdministrationPanel :users="users" :roles="roles" :profiles="profiles" :person-role-assignments="userRoleAssignments" :person-profile-assignments="userProfileAssignments" :role-assignments="assignmentsForRole" :profile-assignments="assignmentsForProfile" :busy="saving"
-            @search-users="searchUsers" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
+            @search-users="(text: string, page?: number) => searchUsers(text, page)" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
             @person-page="direction => { if (selectedAccessPersonId && userRoleAssignments.page + direction >= 0) loadUserAssignments(selectedAccessPersonId, userRoleAssignments.page + direction) }"
             @role-page="direction => { if (selectedAccessRoleId && assignmentsForRole.page + direction >= 0) loadAssignmentsForRole(selectedAccessRoleId, assignmentsForRole.page + direction) }"
             @profile-page="direction => { if (selectedAccessProfileId && assignmentsForProfile.page + direction >= 0) loadAssignmentsForProfile(selectedAccessProfileId, assignmentsForProfile.page + direction) }" />
@@ -622,7 +625,7 @@ function date(value: string) {
               placeholder="Nombre o correo"
               autocomplete="off"
               aria-describedby="user-search-hint"
-              :aria-expanded="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH"
+              :aria-expanded="userPickerOpen"
               aria-controls="user-search-results"
               @focus="userPickerOpen = true"
               @input="queueUserSearch"
@@ -631,7 +634,7 @@ function date(value: string) {
             {{ userSearchHint }}
           </p>
           <div
-            v-if="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH && (users.loading || users.content.length || users.error)"
+            v-if="userPickerOpen && (users.loading || users.content.length || users.error)"
             id="user-search-results"
             class="user-result-list"
             role="listbox"
@@ -650,6 +653,15 @@ function date(value: string) {
             >
               <span>{{ item.name || item.email }}</span><small>{{ item.email }}</small>
             </button>
+            <PaginationControls
+              :page="users.page"
+              :limit="users.limit"
+              :total="users.total"
+              :loading="users.loading"
+              label="Paginación de personas"
+              @previous="userPage(-1)"
+              @next="userPage(1)"
+            />
           </div>
           <div v-if="selectedUser" class="selected-user" role="status">
             <span>Persona seleccionada</span>

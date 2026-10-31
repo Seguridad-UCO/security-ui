@@ -55,9 +55,9 @@ function M(e) {
 	else if (v(e)) for (let n in e) e[n] && (t += n + " ");
 	return t.trim();
 }
-var fe = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", N = /* @__PURE__ */ e(fe);
+var fe = "itemscope,allowfullscreen,formnovalidate,ismap,nomodule,novalidate,readonly", pe = /* @__PURE__ */ e(fe);
 fe + "";
-function pe(e) {
+function N(e) {
 	return !!e || e === "";
 }
 function me(e, t, n) {
@@ -2145,7 +2145,7 @@ function yi(e, i) {
 			return;
 		}
 		let h = u & 1 && f, g = !$n(e), _;
-		if (g && (_ = o && o.onVnodeBeforeUnmount) && Qi(_, t, e), u & 6) pe(e.component, n, r);
+		if (g && (_ = o && o.onVnodeBeforeUnmount) && Qi(_, t, e), u & 6) N(e.component, n, r);
 		else {
 			if (u & 128) {
 				e.suspense.unmount(n, r);
@@ -2160,7 +2160,7 @@ function yi(e, i) {
 	}, fe = (e) => {
 		let { type: t, el: n, anchor: r, transition: i } = e;
 		if (t === K) {
-			N(n, r);
+			pe(n, r);
 			return;
 		}
 		if (t === Mi) {
@@ -2174,11 +2174,11 @@ function yi(e, i) {
 			let { leave: t, delayLeave: r } = i, o = () => t(n, a);
 			r ? r(e.el, a, o) : o();
 		} else a();
-	}, N = (e, t) => {
+	}, pe = (e, t) => {
 		let n;
 		for (; e !== t;) n = h(e), s(e), e = n;
 		s(t);
-	}, pe = (e, t, n) => {
+	}, N = (e, t, n) => {
 		let { bum: r, scope: i, job: a, subTree: o, um: s, m: c, a: l } = e;
 		Ei(c), Ei(l), r && k(r), i.stop(), a ? (a.flags |= 8, M(o, e, t, n)) : e.vnode.el && o && (o.transition = e.vnode.transition, M(o, e, t, n)), s && _i(s, t), _i(() => {
 			e.isUnmounted = !0;
@@ -2706,8 +2706,8 @@ function Ba(e, t, n, r) {
 	return e.tagName === "TEXTAREA" && (t === "width" || t === "height") && g(r) && n === r;
 }
 var Va = "http://www.w3.org/1999/xlink";
-function Ha(e, t, n, r, i, a = N(t)) {
-	r && t.startsWith("xlink:") ? n == null ? e.removeAttributeNS(Va, t.slice(6, t.length)) : e.setAttributeNS(Va, t, n) : n == null || a && !pe(n) ? e.removeAttribute(t) : e.setAttribute(t, a ? "" : _(n) ? String(n) : n);
+function Ha(e, t, n, r, i, a = pe(t)) {
+	r && t.startsWith("xlink:") ? n == null ? e.removeAttributeNS(Va, t.slice(6, t.length)) : e.setAttributeNS(Va, t, n) : n == null || a && !N(n) ? e.removeAttribute(t) : e.setAttribute(t, a ? "" : _(n) ? String(n) : n);
 }
 function Ua(e, t, n, r, i) {
 	if (t === "innerHTML" || t === "textContent") {
@@ -2723,7 +2723,7 @@ function Ua(e, t, n, r, i) {
 	let o = !1;
 	if (n === "" || n == null) {
 		let r = typeof e[t];
-		r === "boolean" ? n = pe(n) : n == null && r === "string" ? (n = "", o = !0) : r === "number" && (n = 0, o = !0);
+		r === "boolean" ? n = N(n) : n == null && r === "string" ? (n = "", o = !0) : r === "number" && (n = 0, o = !0);
 	}
 	try {
 		e[t] = n;
@@ -3315,10 +3315,7 @@ function Io(e) {
 		}
 	}
 	async function O(e, n = 0) {
-		if (!t.value || !e.trim()) {
-			Object.assign(p, $());
-			return;
-		}
+		if (!t.value) return;
 		p.abortController?.abort();
 		let r = new AbortController();
 		p.abortController = r, p.loading = !0, p.error = null;
@@ -3904,7 +3901,6 @@ var Jo = {
 	role: "tablist",
 	"aria-label": "Perspectiva de consulta"
 }, qs = ["aria-selected", "onClick"], Js = { class: "access-layout" }, Ys = { class: "access-query" }, Xs = { class: "search-field" }, Zs = {
-	key: 0,
 	class: "choices",
 	"aria-label": "Resultados de personas"
 }, Qs = ["onClick"], $s = { class: "avatar" }, ec = {
@@ -3963,29 +3959,38 @@ var Jo = {
 		"revoke"
 	],
 	setup(e, { emit: t }) {
-		let n = e, r = t, i = /* @__PURE__ */ V("person"), a = /* @__PURE__ */ V(""), o = /* @__PURE__ */ V(), s = /* @__PURE__ */ V(), c = /* @__PURE__ */ V();
-		Ln(a, (e) => r("searchUsers", e));
-		let l = _a(() => i.value === "role" ? n.roleAssignments : n.profileAssignments);
+		let n = e, r = t, i = /* @__PURE__ */ V("person"), a = /* @__PURE__ */ V(""), o = /* @__PURE__ */ V(), s = /* @__PURE__ */ V(), c = /* @__PURE__ */ V(), l;
+		Ln(a, (e) => {
+			l && clearTimeout(l), l = setTimeout(() => r("searchUsers", e), 200);
+		}), Ln(i, (e) => {
+			e === "person" && !n.users.loaded && r("searchUsers", a.value);
+		}), cr(() => r("searchUsers", a.value)), dr(() => {
+			l && clearTimeout(l);
+		});
 		function u(e) {
+			r("searchUsers", a.value, n.users.page + e);
+		}
+		let d = _a(() => i.value === "role" ? n.roleAssignments : n.profileAssignments);
+		function f(e) {
 			o.value = e, r("selectPerson", e);
 		}
-		function d(e) {
+		function p(e) {
 			s.value = e, r("selectRole", e);
 		}
-		function f(e) {
+		function m(e) {
 			c.value = e, r("selectProfile", e);
 		}
-		function p(e) {
+		function h(e) {
 			return "role" in e ? `Rol · ${e.role.name}` : `Perfil · ${e.profile.name}`;
 		}
-		function m(e) {
+		function g(e) {
 			return new Intl.DateTimeFormat(void 0, { dateStyle: "medium" }).format(new Date(e));
 		}
-		function h(e) {
+		function _(e) {
 			i.value === "person" ? r("personPage", e) : i.value === "role" ? r("rolePage", e) : r("profilePage", e);
 		}
 		return (t, n) => (q(), J("section", Gs, [
-			n[18] ||= Y("header", { class: "access-heading" }, [Y("div", null, [
+			n[20] ||= Y("header", { class: "access-heading" }, [Y("div", null, [
 				Y("p", { class: "kicker" }, "Consultar y ajustar"),
 				Y("h4", null, "Personas y accesos"),
 				Y("p", null, "Encuentre una relación vigente y actúe desde el mismo lugar.")
@@ -4015,8 +4020,8 @@ var Jo = {
 				onClick: (t) => i.value = e.id
 			}, [Y("strong", null, P(e.label), 1), Y("small", null, P(e.hint), 1)], 10, qs)), 64))]),
 			Y("div", Js, [Y("aside", Ys, [i.value === "person" ? (q(), J(K, { key: 0 }, [
-				n[6] ||= Y("label", { for: "person-search" }, "Buscar una persona", -1),
-				Y("div", Xs, [n[5] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
+				n[8] ||= Y("label", { for: "person-search" }, "Buscar una persona", -1),
+				Y("div", Xs, [n[7] ||= Y("span", { "aria-hidden": "true" }, "⌕", -1), jn(Y("input", {
 					id: "person-search",
 					"onUpdate:modelValue": n[0] ||= (e) => a.value = e,
 					autocomplete: "off",
@@ -4027,32 +4032,49 @@ var Jo = {
 					void 0,
 					{ trim: !0 }
 				]])]),
-				n[7] ||= Y("p", { class: "query-help" }, "Los resultados pertenecen al tenant actual.", -1),
-				a.value ? (q(), J("div", Zs, [(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
-					key: e.id,
-					type: "button",
-					class: M(["choice", { selected: o.value?.id === e.id }]),
-					onClick: (t) => u(e)
-				}, [Y("span", $s, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Qs))), 128)), e.users.loaded && !e.users.content.length ? (q(), J("p", ec, "No se encontraron personas.")) : Z("", !0)])) : Z("", !0)
+				n[9] ||= Y("p", { class: "query-help" }, "Personas del tenant actual, en orden alfabético. Escribe para filtrar por nombre o correo.", -1),
+				Y("div", Zs, [
+					(q(!0), J(K, null, W(e.users.content, (e) => (q(), J("button", {
+						key: e.id,
+						type: "button",
+						class: M(["choice", { selected: o.value?.id === e.id }]),
+						onClick: (t) => f(e)
+					}, [Y("span", $s, P(e.name.slice(0, 1)), 1), Y("span", null, [Y("strong", null, P(e.name), 1), Y("small", null, P(e.email), 1)])], 10, Qs))), 128)),
+					e.users.loaded && !e.users.content.length ? (q(), J("p", ec, "No se encontraron personas.")) : Z("", !0),
+					X(is, {
+						page: e.users.page,
+						limit: e.users.limit,
+						total: e.users.total,
+						loading: e.users.loading,
+						label: "Paginación de personas",
+						onPrevious: n[1] ||= (e) => u(-1),
+						onNext: n[2] ||= (e) => u(1)
+					}, null, 8, [
+						"page",
+						"limit",
+						"total",
+						"loading"
+					])
+				])
 			], 64)) : i.value === "role" ? (q(), J(K, { key: 1 }, [
-				n[8] ||= Y("p", { class: "query-label" }, "Elija un rol", -1),
-				n[9] ||= Y("p", { class: "query-help" }, "Muestra únicamente roles de esta aplicación.", -1),
+				n[10] ||= Y("p", { class: "query-label" }, "Elija un rol", -1),
+				n[11] ||= Y("p", { class: "query-help" }, "Muestra únicamente roles de esta aplicación.", -1),
 				Y("div", tc, [(q(!0), J(K, null, W(e.roles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
 					class: M({ selected: s.value?.id === e.id }),
-					onClick: (t) => d(e)
+					onClick: (t) => p(e)
 				}, P(e.name), 11, nc))), 128)), e.roles.loaded && !e.roles.content.length ? (q(), J("p", rc, "No hay roles disponibles.")) : Z("", !0)])
 			], 64)) : (q(), J(K, { key: 2 }, [
-				n[10] ||= Y("p", { class: "query-label" }, "Elija un perfil", -1),
-				n[11] ||= Y("p", { class: "query-help" }, "Muestra únicamente perfiles de esta aplicación.", -1),
+				n[12] ||= Y("p", { class: "query-label" }, "Elija un perfil", -1),
+				n[13] ||= Y("p", { class: "query-help" }, "Muestra únicamente perfiles de esta aplicación.", -1),
 				Y("div", ic, [(q(!0), J(K, null, W(e.profiles.content, (e) => (q(), J("button", {
 					key: e.id,
 					type: "button",
 					class: M({ selected: c.value?.id === e.id }),
-					onClick: (t) => f(e)
+					onClick: (t) => m(e)
 				}, P(e.name), 11, ac))), 128)), e.profiles.loaded && !e.profiles.content.length ? (q(), J("p", oc, "No hay perfiles disponibles.")) : Z("", !0)])
-			], 64))]), Y("div", sc, [i.value === "person" && !o.value ? (q(), J("div", cc, [...n[12] ||= [
+			], 64))]), Y("div", sc, [i.value === "person" && !o.value ? (q(), J("div", cc, [...n[14] ||= [
 				Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione una persona", -1),
 				Y("p", null, "Busque por nombre o correo para consultar sus accesos vigentes.", -1)
@@ -4064,11 +4086,11 @@ var Jo = {
 				]),
 				e.personRoleAssignments.error || e.personProfileAssignments.error ? (q(), J("p", fc, P(e.personRoleAssignments.error || e.personProfileAssignments.error), 1)) : Z("", !0),
 				Y("section", pc, [
-					Y("div", mc, [n[13] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
+					Y("div", mc, [n[15] ||= Y("span", null, "Roles vigentes", -1), Y("b", null, P(e.personRoleAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personRoleAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
-					}, [Y("div", null, [Y("strong", null, P(t.role.name), 1), Y("small", null, "Vigente desde " + P(m(t.validFrom)), 1)]), Y("button", {
+					}, [Y("div", null, [Y("strong", null, P(t.role.name), 1), Y("small", null, "Vigente desde " + P(g(t.validFrom)), 1)]), Y("button", {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
@@ -4076,11 +4098,11 @@ var Jo = {
 					e.personRoleAssignments.loaded && !e.personRoleAssignments.content.length ? (q(), J("p", gc, "Esta persona no tiene roles asignados.")) : Z("", !0)
 				]),
 				Y("section", _c, [
-					Y("div", vc, [n[14] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
+					Y("div", vc, [n[16] ||= Y("span", null, "Perfiles vigentes", -1), Y("b", null, P(e.personProfileAssignments.total), 1)]),
 					(q(!0), J(K, null, W(e.personProfileAssignments.content, (t) => (q(), J("div", {
 						key: t.id,
 						class: "access-row"
-					}, [Y("div", null, [Y("strong", null, P(t.profile.name), 1), Y("small", null, "Vigente desde " + P(m(t.validFrom)), 1)]), Y("button", {
+					}, [Y("div", null, [Y("strong", null, P(t.profile.name), 1), Y("small", null, "Vigente desde " + P(g(t.validFrom)), 1)]), Y("button", {
 						class: "quiet danger",
 						disabled: e.busy,
 						onClick: (e) => r("revoke", t)
@@ -4093,8 +4115,8 @@ var Jo = {
 					total: Math.max(e.personRoleAssignments.total, e.personProfileAssignments.total),
 					loading: e.personRoleAssignments.loading,
 					label: "Paginación de accesos de la persona",
-					onPrevious: n[1] ||= (e) => h(-1),
-					onNext: n[2] ||= (e) => h(1)
+					onPrevious: n[3] ||= (e) => _(-1),
+					onNext: n[4] ||= (e) => _(1)
 				}, null, 8, [
 					"page",
 					"limit",
@@ -4102,9 +4124,9 @@ var Jo = {
 					"loading"
 				])
 			], 64)) : i.value === "role" && s.value || i.value === "profile" && c.value ? (q(), J(K, { key: 2 }, [
-				Y("div", xc, [Y("div", null, [n[15] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", Sc, P(l.value.total), 1)]),
-				l.value.error ? (q(), J("p", Cc, P(l.value.error), 1)) : Z("", !0),
-				(q(!0), J(K, null, W(l.value.content, (t) => (q(), J("div", {
+				Y("div", xc, [Y("div", null, [n[17] ||= Y("p", { class: "kicker" }, "Personas con acceso", -1), Y("h5", null, P(s.value?.name ?? c.value?.name), 1)]), Y("span", Sc, P(d.value.total), 1)]),
+				d.value.error ? (q(), J("p", Cc, P(d.value.error), 1)) : Z("", !0),
+				(q(!0), J(K, null, W(d.value.content, (t) => (q(), J("div", {
 					key: t.id,
 					class: "access-row person-row"
 				}, [
@@ -4112,7 +4134,7 @@ var Jo = {
 					Y("div", null, [
 						Y("strong", null, P(t.user.name), 1),
 						Y("small", null, P(t.user.email), 1),
-						Y("small", Tc, [qi(P(p(t)) + " · desde " + P(m(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [qi(" hasta " + P(m(t.validUntil)), 1)], 64)) : Z("", !0)])
+						Y("small", Tc, [qi(P(h(t)) + " · desde " + P(g(t.validFrom)), 1), t.validUntil ? (q(), J(K, { key: 0 }, [qi(" hasta " + P(g(t.validUntil)), 1)], 64)) : Z("", !0)])
 					]),
 					Y("button", {
 						class: "quiet danger",
@@ -4120,15 +4142,15 @@ var Jo = {
 						onClick: (e) => r("revoke", t)
 					}, "Revocar", 8, Ec)
 				]))), 128)),
-				l.value.loaded && !l.value.content.length ? (q(), J("p", Dc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Z("", !0),
+				d.value.loaded && !d.value.content.length ? (q(), J("p", Dc, P(i.value === "role" ? "No hay personas con este rol." : "No hay personas con este perfil."), 1)) : Z("", !0),
 				X(is, {
-					page: l.value.page,
-					limit: l.value.limit,
-					total: l.value.total,
-					loading: l.value.loading,
+					page: d.value.page,
+					limit: d.value.limit,
+					total: d.value.total,
+					loading: d.value.loading,
 					label: "Paginación de accesos",
-					onPrevious: n[3] ||= (e) => h(-1),
-					onNext: n[4] ||= (e) => h(1)
+					onPrevious: n[5] ||= (e) => _(-1),
+					onNext: n[6] ||= (e) => _(1)
 				}, null, 8, [
 					"page",
 					"limit",
@@ -4136,9 +4158,9 @@ var Jo = {
 					"loading"
 				])
 			], 64)) : (q(), J("div", Oc, [
-				n[16] ||= Y("span", { "aria-hidden": "true" }, "⌁", -1),
+				n[18] ||= Y("span", { "aria-hidden": "true" }, "⌁", -1),
 				Y("strong", null, "Seleccione un " + P(i.value === "role" ? "rol" : "perfil"), 1),
-				n[17] ||= Y("p", null, "Las personas con ese acceso aparecerán aquí.", -1)
+				n[19] ||= Y("p", null, "Las personas con ese acceso aparecerán aquí.", -1)
 			]))])])
 		]));
 	}
@@ -4163,7 +4185,7 @@ var Jo = {
 }, Yc = ["value"], Xc = { key: 3 }, Zc = ["value"], Qc = ["aria-busy"], $c = { class: "grow" }, el = ["disabled", "onClick"], tl = {
 	key: 0,
 	class: "empty"
-}, nl = { class: "actions bottom" }, rl = ["disabled"], il = ["disabled"], al = 3, ol = /* @__PURE__ */ qn({
+}, nl = { class: "actions bottom" }, rl = ["disabled"], il = ["disabled"], al = 200, ol = /* @__PURE__ */ qn({
 	__name: "SecurityAdministration",
 	props: { options: {} },
 	setup(e, { expose: t }) {
@@ -4175,7 +4197,7 @@ var Jo = {
 		Ln(D, (e) => {
 			clearInterval(ie), ie = void 0, e !== null && (re.value = Date.now(), ie = setInterval(() => re.value = Date.now(), 1e3));
 		}), dr(() => clearInterval(ie));
-		let O = _a(() => D.value === null ? null : Math.max(0, Math.ceil((D.value - re.value) / 1e3))), k = /* @__PURE__ */ V("summary"), A = /* @__PURE__ */ V(null), j = /* @__PURE__ */ V(), ae = /* @__PURE__ */ V(), oe = /* @__PURE__ */ V(""), ce = /* @__PURE__ */ V(""), le = /* @__PURE__ */ V(""), ue = /* @__PURE__ */ V(), de = /* @__PURE__ */ V(!1), fe, N = /* @__PURE__ */ V({
+		let O = _a(() => D.value === null ? null : Math.max(0, Math.ceil((D.value - re.value) / 1e3))), k = /* @__PURE__ */ V("summary"), A = /* @__PURE__ */ V(null), j = /* @__PURE__ */ V(), ae = /* @__PURE__ */ V(), oe = /* @__PURE__ */ V(""), ce = /* @__PURE__ */ V(""), le = /* @__PURE__ */ V(""), ue = /* @__PURE__ */ V(), de = /* @__PURE__ */ V(!1), fe = "", pe, N = /* @__PURE__ */ V({
 			userId: "",
 			userQuery: "",
 			description: "",
@@ -4185,7 +4207,7 @@ var Jo = {
 			name: "",
 			targetId: "",
 			accessKind: "role"
-		}), pe = [
+		}), me = [
 			{
 				id: "summary",
 				label: "Resumen"
@@ -4210,39 +4232,39 @@ var Jo = {
 				id: "admins",
 				label: "Administradores"
 			}
-		], me = {
+		], he = {
 			summary: "Resumen de seguridad",
 			people: "Personas y asignaciones",
 			roles: "Roles de aplicación",
 			profiles: "Perfiles de acceso",
 			resources: "Recursos protegidos",
 			admins: "Administradores"
-		}, he = {
+		}, ge = {
 			summary: "Un vistazo a cómo está protegida esta aplicación.",
 			people: "Quién tiene acceso y por cuál rol o perfil. Asigna o revoca desde aquí.",
 			roles: "Un rol agrupa los recursos (rutas) que puede usar quien lo recibe.",
 			profiles: "Un perfil agrupa varios roles para asignarlos de una vez.",
 			resources: "Rutas y métodos HTTP que la aplicación pone bajo el control de la plataforma.",
 			admins: "Personas que pueden administrar la seguridad de esta aplicación."
-		}, ge = {
+		}, _e = {
 			summary: "Configurar accesos",
 			people: "Asignar acceso",
 			roles: "Definir rol",
 			profiles: "Definir perfil",
 			resources: "Registrar recurso",
 			admins: "Agregar administrador"
-		}, _e = _a(() => ({
+		}, ve = _a(() => ({
 			people: (i.value?.counts.roleAssignments ?? 0) + (i.value?.counts.profileAssignments ?? 0),
 			roles: i.value?.counts.roles ?? 0,
 			profiles: i.value?.counts.profiles ?? 0,
 			resources: i.value?.counts.resources ?? 0,
 			admins: i.value?.counts.administrators ?? 0
-		})), ve = _a(() => k.value === "summary" && n.options.allowApplicationLifecycleManagement ? "Editar aplicación" : ge[k.value]), ye = _a(() => ({
+		})), ye = _a(() => k.value === "summary" && n.options.allowApplicationLifecycleManagement ? "Editar aplicación" : _e[k.value]), be = _a(() => ({
 			roles: s,
 			profiles: c,
 			resources: o,
 			admins: l
-		})[k.value]), be = _a(() => ({
+		})[k.value]), xe = _a(() => ({
 			"--accent": n.options.theme?.accent ?? "#018b51",
 			"--font": n.options.theme?.fontFamily ?? "'IBM Plex Sans', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
 			"--radius": n.options.theme?.radius ?? "12px"
@@ -4262,7 +4284,7 @@ var Jo = {
 		}, { immediate: !0 }), Ln(() => N.value.accessKind, (e) => {
 			A.value === "access" && h(e === "role" ? "roles" : "profiles");
 		});
-		function xe(e, t) {
+		function Se(e, t) {
 			A.value = e ?? (k.value === "summary" ? n.options.allowApplicationLifecycleManagement ? "application" : "access" : k.value === "people" ? "access" : k.value === "roles" ? "role" : k.value === "profiles" ? "profile" : k.value === "resources" ? "resource" : "admin"), j.value = t, N.value = {
 				userId: "",
 				userQuery: "",
@@ -4273,27 +4295,26 @@ var Jo = {
 				name: "",
 				targetId: "",
 				accessKind: "role"
-			}, t && "path" in t && (N.value.path = t.path, N.value.method = t.method), t && "name" in t && (N.value.name = t.name), A.value === "application" && i.value && (N.value.name = i.value.application.name, N.value.description = i.value.application.description ?? "", N.value.baseUrl = i.value.application.baseUrl ?? ""), (A.value === "admin" || A.value === "access") && d(""), (A.value === "access" || A.value === "profile-role") && h("roles"), A.value === "role-resource" && h("resources"), t && A.value === "role-resource" && b(t.id), t && A.value === "profile-role" && x(t.id);
-		}
-		function Se() {
-			fe && clearTimeout(fe), A.value = null, j.value = void 0, ue.value = void 0, de.value = !1;
+			}, t && "path" in t && (N.value.path = t.path, N.value.method = t.method), t && "name" in t && (N.value.name = t.name), A.value === "application" && i.value && (N.value.name = i.value.application.name, N.value.description = i.value.application.description ?? "", N.value.baseUrl = i.value.application.baseUrl ?? ""), (A.value === "admin" || A.value === "access") && (fe = "", de.value = !0, d("")), (A.value === "access" || A.value === "profile-role") && h("roles"), A.value === "role-resource" && h("resources"), t && A.value === "role-resource" && b(t.id), t && A.value === "profile-role" && x(t.id);
 		}
 		function F() {
-			let e = N.value.userQuery.trim();
-			if (N.value.userId = "", ue.value = void 0, de.value = !0, fe && clearTimeout(fe), e.length < al) {
-				d("");
-				return;
-			}
-			fe = setTimeout(() => void d(e), 250);
+			pe && clearTimeout(pe), A.value = null, j.value = void 0, ue.value = void 0, de.value = !1;
 		}
-		function Ce(e) {
+		function Ce() {
+			let e = N.value.userQuery.trim();
+			N.value.userId = "", ue.value = void 0, de.value = !0, pe && clearTimeout(pe), fe = e, pe = setTimeout(() => void d(e), al);
+		}
+		function we(e) {
+			d(fe, u.page + e);
+		}
+		function Te(e) {
 			N.value.userId = e.id, N.value.userQuery = `${e.name} · ${e.email}`, ue.value = e, de.value = !1;
 		}
-		let we = _a(() => N.value.userQuery.trim().length < al ? `Escriba al menos ${al} caracteres para buscar.` : u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : de.value && !u.content.length ? "No hay coincidencias para esta búsqueda." : "Seleccione una persona de los resultados.");
+		let I = _a(() => u.loading ? "Buscando coincidencias…" : u.error ? "No fue posible buscar personas. Inténtelo de nuevo." : de.value && u.loaded && !u.content.length ? "No hay coincidencias para esta búsqueda." : N.value.userQuery.trim() ? "Seleccione una persona de los resultados." : "Personas del tenant en orden alfabético. Escriba para filtrar por nombre o correo.");
 		dr(() => {
-			fe && clearTimeout(fe);
+			pe && clearTimeout(pe);
 		});
-		async function Te() {
+		async function Ee() {
 			let e = N.value, t = A.value;
 			if (!t || t === "confirm") return;
 			let n = !!j.value, r = t === "application" ? ["summary"] : t === "admin" ? ["administrators", "summary"] : t === "resource" ? ["resources", "summary"] : t === "role" ? ["roles", "summary"] : t === "profile" ? ["profiles", "summary"] : t === "access" ? [e.accessKind === "role" ? "roleAssignments" : "profileAssignments", "summary"] : t === "role-resource" ? ["roles"] : ["profiles"], i = await _((r, i) => t === "application" ? r.updateApplication(i, {
@@ -4307,56 +4328,56 @@ var Jo = {
 				path: e.path,
 				method: e.method
 			}) : t === "role" ? n ? r.updateRole(j.value.id, { name: e.name }) : r.createRole(i, e.name) : t === "profile" ? n ? r.updateProfile(j.value.id, { name: e.name }) : r.createProfile(i, e.name) : t === "access" ? r.assignAccess(i, e.accessKind, e.targetId, e.userId) : t === "role-resource" ? r.linkRoleResource(j.value.id, e.targetId) : r.linkProfileRole(j.value.id, e.targetId), [...r], `${t}:${j.value?.id ?? e.userId}`);
-			i && t === "access" && (oe.value === e.userId && await ee(e.userId, S.page, !0), e.accessKind === "role" && ce.value === e.targetId && await te(e.targetId, w.page, !0), e.accessKind === "profile" && le.value === e.targetId && await E(e.targetId, T.page, !0)), i && Se();
+			i && t === "access" && (oe.value === e.userId && await ee(e.userId, S.page, !0), e.accessKind === "role" && ce.value === e.targetId && await te(e.targetId, w.page, !0), e.accessKind === "profile" && le.value === e.targetId && await E(e.targetId, T.page, !0)), i && F();
 		}
-		function I(e, t) {
-			Ee.value = e, ae.value = t, A.value = "confirm";
+		function De(e, t) {
+			Oe.value = e, ae.value = t, A.value = "confirm";
 		}
-		let Ee = /* @__PURE__ */ V("");
-		async function De() {
+		let Oe = /* @__PURE__ */ V("");
+		async function ke() {
 			let e = ae.value;
-			(!e || await e()) && Se();
-		}
-		function Oe(e) {
-			I("Retirar este administrador puede dejar la aplicación sin administración. El PDP impedirá retirar el último administrador.", async () => _((t, n) => t.removeAdministrator(n, e), ["administrators", "summary"], `admin:${e}`, !0));
-		}
-		function ke(e) {
-			I("Eliminar este recurso revoca su protección y puede estar bloqueado si tiene dependencias.", async () => _((t, n) => t.deleteResource(n, e), ["resources", "summary"], `resource:${e}`, !0));
+			(!e || await e()) && F();
 		}
 		function Ae(e) {
-			I("Eliminar este rol requiere que no tenga perfiles ni asignaciones dependientes.", async () => _((t) => t.deleteRole(e), ["roles", "summary"], `role:${e}`, !0));
+			De("Retirar este administrador puede dejar la aplicación sin administración. El PDP impedirá retirar el último administrador.", async () => _((t, n) => t.removeAdministrator(n, e), ["administrators", "summary"], `admin:${e}`, !0));
 		}
 		function je(e) {
-			I("Eliminar este perfil requiere que no tenga asignaciones dependientes.", async () => _((t) => t.deleteProfile(e), ["profiles", "summary"], `profile:${e}`, !0));
+			De("Eliminar este recurso revoca su protección y puede estar bloqueado si tiene dependencias.", async () => _((t, n) => t.deleteResource(n, e), ["resources", "summary"], `resource:${e}`, !0));
 		}
 		function Me(e) {
+			De("Eliminar este rol requiere que no tenga perfiles ni asignaciones dependientes.", async () => _((t) => t.deleteRole(e), ["roles", "summary"], `role:${e}`, !0));
+		}
+		function Ne(e) {
+			De("Eliminar este perfil requiere que no tenga asignaciones dependientes.", async () => _((t) => t.deleteProfile(e), ["profiles", "summary"], `profile:${e}`, !0));
+		}
+		function Pe(e) {
 			let t = "role" in e;
-			I(`Revocar ${t ? `el rol ${e.role.name}` : `el perfil ${e.profile.name}`} de ${e.user.name} (${e.user.email}) retira su acceso vigente.`, async () => {
+			De(`Revocar ${t ? `el rol ${e.role.name}` : `el perfil ${e.profile.name}`} de ${e.user.name} (${e.user.email}) retira su acceso vigente.`, async () => {
 				let n = await _((n) => t ? n.revokeRoleAssignment(e.role.id, e.id) : n.revokeProfileAssignment(e.profile.id, e.id), [t ? "roleAssignments" : "profileAssignments", "summary"], `assignment:${e.id}`, !0);
 				return n && oe.value && await ee(oe.value, S.page, !0), n && t && ce.value && await te(ce.value, w.page, !0), n && !t && le.value && await E(le.value, T.page, !0), n;
 			});
 		}
-		function Ne(e) {
+		function Fe(e) {
 			let t = j.value.id;
-			I("Retirar este recurso elimina el permiso que este rol concede sobre él.", async () => {
+			De("Retirar este recurso elimina el permiso que este rol concede sobre él.", async () => {
 				let n = await _((n) => n.unlinkRoleResource(t, e), ["roles"], `role-resource:${t}:${e}`);
 				return n && (ne("role-resources", t), await b(t, v.page, !0), v.page > 0 && !v.content.length && await b(t, v.page - 1, !0)), n;
 			});
 		}
-		function Pe(e) {
+		function Ie(e) {
 			let t = j.value.id;
-			I("Retirar este rol cambia los permisos heredados por este perfil.", async () => {
+			De("Retirar este rol cambia los permisos heredados por este perfil.", async () => {
 				let n = await _((n) => n.unlinkProfileRole(t, e), ["profiles"], `profile-role:${t}:${e}`);
 				return n && (ne("profile-roles", t), await x(t, y.page, !0), y.page > 0 && !y.content.length && await x(t, y.page - 1, !0)), n;
 			});
 		}
-		function Fe(e) {
+		function Le(e) {
 			if (!j.value) return;
 			let t = A.value === "role-resource" ? v : y, n = t.page + e;
 			n < 0 || n * t.limit >= t.total || (A.value === "role-resource" ? b(j.value.id, n) : A.value === "profile-role" && x(j.value.id, n));
 		}
-		function Ie() {
-			let e = ye.value;
+		function Re() {
+			let e = be.value;
 			e && (e.page + 1) * e.limit < e.total && h({
 				roles: "roles",
 				profiles: "profiles",
@@ -4364,8 +4385,8 @@ var Jo = {
 				admins: "administrators"
 			}[k.value], e.page + 1);
 		}
-		function Le() {
-			let e = ye.value;
+		function ze() {
+			let e = be.value;
 			e && e.page > 0 && h({
 				roles: "roles",
 				profiles: "profiles",
@@ -4375,35 +4396,35 @@ var Jo = {
 		}
 		return (t, n) => (q(), J("section", {
 			class: "shell",
-			style: se(be.value),
+			style: se(xe.value),
 			"aria-live": "polite"
 		}, [
-			Y("header", null, [n[29] ||= Y("div", null, [
+			Y("header", null, [n[32] ||= Y("div", null, [
 				Y("p", { class: "eyebrow" }, "Seguridad · aplicación actual"),
 				Y("h2", null, "Control de acceso"),
 				Y("p", null, "La información y las acciones están acotadas a esta aplicación.")
 			], -1), Y("span", Ac, P(H(i)?.application.name ?? e.options.applicationName ?? "Cargando"), 1)]),
-			Y("div", jc, [Y("nav", Mc, [(q(), J(K, null, W(pe, (e) => Y("button", {
+			Y("div", jc, [Y("nav", Mc, [(q(), J(K, null, W(me, (e) => Y("button", {
 				key: e.id,
 				"aria-current": k.value === e.id,
 				onClick: (t) => k.value = e.id
-			}, [Y("span", null, P(e.label), 1), e.id === "summary" ? Z("", !0) : (q(), J("span", Pc, P(_e.value[e.id]), 1))], 8, Nc)), 64))]), Y("main", null, [
-				Y("div", Fc, [Y("div", null, [Y("h3", null, P(me[k.value]), 1), Y("p", Ic, P(he[k.value]), 1)]), Y("div", Lc, [Y("button", {
+			}, [Y("span", null, P(e.label), 1), e.id === "summary" ? Z("", !0) : (q(), J("span", Pc, P(ve.value[e.id]), 1))], 8, Nc)), 64))]), Y("main", null, [
+				Y("div", Fc, [Y("div", null, [Y("h3", null, P(he[k.value]), 1), Y("p", Ic, P(ge[k.value]), 1)]), Y("div", Lc, [Y("button", {
 					class: "quiet",
 					disabled: H(a) || H(f),
 					onClick: n[0] ||= (...e) => H(g) && H(g)(...e)
 				}, " Actualizar", 8, Rc), Y("button", {
 					class: "primary",
 					disabled: !H(m) || H(f),
-					onClick: n[1] ||= (e) => xe()
-				}, P(ve.value), 9, zc)])]),
+					onClick: n[1] ||= (e) => Se()
+				}, P(ye.value), 9, zc)])]),
 				e.options.sessionNotice && O.value !== null ? (q(), J("p", Bc, P(O.value > 0 ? `Tu sesión vence en ${O.value} s. La aplicación la renueva con tu siguiente acción; si no, tendrás que iniciar sesión de nuevo.` : "Tu sesión venció. Pulsa Actualizar o vuelve a iniciar sesión en la aplicación."), 1)) : Z("", !0),
 				H(p) ? (q(), J("p", Vc, P(H(p)), 1)) : Z("", !0),
 				k.value === "summary" ? (q(), zi(cs, {
 					key: 2,
 					summary: H(i),
 					loading: H(a),
-					"assignment-count": _e.value.people
+					"assignment-count": ve.value.people
 				}, null, 8, [
 					"summary",
 					"loading",
@@ -4418,24 +4439,24 @@ var Jo = {
 					"role-assignments": H(w),
 					"profile-assignments": H(T),
 					busy: H(f),
-					onSearchUsers: H(d),
-					onSelectPerson: n[2] ||= (e) => {
+					onSearchUsers: n[2] ||= (e, t) => H(d)(e, t),
+					onSelectPerson: n[3] ||= (e) => {
 						oe.value = e.id, H(ee)(e.id, 0);
 					},
-					onSelectRole: n[3] ||= (e) => {
+					onSelectRole: n[4] ||= (e) => {
 						ce.value = e.id, H(te)(e.id, 0);
 					},
-					onSelectProfile: n[4] ||= (e) => {
+					onSelectProfile: n[5] ||= (e) => {
 						le.value = e.id, H(E)(e.id, 0);
 					},
-					onRevoke: Me,
-					onPersonPage: n[5] ||= (e) => {
+					onRevoke: Pe,
+					onPersonPage: n[6] ||= (e) => {
 						oe.value && H(S).page + e >= 0 && H(ee)(oe.value, H(S).page + e);
 					},
-					onRolePage: n[6] ||= (e) => {
+					onRolePage: n[7] ||= (e) => {
 						ce.value && H(w).page + e >= 0 && H(te)(ce.value, H(w).page + e);
 					},
-					onProfilePage: n[7] ||= (e) => {
+					onProfilePage: n[8] ||= (e) => {
 						le.value && H(T).page + e >= 0 && H(E)(le.value, H(T).page + e);
 					}
 				}, null, 8, [
@@ -4446,74 +4467,73 @@ var Jo = {
 					"person-profile-assignments",
 					"role-assignments",
 					"profile-assignments",
-					"busy",
-					"onSearchUsers"
+					"busy"
 				])) : (q(), J(K, { key: 4 }, [k.value === "resources" ? (q(), zi(_s, {
 					key: 0,
 					state: H(o),
 					busy: H(f),
-					onEdit: n[8] ||= (e) => xe("resource", e),
-					onRemove: n[9] ||= (e) => ke(e.id),
-					onPrevious: Le,
-					onNext: Ie
+					onEdit: n[9] ||= (e) => Se("resource", e),
+					onRemove: n[10] ||= (e) => je(e.id),
+					onPrevious: ze,
+					onNext: Re
 				}, null, 8, ["state", "busy"])) : k.value === "roles" ? (q(), zi(Os, {
 					key: 1,
 					state: H(s),
 					busy: H(f),
-					onManage: n[10] ||= (e) => xe("role-resource", e),
-					onEdit: n[11] ||= (e) => xe("role", e),
-					onRemove: n[12] ||= (e) => Ae(e.id),
-					onPrevious: Le,
-					onNext: Ie
+					onManage: n[11] ||= (e) => Se("role-resource", e),
+					onEdit: n[12] ||= (e) => Se("role", e),
+					onRemove: n[13] ||= (e) => Me(e.id),
+					onPrevious: ze,
+					onNext: Re
 				}, null, 8, ["state", "busy"])) : k.value === "profiles" ? (q(), zi(Ls, {
 					key: 2,
 					state: H(c),
 					busy: H(f),
-					onManage: n[13] ||= (e) => xe("profile-role", e),
-					onEdit: n[14] ||= (e) => xe("profile", e),
-					onRemove: n[15] ||= (e) => je(e.id),
-					onPrevious: Le,
-					onNext: Ie
+					onManage: n[14] ||= (e) => Se("profile-role", e),
+					onEdit: n[15] ||= (e) => Se("profile", e),
+					onRemove: n[16] ||= (e) => Ne(e.id),
+					onPrevious: ze,
+					onNext: Re
 				}, null, 8, ["state", "busy"])) : (q(), zi(Ws, {
 					key: 3,
 					state: H(l),
 					busy: H(f),
-					onRemove: Oe,
-					onPrevious: Le,
-					onNext: Ie
+					onRemove: Ae,
+					onPrevious: ze,
+					onNext: Re
 				}, null, 8, ["state", "busy"]))], 64))
 			])]),
 			A.value ? (q(), J("div", {
 				key: 0,
 				class: "backdrop",
-				onClick: yo(Se, ["self"])
+				onClick: yo(F, ["self"])
 			}, [A.value === "confirm" ? (q(), zi(es, {
 				key: 1,
 				open: !0,
-				message: Ee.value,
+				message: Oe.value,
 				busy: H(f),
-				onCancel: Se,
-				onConfirm: De
+				onCancel: F,
+				onConfirm: ke
 			}, null, 8, ["message", "busy"])) : (q(), J("form", {
 				key: 0,
 				class: "dialog",
-				onSubmit: yo(Te, ["prevent"])
+				onSubmit: yo(Ee, ["prevent"])
 			}, [
 				Y("div", Hc, [
-					n[30] ||= Y("p", { class: "eyebrow" }, "Esta aplicación", -1),
-					Y("h3", null, P(A.value === "role-resource" ? "Administrar recursos del rol" : A.value === "profile-role" ? "Administrar roles del perfil" : ge[k.value]), 1),
-					n[31] ||= Y("p", { class: "sub" }, "La acción se aplica solo a esta aplicación.", -1)
+					n[33] ||= Y("p", { class: "eyebrow" }, "Esta aplicación", -1),
+					Y("h3", null, P(A.value === "role-resource" ? "Administrar recursos del rol" : A.value === "profile-role" ? "Administrar roles del perfil" : _e[k.value]), 1),
+					n[34] ||= Y("p", { class: "sub" }, "La acción se aplica solo a esta aplicación.", -1)
 				]),
 				Y("div", Uc, [A.value === "admin" || A.value === "access" ? (q(), J(K, { key: 0 }, [
-					Y("label", null, [n[32] ||= qi("Buscar usuario", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[16] ||= (e) => N.value.userQuery = e,
+					Y("label", null, [n[35] ||= qi("Buscar usuario", -1), jn(Y("input", {
+						"onUpdate:modelValue": n[17] ||= (e) => N.value.userQuery = e,
 						placeholder: "Nombre o correo",
 						autocomplete: "off",
 						"aria-describedby": "user-search-hint",
-						"aria-expanded": de.value && N.value.userQuery.trim().length >= al,
+						"aria-expanded": de.value,
 						"aria-controls": "user-search-results",
-						onFocus: n[17] ||= (e) => de.value = !0,
-						onInput: F
+						onFocus: n[18] ||= (e) => de.value = !0,
+						onInput: Ce
 					}, null, 40, Wc), [[
 						fo,
 						N.value.userQuery,
@@ -4523,31 +4543,48 @@ var Jo = {
 					Y("p", {
 						id: "user-search-hint",
 						class: M(["field-hint", { "is-error": H(u).error }])
-					}, P(we.value), 3),
-					de.value && N.value.userQuery.trim().length >= al && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
+					}, P(I.value), 3),
+					de.value && (H(u).loading || H(u).content.length || H(u).error) ? (q(), J("div", {
 						key: 0,
 						id: "user-search-results",
 						class: "user-result-list",
 						role: "listbox",
 						"aria-label": "Coincidencias de usuario",
 						"aria-busy": H(u).loading
-					}, [H(u).loading ? (q(), J("p", Kc, "Buscando en el directorio…")) : Z("", !0), (q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
-						key: e.id,
-						type: "button",
-						class: "user-result",
-						role: "option",
-						"aria-selected": N.value.userId === e.id,
-						onClick: (t) => Ce(e)
-					}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, qc))), 128))], 8, Gc)) : Z("", !0),
+					}, [
+						H(u).loading ? (q(), J("p", Kc, "Buscando en el directorio…")) : Z("", !0),
+						(q(!0), J(K, null, W(H(u).content, (e) => (q(), J("button", {
+							key: e.id,
+							type: "button",
+							class: "user-result",
+							role: "option",
+							"aria-selected": N.value.userId === e.id,
+							onClick: (t) => Te(e)
+						}, [Y("span", null, P(e.name || e.email), 1), Y("small", null, P(e.email), 1)], 8, qc))), 128)),
+						X(is, {
+							page: H(u).page,
+							limit: H(u).limit,
+							total: H(u).total,
+							loading: H(u).loading,
+							label: "Paginación de personas",
+							onPrevious: n[19] ||= (e) => we(-1),
+							onNext: n[20] ||= (e) => we(1)
+						}, null, 8, [
+							"page",
+							"limit",
+							"total",
+							"loading"
+						])
+					], 8, Gc)) : Z("", !0),
 					ue.value ? (q(), J("div", Jc, [
-						n[33] ||= Y("span", null, "Persona seleccionada", -1),
+						n[36] ||= Y("span", null, "Persona seleccionada", -1),
 						Y("strong", null, P(ue.value.name || ue.value.email), 1),
 						Y("small", null, P(ue.value.email), 1)
 					])) : Z("", !0),
-					A.value === "access" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[35] ||= qi("Tipo", -1), jn(Y("select", { "onUpdate:modelValue": n[18] ||= (e) => N.value.accessKind = e }, [...n[34] ||= [Y("option", { value: "role" }, "Rol", -1), Y("option", { value: "profile" }, "Perfil", -1)]], 512), [[po, N.value.accessKind]])]), Y("label", null, [n[37] ||= qi("Acceso", -1), jn(Y("select", {
-						"onUpdate:modelValue": n[19] ||= (e) => N.value.targetId = e,
+					A.value === "access" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[38] ||= qi("Tipo", -1), jn(Y("select", { "onUpdate:modelValue": n[21] ||= (e) => N.value.accessKind = e }, [...n[37] ||= [Y("option", { value: "role" }, "Rol", -1), Y("option", { value: "profile" }, "Perfil", -1)]], 512), [[po, N.value.accessKind]])]), Y("label", null, [n[40] ||= qi("Acceso", -1), jn(Y("select", {
+						"onUpdate:modelValue": n[22] ||= (e) => N.value.targetId = e,
 						required: ""
-					}, [n[36] ||= Y("option", {
+					}, [n[39] ||= Y("option", {
 						disabled: "",
 						value: ""
 					}, "Seleccione un acceso", -1), (q(!0), J(K, null, W(N.value.accessKind === "role" ? H(s).content : H(c).content, (e) => (q(), J("option", {
@@ -4555,8 +4592,8 @@ var Jo = {
 						value: e.id
 					}, P(e.name), 9, Yc))), 128))], 512), [[po, N.value.targetId]])])], 64)) : Z("", !0)
 				], 64)) : A.value === "application" ? (q(), J(K, { key: 1 }, [
-					Y("label", null, [n[38] ||= qi("Nombre", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[20] ||= (e) => N.value.name = e,
+					Y("label", null, [n[41] ||= qi("Nombre", -1), jn(Y("input", {
+						"onUpdate:modelValue": n[23] ||= (e) => N.value.name = e,
 						required: ""
 					}, null, 512), [[
 						fo,
@@ -4564,14 +4601,14 @@ var Jo = {
 						void 0,
 						{ trim: !0 }
 					]])]),
-					Y("label", null, [n[39] ||= qi("Descripción", -1), jn(Y("textarea", { "onUpdate:modelValue": n[21] ||= (e) => N.value.description = e }, null, 512), [[
+					Y("label", null, [n[42] ||= qi("Descripción", -1), jn(Y("textarea", { "onUpdate:modelValue": n[24] ||= (e) => N.value.description = e }, null, 512), [[
 						fo,
 						N.value.description,
 						void 0,
 						{ trim: !0 }
 					]])]),
-					Y("label", null, [n[40] ||= qi("URL base", -1), jn(Y("input", {
-						"onUpdate:modelValue": n[22] ||= (e) => N.value.baseUrl = e,
+					Y("label", null, [n[43] ||= qi("URL base", -1), jn(Y("input", {
+						"onUpdate:modelValue": n[25] ||= (e) => N.value.baseUrl = e,
 						type: "url"
 					}, null, 512), [[
 						fo,
@@ -4579,8 +4616,8 @@ var Jo = {
 						void 0,
 						{ trim: !0 }
 					]])])
-				], 64)) : A.value === "resource" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[41] ||= qi("Ruta", -1), jn(Y("input", {
-					"onUpdate:modelValue": n[23] ||= (e) => N.value.path = e,
+				], 64)) : A.value === "resource" ? (q(), J(K, { key: 2 }, [Y("label", null, [n[44] ||= qi("Ruta", -1), jn(Y("input", {
+					"onUpdate:modelValue": n[26] ||= (e) => N.value.path = e,
 					placeholder: "/api/v1/notas",
 					required: ""
 				}, null, 512), [[
@@ -4588,14 +4625,14 @@ var Jo = {
 					N.value.path,
 					void 0,
 					{ trim: !0 }
-				]])]), Y("label", null, [n[43] ||= qi("Método", -1), jn(Y("select", { "onUpdate:modelValue": n[24] ||= (e) => N.value.method = e }, [...n[42] ||= [
+				]])]), Y("label", null, [n[46] ||= qi("Método", -1), jn(Y("select", { "onUpdate:modelValue": n[27] ||= (e) => N.value.method = e }, [...n[45] ||= [
 					Y("option", null, "GET", -1),
 					Y("option", null, "POST", -1),
 					Y("option", null, "PUT", -1),
 					Y("option", null, "PATCH", -1),
 					Y("option", null, "DELETE", -1)
-				]], 512), [[po, N.value.method]])])], 64)) : A.value === "role" || A.value === "profile" ? (q(), J("label", Xc, [n[44] ||= qi("Nombre", -1), jn(Y("input", {
-					"onUpdate:modelValue": n[25] ||= (e) => N.value.name = e,
+				]], 512), [[po, N.value.method]])])], 64)) : A.value === "role" || A.value === "profile" ? (q(), J("label", Xc, [n[47] ||= qi("Nombre", -1), jn(Y("input", {
+					"onUpdate:modelValue": n[28] ||= (e) => N.value.name = e,
 					required: ""
 				}, null, 512), [[
 					fo,
@@ -4603,9 +4640,9 @@ var Jo = {
 					void 0,
 					{ trim: !0 }
 				]])])) : (q(), J(K, { key: 4 }, [Y("label", null, [qi(P(A.value === "role-resource" ? "Agregar recurso" : "Agregar rol"), 1), jn(Y("select", {
-					"onUpdate:modelValue": n[26] ||= (e) => N.value.targetId = e,
+					"onUpdate:modelValue": n[29] ||= (e) => N.value.targetId = e,
 					required: ""
-				}, [n[45] ||= Y("option", {
+				}, [n[48] ||= Y("option", {
 					disabled: "",
 					value: ""
 				}, "Seleccione una opción", -1), (q(!0), J(K, null, W(A.value === "role-resource" ? H(o).content : H(s).content, (e) => (q(), J("option", {
@@ -4615,7 +4652,7 @@ var Jo = {
 					class: "relation-list",
 					"aria-busy": A.value === "role-resource" ? H(v).loading : H(y).loading
 				}, [
-					n[46] ||= Y("p", { class: "sub" }, "Relaciones vigentes", -1),
+					n[49] ||= Y("p", { class: "sub" }, "Relaciones vigentes", -1),
 					(q(!0), J(K, null, W(A.value === "role-resource" ? H(v).content : H(y).content, (e) => (q(), J("div", {
 						key: e.id,
 						class: "row"
@@ -4623,7 +4660,7 @@ var Jo = {
 						class: "quiet danger",
 						type: "button",
 						disabled: H(f),
-						onClick: (t) => A.value === "role-resource" ? Ne(e.id) : Pe(e.id)
+						onClick: (t) => A.value === "role-resource" ? Fe(e.id) : Ie(e.id)
 					}, " Retirar ", 8, el)]))), 128)),
 					(A.value === "role-resource" ? H(v).content : H(y).content).length ? Z("", !0) : (q(), J("p", tl, " No hay relaciones en esta página. ")),
 					X(is, {
@@ -4632,8 +4669,8 @@ var Jo = {
 						total: A.value === "role-resource" ? H(v).total : H(y).total,
 						loading: A.value === "role-resource" ? H(v).loading : H(y).loading,
 						label: "Paginación de relaciones",
-						onPrevious: n[27] ||= (e) => Fe(-1),
-						onNext: n[28] ||= (e) => Fe(1)
+						onPrevious: n[30] ||= (e) => Le(-1),
+						onNext: n[31] ||= (e) => Le(1)
 					}, null, 8, [
 						"page",
 						"limit",
@@ -4645,7 +4682,7 @@ var Jo = {
 					class: "quiet",
 					type: "button",
 					disabled: H(f),
-					onClick: Se
+					onClick: F
 				}, " Cancelar", 8, rl), Y("button", {
 					class: "primary",
 					disabled: H(f)

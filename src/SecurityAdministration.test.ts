@@ -32,15 +32,16 @@ describe("SecurityAdministration", () => {
     expect(fetch.mock.calls.some(([url, init]) => String(url).endsWith("/resources/r1") && init?.method === "DELETE")).toBe(true);
   });
 
-  it("shows user matches directly after three characters and keeps the selected identity out of technical text", async () => {
+  it("lists people alphabetically as soon as the dialog opens, filters from the first letter and keeps the selected identity out of technical text", async () => {
     vi.useFakeTimers();
     const userId = "9c7f6d4c-6431-4f39-9ab3-0b2440f9a1e1";
     const fetch = vi.fn(async (url: string) => {
       if (url.endsWith("/summary")) return new Response(JSON.stringify(summary));
       if (url.includes("/security/roles")) return new Response(JSON.stringify(page([])));
       if (url.includes("/security/profiles")) return new Response(JSON.stringify(page([])));
-      if (url.includes("/security/users?query=ana"))
+      if (url.includes("/security/users?query=ana") || url.includes("/security/users?query=a&"))
         return new Response(JSON.stringify(page([{ id: userId, name: "Ana Gómez", email: "ana@uco.edu.co" }])));
+      if (url.includes("/security/users?query=&")) return new Response(JSON.stringify(page([{ id: "u0", name: "Aldo Ruiz", email: "aldo@uco.edu.co" }, { id: userId, name: "Ana Gómez", email: "ana@uco.edu.co" }])));
       throw new Error(`unexpected ${url}`);
     });
     vi.stubGlobal("fetch", fetch);
@@ -49,13 +50,19 @@ describe("SecurityAdministration", () => {
     await wrapper.get("button.primary").trigger("click");
     await flushPromises();
 
+    // Sin escribir nada ya hay una lista (el servidor la entrega ordenada por nombre).
+    expect(wrapper.findAll(".user-result").map((item) => item.text())).toEqual([expect.stringContaining("Aldo Ruiz"), expect.stringContaining("Ana Gómez")]);
+    expect(wrapper.text()).toContain("Escriba para filtrar");
+
+    // Filtra desde la primera letra, con una breve espera.
     const search = wrapper.get('input[placeholder="Nombre o correo"]');
-    await search.setValue("an");
+    await search.setValue("a");
+    await vi.advanceTimersByTimeAsync(200);
     await flushPromises();
-    expect(fetch.mock.calls.some(([url]) => String(url).includes("/security/users?"))).toBe(false);
+    expect(fetch.mock.calls.some(([url]) => String(url).includes("/security/users?query=a&"))).toBe(true);
 
     await search.setValue("ana");
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(200);
     await flushPromises();
     expect(wrapper.text()).toContain("Ana Gómez");
     expect(wrapper.text()).toContain("ana@uco.edu.co");
