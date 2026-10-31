@@ -31,6 +31,12 @@ const MESSAGES_WITHOUT_IDS: Record<string, string> = {
   PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar.",
 };
 
+// Última defensa: ningún texto del servidor llega a la pantalla con un identificador interno (UUID).
+const UUID = /\s*\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+function withoutIds(message?: string): string | undefined {
+  return message ? message.replace(UUID, "").replace(/\s{2,}/g, " ").trim() || undefined : undefined;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -399,7 +405,7 @@ export class SecurityApi {
         error?.code,
         response.status === 403
           ? fallback
-          : ((error?.code ? MESSAGES_WITHOUT_IDS[error.code] : undefined) ?? error?.detail ?? error?.message ?? fallback),
+          : ((error?.code ? MESSAGES_WITHOUT_IDS[error.code] : undefined) ?? withoutIds(error?.detail ?? error?.message) ?? fallback),
         error?.fieldErrors ?? error?.errors ?? [],
       );
       this.report(failure);

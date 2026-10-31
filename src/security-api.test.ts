@@ -45,6 +45,20 @@ describe("SecurityApi", () => {
     expect((failure as ApiError).message).toBe("Esta persona ya tiene ese rol vigente en la aplicación.");
     expect((failure as ApiError).message).not.toMatch(/54cc7a8f|5141683b/);
   });
+  it("strips UUIDs from any other server message", async () => {
+    browser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({ code: "ROLE_NOT_FOUND", detail: "No existe el rol 5141683b-3c07-4b62-9cd4-11b8b5f1f4ab para este inquilino" }),
+          { status: 404 },
+        ),
+      ),
+    );
+    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    expect((failure as ApiError).message).toBe("No existe el rol para este inquilino");
+  });
   it("maps a PDP conflict without masking its business message", async () => {
     browser();
     vi.stubGlobal(
