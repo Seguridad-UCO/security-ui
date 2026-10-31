@@ -9,7 +9,36 @@ export type SecurityUiOptions = {
     applicationName?: string;
     apiBaseUrl: string;
     theme?: SecurityUiTheme;
+    /**
+     * Carga IBM Plex Sans/Mono (la tipografía de la consola de seguridad) desde Google Fonts, una sola vez por página.
+     * Por defecto `true`. Ponlo en `false` si tu página ya las carga o tu política de contenido no permite ese origen: el
+     * panel usa una fuente de sistema equivalente.
+     */
+    loadFonts?: boolean;
     /** Enables PATCH application metadata; deletion is never rendered. */ allowApplicationLifecycleManagement?: boolean;
+    /**
+     * Canal bearer (ADR-031). Devuelve un access token vigente con audiencia del PDP; se invoca antes de cada
+     * petición y el componente nunca lo guarda. Si se omite, se usa la cookie de sesión BFF.
+     */
+    getAccessToken?: () => string | Promise<string>;
+    /** Avisa al host de fallos que le corresponden (login, MFA, indisponibilidad). El componente no reintenta. */
+    onError?: (error: SecurityUiError) => void;
+    /**
+     * Opcional (canal bearer). Se llama una vez por token cuando faltan `sessionWarningSeconds` o menos para que venza el
+     * que el host entregó con `getAccessToken`. El componente no renueva: el host decide (renovar ya, avisar a la persona).
+     */
+    onSessionExpiring?: (info: {
+        secondsLeft: number;
+    }) => void;
+    /** Segundos de antelación del aviso. Por defecto 60. */
+    sessionWarningSeconds?: number;
+    /** Opcional. Muestra dentro del panel un aviso discreto con la cuenta regresiva. Por defecto `false`. */
+    sessionNotice?: boolean;
+};
+export type SecurityUiError = {
+    cause: "unauthenticated" | "mfa_required" | "forbidden" | "unavailable";
+    status: number;
+    code?: string;
 };
 export type Page = {
     page?: number;

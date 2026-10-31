@@ -5,10 +5,22 @@ import type { SecurityUiHandle, SecurityUiOptions } from "./types";
 export type {
   SecurityUiHandle,
   SecurityUiOptions,
+  SecurityUiError,
   SecurityUiTheme,
 } from "./types";
 
 const tag = "uco-security-administration";
+const FONT_LINK_ID = "uco-security-fonts";
+// Las @font-face no funcionan dentro de un shadow root: la hoja debe estar en el documento. Se agrega una sola vez.
+function ensureFonts() {
+  if (typeof document === "undefined" || document.getElementById(FONT_LINK_ID)) return;
+  const link = document.createElement("link");
+  link.id = FONT_LINK_ID;
+  link.rel = "stylesheet";
+  link.href =
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap";
+  document.head.appendChild(link);
+}
 export class SecurityAdministrationElement extends HTMLElement {
   private readonly root = this.attachShadow({ mode: "open" });
   private readonly options = shallowRef<SecurityUiOptions>();
@@ -45,6 +57,7 @@ export class SecurityAdministrationElement extends HTMLElement {
   }
   private start() {
     if (this.app || !this.options.value) return;
+    if (this.options.value.loadFonts !== false) ensureFonts();
     const style = document.createElement("style");
     style.textContent = shadowCss;
     const point = document.createElement("div");

@@ -26,6 +26,47 @@ describe("SecurityApi", () => {
     expect(init.headers.get("X-XSRF-TOKEN")).toBe("csrf value");
     expect(init.body).toBe('{"path":"/notes","method":"PATCH"}');
   });
+  it("shows the name of what each identifier in a server message refers to, and omits unknown ones", async () => {
+    browser();
+    const user = "54cc7a8f-419f-4bce-8053-7867000ab1d3", role = "5141683b-3c07-4b62-9cd4-11b8b5f1f4ab";
+    const unknown = "11111111-2222-4333-8444-555555555555";
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { content: [{ id: user, name: "Ana Pérez", email: "ana@example.test" }, { id: role, name: "Editor" }] } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ code: "ASSIGNMENT_ALREADY_ACTIVE", detail: `El usuario ${user} ya tiene una asignación activa del rol ${role} en la aplicación ${unknown}` }), { status: 409 }));
+    vi.stubGlobal("fetch", fetch);
+    const api = new SecurityApi(options);
+    await api.searchUsers("app", "ana", { page: 0, size: 20 });
+    const failure = await api.deleteRole("role").catch((cause: ApiError) => cause);
+    expect(failure).toMatchObject({ status: 409, code: "ASSIGNMENT_ALREADY_ACTIVE" });
+    expect((failure as ApiError).message).toBe("El usuario Ana Pérez ya tiene una asignación activa del rol Editor en la aplicación");
+  });
+  it("tells the host when the bearer token it just handed over is about to expire, without breaking the request", async () => {
+    browser();
+    const exp = Math.floor(Date.now() / 1000) + 30;
+    const token = `h.${btoa(JSON.stringify({ exp })).replace(/=+$/, "")}.s`;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: { content: [], total: 0, page: 0, offset: 0, limit: 20 } }), { status: 200 })));
+    const onSessionExpiring = vi.fn(() => { throw new Error("falla del host"); });
+    const onExpiring = vi.fn();
+    const api = new SecurityApi({ ...options, getAccessToken: () => token, onSessionExpiring, sessionWarningSeconds: 60 }, { onExpiring });
+    await expect(api.getRoles("app", { page: 0, size: 20 })).resolves.toBeTruthy();
+    expect(onSessionExpiring).toHaveBeenCalledTimes(1);
+    expect(onSessionExpiring.mock.calls[0]).toEqual([{ secondsLeft: expect.any(Number) }]);
+    expect(onExpiring).toHaveBeenCalledWith(exp * 1000);
+    api.dispose();
+  });
+  it("explains the protected ADMIN role without identifiers", async () => {
+    browser();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "PROTECTED_ROLE", detail: "No se puede modificar el rol protegido ADMIN 5141683b-3c07-4b62-9cd4-11b8b5f1f4ab" }), { status: 409 })));
+    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    expect((failure as ApiError).message).toBe("El rol ADMIN administra la aplicación y no se puede modificar ni eliminar.");
+  });
+  it("omits identifiers of entities it has never seen", async () => {
+    browser();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ code: "ROLE_NOT_FOUND", detail: "No existe el rol 5141683b-3c07-4b62-9cd4-aaaaaaaaaaaa para este inquilino" }), { status: 404 })));
+    const failure = await new SecurityApi(options).deleteRole("role").catch((cause: ApiError) => cause);
+    expect((failure as ApiError).message).toBe("No existe el rol para este inquilino");
+  });
   it("maps a PDP conflict without masking its business message", async () => {
     browser();
     vi.stubGlobal(
@@ -83,6 +124,151 @@ describe("SecurityApi", () => {
       fields: [{ field: "path", message: "Debe comenzar con /" }],
     } satisfies Partial<ApiError>);
   });
+  it("explains a 403 by its code without echoing the PDP body", async () => {
+    browser();
+    const forbidden = (code: string) =>
+      new Response(JSON.stringify({ code, detail: "texto interno" }), {
+        status: 403,
+      });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(forbidden("MFA_REQUIRED"))
+        .mockResolvedValueOnce(
+          forbidden("NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG"),
+        ),
+    );
+    await expect(
+      new SecurityApi(options).deleteRole("role"),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "MFA_REQUIRED",
+      message:
+        "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo.",
+    } satisfies Partial<ApiError>);
+    await expect(
+      new SecurityApi(options).deleteRole("role"),
+    ).rejects.toMatchObject({
+      status: 403,
+      code: "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG",
+      message:
+        "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación.",
+    } satisfies Partial<ApiError>);
+  });
+  describe("bearer channel (ADR-031)", () => {
+    it("sends a fresh bearer on every request and no cookie or CSRF", async () => {
+      browser();
+      (document as { cookie: string }).cookie = "XSRF-TOKEN=csrf";
+      const fetch = vi
+        .fn()
+        .mockImplementation(
+          async () => new Response(null, { status: 204 }),
+        );
+      vi.stubGlobal("fetch", fetch);
+      const getAccessToken = vi
+        .fn()
+        .mockResolvedValueOnce("token-1")
+        .mockResolvedValueOnce("token-2");
+      const api = new SecurityApi({ ...options, getAccessToken });
+      await api.deleteRole("role");
+      await api.deleteRole("role");
+      expect(getAccessToken).toHaveBeenCalledTimes(2);
+      const [first, second] = fetch.mock.calls.map(([, init]) => init);
+      expect(first.headers.get("Authorization")).toBe("Bearer token-1");
+      expect(second.headers.get("Authorization")).toBe("Bearer token-2");
+      expect(first.credentials).toBe("omit");
+      expect(first.headers.get("X-XSRF-TOKEN")).toBeNull();
+    });
+    it("keeps the cookie channel when the host gives no token function", async () => {
+      browser();
+      const fetch = vi
+        .fn()
+        .mockResolvedValue(new Response(null, { status: 204 }));
+      vi.stubGlobal("fetch", fetch);
+      await new SecurityApi(options).deleteRole("role");
+      const init = fetch.mock.calls[0][1];
+      expect(init.credentials).toBe("include");
+      expect(init.headers.get("Authorization")).toBeNull();
+    });
+    it("reports unauthenticated and never retries when the PDP answers 401", async () => {
+      browser();
+      const fetch = vi
+        .fn()
+        .mockResolvedValue(new Response("{}", { status: 401 }));
+      vi.stubGlobal("fetch", fetch);
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 401 });
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(onError).toHaveBeenCalledWith({
+        cause: "unauthenticated",
+        status: 401,
+        code: undefined,
+      });
+    });
+    it("does not call the PDP when the host cannot provide a token", async () => {
+      browser();
+      const fetch = vi.fn();
+      vi.stubGlobal("fetch", fetch);
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => Promise.reject(new Error("expired")),
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 401, code: "UNAUTHENTICATED" });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({ cause: "unauthenticated" }),
+      );
+    });
+    it.each([
+      [403, "MFA_REQUIRED", "mfa_required"],
+      [403, "NOT_AUTHORIZED_TO_ADMINISTER", "forbidden"],
+      [429, undefined, "unavailable"],
+      [503, "BFF_SESSION_UNAVAILABLE", "unavailable"],
+    ])("classifies %s %s as %s for the host", async (status, code, cause) => {
+      browser();
+      vi.stubGlobal(
+        "fetch",
+        vi
+          .fn()
+          .mockResolvedValue(new Response(JSON.stringify({ code }), { status })),
+      );
+      const onError = vi.fn();
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError,
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status });
+      expect(onError).toHaveBeenCalledWith({ cause, status, code });
+    });
+    it("does not let a failing host callback mask the API error", async () => {
+      browser();
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(new Response("{}", { status: 503 })),
+      );
+      await expect(
+        new SecurityApi({
+          ...options,
+          getAccessToken: () => "t",
+          onError: () => {
+            throw new Error("host bug");
+          },
+        }).deleteRole("role"),
+      ).rejects.toMatchObject({ status: 503 });
+    });
+  });
   it("does not attach an AbortSignal to mutations", async () => {
     browser();
     const fetch = vi
@@ -100,6 +286,21 @@ describe("SecurityApi", () => {
     ).rejects.toMatchObject({
       status: 0,
       code: "NETWORK_ERROR",
+    } satisfies Partial<ApiError>);
+  });
+  it("reports an unavailable PDP as retryable, not as an expired session", async () => {
+    browser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(null, { status: 503, headers: { "Retry-After": "5" } }),
+      ),
+    );
+    await expect(
+      new SecurityApi(options).deleteProfile("profile"),
+    ).rejects.toMatchObject({
+      status: 503,
+      message: expect.stringContaining("no está disponible temporalmente"),
     } satisfies Partial<ApiError>);
   });
   it("uses the application-scoped paged relation URLs", async () => {

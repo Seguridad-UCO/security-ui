@@ -62,7 +62,21 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     assignmentsForProfile = reactive(EMPTY<ProfileAssignment>());
   const cache = new Map<string, PageResponse<unknown>>();
   let summaryController: AbortController | undefined;
-  const api = computed(() => new SecurityApi(options.value));
+  // Instante (ms) en que vence el token del host cuando ya entró en la ventana de aviso; null si no hay aviso vigente.
+  const sessionExpiresAt = ref<number | null>(null);
+  let currentApi: SecurityApi | undefined;
+  const api = computed(() => {
+    currentApi?.dispose();
+    currentApi = new SecurityApi(options.value, {
+      onExpiring: (expiresAt) => {
+        sessionExpiresAt.value = expiresAt;
+      },
+      onRenewed: () => {
+        sessionExpiresAt.value = null;
+      },
+    });
+    return currentApi;
+  });
   const ready = computed(() => Boolean(summary.value) && !summaryLoading.value);
   const loaders: Record<Collection, Loader<any>> = {
     resources: (client, id, page, limit, signal) =>
@@ -154,11 +168,9 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       if (state.abortController === controller) state.loading = false;
     }
   }
-  async function searchUsers(query: string, page = 0) {
-    if (!applicationId.value || !query.trim()) {
-      Object.assign(users, EMPTY<User>());
-      return;
-    }
+  async function searchUsers(query: string, page = 0, append = false) {
+    // Una búsqueda vacía lista a las personas del tenant en orden alfabético (el PDP ordena por nombre y pagina).
+    if (!applicationId.value) return;
     users.abortController?.abort();
     const controller = new AbortController();
     users.abortController = controller;
@@ -172,7 +184,14 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
         controller.signal,
       );
       if (users.abortController !== controller) return;
-      apply(users, response);
+      // append: desplazamiento infinito, se agregan las personas de la página siguiente a las ya mostradas.
+      if (append) {
+        users.content = [...users.content, ...response.content];
+        users.total = response.total;
+        users.page = response.page;
+        users.limit = response.limit;
+        users.loaded = true;
+      } else apply(users, response);
     } catch (cause) {
       if (!aborted(cause)) users.error = message(cause);
     } finally {
@@ -278,7 +297,13 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       if (state.abortController === controller) state.loading = false;
     }
   }
+  // Las vistas por persona, rol y perfil tienen su propia caché; si no se limpia, reabrirlas muestra datos viejos.
+  const ASSIGNMENT_VIEWS = [":user-assignments:", ":role-assignments:", ":profile-assignments:"];
   function invalidate(...kinds: Array<Collection | "summary">) {
+    if (kinds.includes("roleAssignments") || kinds.includes("profileAssignments"))
+      for (const cacheKey of [...cache.keys()])
+        if (cacheKey.startsWith(`${applicationId.value}:`) && ASSIGNMENT_VIEWS.some((view) => cacheKey.includes(view)))
+          cache.delete(cacheKey);
     for (const kind of kinds) {
       if (kind === "summary") {
         summary.value = undefined;
@@ -353,6 +378,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     { immediate: true, deep: true },
   );
   onScopeDispose(() => {
+    currentApi?.dispose();
     summaryController?.abort();
     for (const state of Object.values(states)) state.abortController?.abort();
     users.abortController?.abort();
@@ -366,6 +392,7 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
   });
   return {
     applicationId,
+    sessionExpiresAt,
     summary,
     summaryLoading,
     loading: summaryLoading,

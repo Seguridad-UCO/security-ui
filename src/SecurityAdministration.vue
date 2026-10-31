@@ -57,8 +57,24 @@ const {
   loadAssignmentsForRole,
   loadAssignmentsForProfile,
   invalidateRelation,
+  sessionExpiresAt,
 } = administration;
 defineExpose({ refresh });
+// Aviso opcional de sesión por vencer (sessionNotice): cuenta regresiva solo mientras haya un aviso vigente.
+const nowMs = ref(Date.now());
+let noticeTick: ReturnType<typeof setInterval> | undefined;
+watch(sessionExpiresAt, (at) => {
+  clearInterval(noticeTick);
+  noticeTick = undefined;
+  if (at !== null) {
+    nowMs.value = Date.now();
+    noticeTick = setInterval(() => (nowMs.value = Date.now()), 1000);
+  }
+});
+onBeforeUnmount(() => clearInterval(noticeTick));
+const sessionSecondsLeft = computed(() =>
+  sessionExpiresAt.value === null ? null : Math.max(0, Math.ceil((sessionExpiresAt.value - nowMs.value) / 1000)),
+);
 type Tab = "summary" | "people" | "roles" | "profiles" | "resources" | "admins";
 type Dialog =
   | "admin"
@@ -79,7 +95,8 @@ const activeTab = ref<Tab>("summary"),
 const selectedAccessPersonId = ref(""), selectedAccessRoleId = ref(""), selectedAccessProfileId = ref("");
 const selectedUser = ref<User>();
 const userPickerOpen = ref(false);
-const MINIMUM_USER_QUERY_LENGTH = 3;
+const USER_SEARCH_DELAY_MS = 200;
+let lastUserQuery = "";
 let userSearchTimer: ReturnType<typeof setTimeout> | undefined;
 const form = ref({
   userId: "",
@@ -107,6 +124,14 @@ const titles: Record<Tab, string> = {
   profiles: "Perfiles de acceso",
   resources: "Recursos protegidos",
   admins: "Administradores",
+};
+const subtitles: Record<Tab, string> = {
+  summary: "Un vistazo a cómo está protegida esta aplicación.",
+  people: "Quién tiene acceso y por cuál rol o perfil. Asigna o revoca desde aquí.",
+  roles: "Un rol agrupa los recursos (rutas) que puede usar quien lo recibe.",
+  profiles: "Un perfil agrupa varios roles para asignarlos de una vez.",
+  resources: "Rutas y métodos HTTP que la aplicación pone bajo el control de la plataforma.",
+  admins: "Personas que pueden administrar la seguridad de esta aplicación.",
 };
 const actions: Record<Tab, string> = {
   summary: "Configurar accesos",
@@ -138,9 +163,9 @@ const state = computed<PaginatedState<any> | undefined>(
     ],
 );
 const theme = computed(() => ({
-  "--accent": props.options.theme?.accent ?? "#295181",
-  "--font": props.options.theme?.fontFamily ?? "Inter, system-ui, sans-serif",
-  "--radius": props.options.theme?.radius ?? "14px",
+  "--accent": props.options.theme?.accent ?? "#018b51",
+  "--font": props.options.theme?.fontFamily ?? "'IBM Plex Sans', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+  "--radius": props.options.theme?.radius ?? "12px",
 }));
 watch(
   activeTab,
@@ -207,8 +232,13 @@ function open(kind?: Dialog, entity?: Selected) {
     form.value.description = summary.value.application.description ?? "";
     form.value.baseUrl = summary.value.application.baseUrl ?? "";
   }
-  if (dialog.value === "admin" || dialog.value === "access")
+  if (dialog.value === "admin" || dialog.value === "access") {
+    // Al abrir se muestran las personas del tenant en orden alfabético; escribir filtra desde la primera letra.
+    // Se precarga la primera página; la lista se despliega al hacer clic en el campo.
+    lastUserQuery = "";
+    userPickerOpen.value = false;
     void searchUsers("");
+  }
   if (dialog.value === "access" || dialog.value === "profile-role")
     void load("roles");
   if (dialog.value === "role-resource") void load("resources");
@@ -230,11 +260,17 @@ function queueUserSearch() {
   selectedUser.value = undefined;
   userPickerOpen.value = true;
   if (userSearchTimer) clearTimeout(userSearchTimer);
-  if (query.length < MINIMUM_USER_QUERY_LENGTH) {
-    void searchUsers("");
-    return;
-  }
-  userSearchTimer = setTimeout(() => void searchUsers(query), 250);
+  lastUserQuery = query;
+  userSearchTimer = setTimeout(() => void searchUsers(query), USER_SEARCH_DELAY_MS);
+}
+function moreUsers() {
+  if (users.loading || users.content.length >= users.total) return;
+  void searchUsers(lastUserQuery, users.page + 1, true);
+}
+// Desplazamiento infinito: al acercarse al final de la lista se pide la página siguiente.
+function onUserListScroll(event: Event) {
+  const list = event.target as HTMLElement;
+  if (list.scrollHeight - list.scrollTop - list.clientHeight < 32) moreUsers();
 }
 function selectUser(user: User) {
   form.value.userId = user.id;
@@ -243,12 +279,10 @@ function selectUser(user: User) {
   userPickerOpen.value = false;
 }
 const userSearchHint = computed(() => {
-  const length = form.value.userQuery.trim().length;
-  if (length < MINIMUM_USER_QUERY_LENGTH)
-    return `Escriba al menos ${MINIMUM_USER_QUERY_LENGTH} caracteres para buscar.`;
   if (users.loading) return "Buscando coincidencias…";
   if (users.error) return "No fue posible buscar personas. Inténtelo de nuevo.";
-  if (userPickerOpen.value && !users.content.length) return "No hay coincidencias para esta búsqueda.";
+  if (userPickerOpen.value && users.loaded && !users.content.length) return "No hay coincidencias para esta búsqueda.";
+  if (!form.value.userQuery.trim()) return "Personas del tenant en orden alfabético. Escriba para filtrar por nombre o correo.";
   return "Seleccione una persona de los resultados.";
 });
 onBeforeUnmount(() => {
@@ -525,17 +559,15 @@ function date(value: string) {
           :aria-current="activeTab === tab.id"
           @click="activeTab = tab.id"
         >
-          {{ tab.label
-          }}<template v-if="tab.id !== 'summary'">
-            · {{ counts[tab.id] }}</template
-          >
+          <span>{{ tab.label }}</span
+          ><span v-if="tab.id !== 'summary'" class="nav-count">{{ counts[tab.id] }}</span>
         </button>
       </nav>
       <main>
         <div class="title">
           <div>
             <h3>{{ titles[activeTab] }}</h3>
-            <p class="sub">Alcance exclusivo de la aplicación abierta.</p>
+            <p class="sub">{{ subtitles[activeTab] }}</p>
           </div>
           <div class="actions">
             <button
@@ -553,11 +585,18 @@ function date(value: string) {
             </button>
           </div>
         </div>
+        <p v-if="options.sessionNotice && sessionSecondsLeft !== null" class="notice" role="status" aria-live="polite">
+          {{
+            sessionSecondsLeft > 0
+              ? `Tu sesión vence en ${sessionSecondsLeft} s. La aplicación la renueva con tu siguiente acción; si no, tendrás que iniciar sesión de nuevo.`
+              : "Tu sesión venció. Pulsa Actualizar o vuelve a iniciar sesión en la aplicación."
+          }}
+        </p>
         <p v-if="error" class="error">{{ error }}</p>
         <SecuritySummaryPanel v-if="activeTab === 'summary'" :summary="summary" :loading="summaryLoading" :assignment-count="counts.people" />
         <template v-else-if="activeTab === 'people'">
           <AccessAdministrationPanel :users="users" :roles="roles" :profiles="profiles" :person-role-assignments="userRoleAssignments" :person-profile-assignments="userProfileAssignments" :role-assignments="assignmentsForRole" :profile-assignments="assignmentsForProfile" :busy="saving"
-            @search-users="searchUsers" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
+            @search-users="(text: string, page?: number, append?: boolean) => searchUsers(text, page, append)" @select-person="item => { selectedAccessPersonId = item.id; loadUserAssignments(item.id, 0) }" @select-role="item => { selectedAccessRoleId = item.id; loadAssignmentsForRole(item.id, 0) }" @select-profile="item => { selectedAccessProfileId = item.id; loadAssignmentsForProfile(item.id, 0) }" @revoke="revokeAssignment"
             @person-page="direction => { if (selectedAccessPersonId && userRoleAssignments.page + direction >= 0) loadUserAssignments(selectedAccessPersonId, userRoleAssignments.page + direction) }"
             @role-page="direction => { if (selectedAccessRoleId && assignmentsForRole.page + direction >= 0) loadAssignmentsForRole(selectedAccessRoleId, assignmentsForRole.page + direction) }"
             @profile-page="direction => { if (selectedAccessProfileId && assignmentsForProfile.page + direction >= 0) loadAssignmentsForProfile(selectedAccessProfileId, assignmentsForProfile.page + direction) }" />
@@ -572,16 +611,20 @@ function date(value: string) {
     </div>
     <div v-if="dialog" class="backdrop" @click.self="close">
       <form v-if="dialog !== 'confirm'" class="dialog" @submit.prevent="submit">
-        <h3>
-          {{
-            dialog === "role-resource"
-              ? "Administrar recursos del rol"
-              : dialog === "profile-role"
-                ? "Administrar roles del perfil"
-                : actions[activeTab]
-          }}
-        </h3>
-        <p class="sub">La acción se aplica solo a esta aplicación.</p>
+        <div class="dialog-head">
+          <p class="eyebrow">Esta aplicación</p>
+          <h3>
+            {{
+              dialog === "role-resource"
+                ? "Administrar recursos del rol"
+                : dialog === "profile-role"
+                  ? "Administrar roles del perfil"
+                  : actions[activeTab]
+            }}
+          </h3>
+          <p class="sub">La acción se aplica solo a esta aplicación.</p>
+        </div>
+        <div class="dialog-body">
         <template v-if="dialog === 'admin' || dialog === 'access'">
           <label
             >Buscar usuario<input
@@ -589,23 +632,26 @@ function date(value: string) {
               placeholder="Nombre o correo"
               autocomplete="off"
               aria-describedby="user-search-hint"
-              :aria-expanded="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH"
+              :aria-expanded="userPickerOpen"
               aria-controls="user-search-results"
               @focus="userPickerOpen = true"
+              @click="userPickerOpen = true"
+              @keydown.esc.stop.prevent="userPickerOpen = false"
               @input="queueUserSearch"
           /></label>
           <p id="user-search-hint" class="field-hint" :class="{ 'is-error': users.error }">
             {{ userSearchHint }}
           </p>
           <div
-            v-if="userPickerOpen && form.userQuery.trim().length >= MINIMUM_USER_QUERY_LENGTH && (users.loading || users.content.length || users.error)"
+            v-if="userPickerOpen && (users.loading || users.content.length || users.error)"
             id="user-search-results"
             class="user-result-list"
             role="listbox"
             aria-label="Coincidencias de usuario"
             :aria-busy="users.loading"
+            @scroll.passive="onUserListScroll"
           >
-            <p v-if="users.loading" class="user-result-status">Buscando en el directorio…</p>
+            <p v-if="users.loading && !users.content.length" class="user-result-status">Buscando en el directorio…</p>
             <button
               v-for="item in users.content"
               :key="item.id"
@@ -617,6 +663,15 @@ function date(value: string) {
             >
               <span>{{ item.name || item.email }}</span><small>{{ item.email }}</small>
             </button>
+            <p v-if="users.content.length" class="user-result-status user-result-count">
+              {{
+                users.loading
+                  ? "Cargando más personas…"
+                  : users.content.length < users.total
+                    ? `Mostrando ${users.content.length} de ${users.total} · desliza para ver más`
+                    : `${users.total} ${users.total === 1 ? "persona" : "personas"}`
+              }}
+            </p>
           </div>
           <div v-if="selectedUser" class="selected-user" role="status">
             <span>Persona seleccionada</span>
@@ -743,6 +798,7 @@ function date(value: string) {
               @next="relationPage(1)"
             />
           </div></template
+        ></div
         ><div class="actions bottom">
           <button class="quiet" type="button" :disabled="saving" @click="close">
             Cancelar</button

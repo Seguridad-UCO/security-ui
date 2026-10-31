@@ -1,3 +1,4 @@
+import { ExpiryWatcher, type ExpiryHooks } from "./session-expiry";
 import type {
   Administrator,
   ApiFieldError,
@@ -14,6 +15,55 @@ import type {
   UserAssignmentsResponse,
 } from "./types";
 type Envelope<T> = { data: T };
+
+// El texto de un 403 sale del código y no del `detail` del PDP: el cuerpo de una denegación no se muestra tal cual.
+function forbiddenMessageFor(code?: string): string {
+  if (code === "MFA_REQUIRED")
+    return "Esta operación requiere verificación en dos pasos. Vuelva a autenticarse con su segundo factor e inténtelo de nuevo.";
+  if (code === "NOT_AUTHORIZED_TO_ADMINISTER_TENANT_CATALOG")
+    return "Para definir o modificar roles y perfiles de todo el inquilino debe administrar al menos una aplicación.";
+  return "No tiene permisos para administrar la seguridad de esta aplicación.";
+}
+
+// El `detail` de este conflicto cita el rol por id; se explica sin identificadores.
+const MESSAGES_WITHOUT_IDS: Record<string, string> = {
+  PROTECTED_ROLE: "El rol ADMIN administra la aplicación y no se puede modificar ni eliminar.",
+};
+
+// Directorio id -> nombre. Cada respuesta del PDP que trae entidades con `id` y nombre lo alimenta, de modo que un
+// mensaje del servidor que cita un id ("el usuario <id> ya tiene el rol <id>") se muestra con el nombre de lo que
+// la persona ya vio en pantalla. Un id que nunca se vio se omite: jamás se muestra crudo.
+const NAMES = new Map<string, string>();
+const UUID = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+function harvestNames(value: unknown, depth = 0): void {
+  if (!value || typeof value !== "object" || depth > 6) return;
+  if (Array.isArray(value)) {
+    for (const item of value) harvestNames(item, depth + 1);
+    return;
+  }
+  const entity = value as Record<string, unknown>;
+  if (typeof entity.id === "string") {
+    const label =
+      typeof entity.name === "string" && entity.name
+        ? entity.name
+        : typeof entity.email === "string" && entity.email
+          ? entity.email
+          : typeof entity.path === "string" && typeof entity.method === "string"
+            ? `${entity.method} ${entity.path}`
+            : undefined;
+    if (label) {
+      if (NAMES.size > 5000) NAMES.clear();
+      NAMES.set(entity.id.toLowerCase(), label);
+    }
+  }
+  for (const nested of Object.values(entity)) if (nested && typeof nested === "object") harvestNames(nested, depth + 1);
+}
+function withNames(message?: string): string | undefined {
+  if (!message) return undefined;
+  const text = message.replace(UUID, (id) => NAMES.get(id.toLowerCase()) ?? "").replace(/\s{2,}/g, " ").trim();
+  return text || undefined;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -28,8 +78,30 @@ export class ApiError extends Error {
 
 export class SecurityApi {
   private readonly baseUrl: string;
-  constructor(private readonly options: SecurityUiOptions) {
+  private readonly expiry?: ExpiryWatcher;
+  constructor(
+    private readonly options: SecurityUiOptions,
+    hooks: Partial<ExpiryHooks> = {},
+  ) {
     this.baseUrl = options.apiBaseUrl.replace(/\/$/, "");
+    if (options.getAccessToken) {
+      const warn = options.sessionWarningSeconds ?? 60;
+      this.expiry = new ExpiryWatcher(warn, {
+        onExpiring: (expiresAt) => {
+          hooks.onExpiring?.(expiresAt);
+          try {
+            options.onSessionExpiring?.({ secondsLeft: Math.max(0, Math.round((expiresAt - Date.now()) / 1000)) });
+          } catch {
+            /* un callback del host no debe romper nada */
+          }
+        },
+        onRenewed: () => hooks.onRenewed?.(),
+      });
+    }
+  }
+  /** Libera el temporizador del aviso de expiración. */
+  dispose() {
+    this.expiry?.dispose();
   }
   async resolveApplicationId(signal?: AbortSignal) {
     if (this.options.applicationId) return this.options.applicationId;
@@ -273,20 +345,72 @@ export class SecurityApi {
       { signal },
     );
   }
+  private async accessToken(
+    getAccessToken: NonNullable<SecurityUiOptions["getAccessToken"]>,
+  ): Promise<string> {
+    let token: string | undefined;
+    try {
+      token = await getAccessToken();
+    } catch {
+      token = undefined;
+    }
+    if (token) {
+      this.expiry?.observe(token);
+      return token;
+    }
+    const failure = new ApiError(
+      401,
+      "UNAUTHENTICATED",
+      "No hay una sesión vigente. Inicie sesión de nuevo.",
+    );
+    this.report(failure);
+    throw failure;
+  }
+  // El host decide qué hacer (login, reautenticar con MFA, reintentar); el componente solo informa y nunca reintenta.
+  private report(failure: ApiError) {
+    const cause =
+      failure.status === 401
+        ? "unauthenticated"
+        : failure.status === 403 && failure.code === "MFA_REQUIRED"
+          ? "mfa_required"
+          : failure.status === 403
+            ? "forbidden"
+            : failure.status === 429 || failure.status === 503
+              ? "unavailable"
+              : undefined;
+    if (!cause) return;
+    try {
+      this.options.onError?.({
+        cause,
+        status: failure.status,
+        code: failure.code,
+      });
+    } catch {
+      /* un callback del host no debe romper la petición */
+    }
+  }
   private async request<T = void>(
     path: string,
     init: Omit<RequestInit, "body"> & { body?: unknown } = {},
   ): Promise<T> {
     const headers = new Headers(init.headers);
     headers.set("Accept", "application/json");
-    const csrf = document.cookie
-      .split("; ")
-      .find((value) => value.startsWith("XSRF-TOKEN="));
-    if (csrf && init.method && init.method !== "GET")
-      headers.set(
-        "X-XSRF-TOKEN",
-        decodeURIComponent(csrf.slice("XSRF-TOKEN=".length)),
-      );
+    // Canal bearer (ADR-031): el host entrega un token vigente por petición; no se cachea ni se persiste y no
+    // hay CSRF que enviar porque no viaja ninguna cookie. Sin `getAccessToken` rige el canal de cookie BFF.
+    const bearer = Boolean(this.options.getAccessToken);
+    if (this.options.getAccessToken) {
+      const token = await this.accessToken(this.options.getAccessToken);
+      headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      const csrf = document.cookie
+        .split("; ")
+        .find((value) => value.startsWith("XSRF-TOKEN="));
+      if (csrf && init.method && init.method !== "GET")
+        headers.set(
+          "X-XSRF-TOKEN",
+          decodeURIComponent(csrf.slice("XSRF-TOKEN=".length)),
+        );
+    }
     if (init.body !== undefined)
       headers.set("Content-Type", "application/json");
     let response: Response;
@@ -294,7 +418,7 @@ export class SecurityApi {
       response = await fetch(`${this.baseUrl}${path}`, {
         ...init,
         body: init.body === undefined ? undefined : JSON.stringify(init.body),
-        credentials: "include",
+        credentials: bearer ? "omit" : "include",
         headers,
       });
     } catch (cause) {
@@ -316,24 +440,32 @@ export class SecurityApi {
       } | null;
       const fallback =
         response.status === 403
-          ? "No tiene permisos para administrar la seguridad de esta aplicación."
+          ? forbiddenMessageFor(error?.code)
           : response.status === 404
             ? "El elemento ya no existe o no pertenece a esta aplicación."
             : response.status === 409
               ? "La operación entra en conflicto con el estado actual."
               : response.status === 400
                 ? "Revise los datos ingresados."
-                : `El servicio respondió ${response.status}.`;
-      throw new ApiError(
+                : response.status === 429
+                  ? "Demasiadas solicitudes. Espere unos segundos e inténtelo de nuevo."
+                  : response.status === 503
+                    ? "El servicio no está disponible temporalmente. Inténtelo de nuevo en unos segundos."
+                    : `El servicio respondió ${response.status}.`;
+      const failure = new ApiError(
         response.status,
         error?.code,
         response.status === 403
           ? fallback
-          : (error?.detail ?? error?.message ?? fallback),
+          : ((error?.code ? MESSAGES_WITHOUT_IDS[error.code] : undefined) ?? withNames(error?.detail ?? error?.message) ?? fallback),
         error?.fieldErrors ?? error?.errors ?? [],
       );
+      this.report(failure);
+      throw failure;
     }
     if (response.status === 204) return undefined as T;
-    return ((await response.json()) as Envelope<T>).data;
+    const data = ((await response.json()) as Envelope<T>).data;
+    harvestNames(data);
+    return data;
   }
 }

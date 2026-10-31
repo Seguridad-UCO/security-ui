@@ -19,6 +19,9 @@ export default defineConfig({
       shared: {},
     }),
   ],
+  // El bundle es una librería: Vue deja ahí `process.env.NODE_ENV`, que no existe en un navegador sin
+  // bundler (el host de ejemplo y cualquier <script type="module"> fallaban con "process is not defined").
+  define: { "process.env.NODE_ENV": JSON.stringify("production") },
   build: {
     lib: {
       entry: "src/index.ts",
