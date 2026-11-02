@@ -1,6 +1,7 @@
 import { ExpiryWatcher, type ExpiryHooks } from "./session-expiry";
 import type {
   Administrator,
+  ApplicationOption,
   ApiFieldError,
   Page,
   PageResponse,
@@ -10,6 +11,11 @@ import type {
   Role,
   RoleAssignment,
   SecuritySummary,
+  RegisteredServiceIdentity,
+  ServiceAccessGrant,
+  ServiceIdentity,
+  ServiceTechnicalRole,
+  ServiceTechnicalRoleResource,
   SecurityUiOptions,
   User,
   UserAssignmentsResponse,
@@ -161,6 +167,48 @@ export class SecurityApi {
   }
   getAssignmentsForProfile(id: string, profileId: string, page: Page, signal?: AbortSignal) {
     return this.page<ProfileAssignment>(id, `profiles/${encodeURIComponent(profileId)}/assignments`, page, signal);
+  }
+  getApplications(page: Page, signal?: AbortSignal) {
+    return this.request<PageResponse<ApplicationOption>>(
+      `/api/v1/applications?${new URLSearchParams({ page: String(page.page ?? 0), size: String(page.size ?? 100) })}`,
+      { signal },
+    );
+  }
+  getServiceIdentities(id: string, signal?: AbortSignal) {
+    return this.request<ServiceIdentity[]>(`/api/v1/applications/${encodeURIComponent(id)}/service-identities`, { signal });
+  }
+  createServiceIdentity(id: string, name: string) {
+    return this.request<RegisteredServiceIdentity>(`/api/v1/applications/${encodeURIComponent(id)}/service-identities`, { method: "POST", body: { name } });
+  }
+  getServiceTechnicalRoles(id: string, page: Page, signal?: AbortSignal) {
+    return this.page<ServiceTechnicalRole>(id, "service-technical-roles", page, signal);
+  }
+  getServiceTechnicalRoleResources(id: string, roleId: string, page: Page, signal?: AbortSignal) {
+    return this.page<ServiceTechnicalRoleResource>(id, `service-technical-roles/${encodeURIComponent(roleId)}/resources`, page, signal);
+  }
+  createServiceTechnicalRole(id: string, body: { code: string; name: string; resourceIds: string[] }) {
+    return this.request<ServiceTechnicalRole>(`/api/v1/applications/${encodeURIComponent(id)}/service-technical-roles`, { method: "POST", body });
+  }
+  addServiceTechnicalRoleResource(id: string, roleId: string, resourceId: string) {
+    return this.request(`/api/v1/applications/${encodeURIComponent(id)}/service-technical-roles/${encodeURIComponent(roleId)}/resources`, { method: "POST", body: { resourceId } });
+  }
+  removeServiceTechnicalRoleResource(id: string, roleId: string, resourceId: string) {
+    return this.request(`/api/v1/applications/${encodeURIComponent(id)}/service-technical-roles/${encodeURIComponent(roleId)}/resources/${encodeURIComponent(resourceId)}`, { method: "DELETE" });
+  }
+  getServiceAccessGrants(id: string, identityId: string, signal?: AbortSignal) {
+    return this.request<ServiceAccessGrant[]>(`/api/v1/applications/${encodeURIComponent(id)}/service-identities/${encodeURIComponent(identityId)}/access-requests`, { signal });
+  }
+  getReceivedServiceAccessGrants(id: string, signal?: AbortSignal) {
+    return this.request<ServiceAccessGrant[]>(`/api/v1/applications/${encodeURIComponent(id)}/service-access-requests`, { signal });
+  }
+  requestServiceAccess(id: string, identityId: string, body: { resourceId?: string; technicalRoleId?: string }) {
+    return this.request<ServiceAccessGrant>(`/api/v1/applications/${encodeURIComponent(id)}/service-identities/${encodeURIComponent(identityId)}/access-requests`, { method: "POST", body });
+  }
+  decideServiceAccess(id: string, grantId: string, approve: boolean) {
+    return this.request<ServiceAccessGrant>(`/api/v1/applications/${encodeURIComponent(id)}/service-access-requests/${encodeURIComponent(grantId)}/decision`, { method: "POST", body: { approve } });
+  }
+  revokeServiceAccess(id: string, grantId: string) {
+    return this.request<ServiceAccessGrant>(`/api/v1/applications/${encodeURIComponent(id)}/service-access-requests/${encodeURIComponent(grantId)}/revocation`, { method: "POST" });
   }
   getRoleResources(
     applicationId: string,

@@ -27,6 +27,7 @@ import RoleList from "./components/RoleList.vue";
 import ProfileList from "./components/ProfileList.vue";
 import AdministratorList from "./components/AdministratorList.vue";
 import AccessAdministrationPanel from "./components/AccessAdministrationPanel.vue";
+import ServiceIdentityAdministration from "./components/ServiceIdentityAdministration.vue";
 
 const props = defineProps<{ options: SecurityUiOptions }>();
 const administration = useSecurityAdministration(toRef(props, "options"));
@@ -75,7 +76,8 @@ onBeforeUnmount(() => clearInterval(noticeTick));
 const sessionSecondsLeft = computed(() =>
   sessionExpiresAt.value === null ? null : Math.max(0, Math.ceil((sessionExpiresAt.value - nowMs.value) / 1000)),
 );
-type Tab = "summary" | "people" | "roles" | "profiles" | "resources" | "admins";
+const currentApplicationId = computed(() => administration.applicationId.value);
+type Tab = "summary" | "people" | "roles" | "profiles" | "resources" | "admins" | "service";
 type Dialog =
   | "admin"
   | "resource"
@@ -116,6 +118,7 @@ const tabs: Array<{ id: Tab; label: string }> = [
   { id: "profiles", label: "Perfiles" },
   { id: "resources", label: "Recursos" },
   { id: "admins", label: "Administradores" },
+  { id: "service", label: "Identidades M2M" },
 ];
 const titles: Record<Tab, string> = {
   summary: "Resumen de seguridad",
@@ -124,6 +127,7 @@ const titles: Record<Tab, string> = {
   profiles: "Perfiles de acceso",
   resources: "Recursos protegidos",
   admins: "Administradores",
+  service: "Identidades de servicio",
 };
 const subtitles: Record<Tab, string> = {
   summary: "Un vistazo a cómo está protegida esta aplicación.",
@@ -132,6 +136,7 @@ const subtitles: Record<Tab, string> = {
   profiles: "Un perfil agrupa varios roles para asignarlos de una vez.",
   resources: "Rutas y métodos HTTP que la aplicación pone bajo el control de la plataforma.",
   admins: "Personas que pueden administrar la seguridad de esta aplicación.",
+  service: "Identidades, roles técnicos, asignaciones, solicitudes y aprobaciones de esta aplicación.",
 };
 const actions: Record<Tab, string> = {
   summary: "Configurar accesos",
@@ -140,6 +145,7 @@ const actions: Record<Tab, string> = {
   profiles: "Definir perfil",
   resources: "Registrar recurso",
   admins: "Agregar administrador",
+  service: "",
 };
 const counts = computed(() => ({
   people:
@@ -149,6 +155,7 @@ const counts = computed(() => ({
   profiles: summary.value?.counts.profiles ?? 0,
   resources: summary.value?.counts.resources ?? 0,
   admins: summary.value?.counts.administrators ?? 0,
+  service: 0,
 }));
 const primaryAction = computed(() =>
   activeTab.value === "summary" &&
@@ -576,7 +583,7 @@ function date(value: string) {
               @click="refresh"
             >
               Actualizar</button
-            ><button
+            ><button v-if="activeTab !== 'service'"
               class="primary"
               :disabled="!ready || saving"
               @click="open()"
@@ -601,6 +608,13 @@ function date(value: string) {
             @role-page="direction => { if (selectedAccessRoleId && assignmentsForRole.page + direction >= 0) loadAssignmentsForRole(selectedAccessRoleId, assignmentsForRole.page + direction) }"
             @profile-page="direction => { if (selectedAccessProfileId && assignmentsForProfile.page + direction >= 0) loadAssignmentsForProfile(selectedAccessProfileId, assignmentsForProfile.page + direction) }" />
         </template>
+        <ServiceIdentityAdministration
+          v-else-if="activeTab === 'service'"
+          :store="administration"
+          :application-id="currentApplicationId"
+          :application-name="summary?.application.name ?? options.applicationName ?? 'la aplicación actual'"
+          initial-section="identities"
+        />
         <template v-else>
           <ResourceList v-if="activeTab === 'resources'" :state="resources" :busy="saving" @edit="open('resource', $event)" @remove="removeResource($event.id)" @previous="previous" @next="next" />
           <RoleList v-else-if="activeTab === 'roles'" :state="roles" :busy="saving" @manage="open('role-resource', $event)" @edit="open('role', $event)" @remove="removeRole($event.id)" @previous="previous" @next="next" />

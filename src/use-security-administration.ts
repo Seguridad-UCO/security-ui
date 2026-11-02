@@ -2,6 +2,7 @@ import { computed, onScopeDispose, reactive, ref, watch, type Ref } from "vue";
 import { SecurityApi } from "./security-api";
 import type {
   Administrator,
+  ApplicationOption,
   PageResponse,
   PaginatedState,
   Profile,
@@ -11,6 +12,11 @@ import type {
   RoleAssignment,
   SecuritySummary,
   SecurityUiOptions,
+  RegisteredServiceIdentity,
+  ServiceAccessGrant,
+  ServiceIdentity,
+  ServiceTechnicalRole,
+  ServiceTechnicalRoleResource,
   User,
 } from "./types";
 
@@ -369,6 +375,57 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
       saving.value = mutations.size > 0;
     }
   }
+  function serviceId() {
+    return applicationId.value;
+  }
+  async function getServiceIdentities(signal?: AbortSignal): Promise<ServiceIdentity[]> {
+    return api.value.getServiceIdentities(serviceId(), signal);
+  }
+  async function createServiceIdentity(name: string): Promise<RegisteredServiceIdentity> {
+    return api.value.createServiceIdentity(serviceId(), name);
+  }
+  async function getServiceTechnicalRoles(page = 0, signal?: AbortSignal): Promise<PageResponse<ServiceTechnicalRole>> {
+    return api.value.getServiceTechnicalRoles(serviceId(), { page, size: 100 }, signal);
+  }
+  async function getServiceTechnicalRolesForApplication(targetApplicationId: string, signal?: AbortSignal): Promise<PageResponse<ServiceTechnicalRole>> {
+    return api.value.getServiceTechnicalRoles(targetApplicationId, { page: 0, size: 100 }, signal);
+  }
+  async function getServiceTechnicalRoleResources(roleId: string, page = 0, signal?: AbortSignal): Promise<PageResponse<ServiceTechnicalRoleResource>> {
+    return api.value.getServiceTechnicalRoleResources(serviceId(), roleId, { page, size: 100 }, signal);
+  }
+  async function createServiceTechnicalRole(body: { code: string; name: string; resourceIds: string[] }) {
+    return api.value.createServiceTechnicalRole(serviceId(), body);
+  }
+  async function addServiceTechnicalRoleResource(roleId: string, resourceId: string) {
+    return api.value.addServiceTechnicalRoleResource(serviceId(), roleId, resourceId);
+  }
+  async function removeServiceTechnicalRoleResource(roleId: string, resourceId: string) {
+    return api.value.removeServiceTechnicalRoleResource(serviceId(), roleId, resourceId);
+  }
+  async function getServiceAccessGrants(identityId: string, signal?: AbortSignal): Promise<ServiceAccessGrant[]> {
+    return api.value.getServiceAccessGrants(serviceId(), identityId, signal);
+  }
+  async function getReceivedServiceAccessGrants(signal?: AbortSignal): Promise<ServiceAccessGrant[]> {
+    return api.value.getReceivedServiceAccessGrants(serviceId(), signal);
+  }
+  async function requestServiceAccess(identityId: string, body: { resourceId?: string; technicalRoleId?: string }) {
+    return api.value.requestServiceAccess(serviceId(), identityId, body);
+  }
+  async function decideServiceAccess(grantId: string, approve: boolean) {
+    return api.value.decideServiceAccess(serviceId(), grantId, approve);
+  }
+  async function revokeServiceAccess(grantId: string) {
+    return api.value.revokeServiceAccess(serviceId(), grantId);
+  }
+  async function getServiceApplications(signal?: AbortSignal): Promise<PageResponse<ApplicationOption>> {
+    return api.value.getApplications({ page: 0, size: 100 }, signal);
+  }
+  async function getServiceResources(applicationId: string, signal?: AbortSignal): Promise<PageResponse<Resource>> {
+    return api.value.getResources(applicationId, { page: 0, size: 100 }, signal);
+  }
+  async function getServiceRoles(applicationId: string, signal?: AbortSignal): Promise<PageResponse<Role>> {
+    return api.value.getRoles(applicationId, { page: 0, size: 100 }, signal);
+  }
   watch(
     options,
     () => {
@@ -427,6 +484,22 @@ export function useSecurityAdministration(options: Ref<SecurityUiOptions>) {
     mutate,
     invalidate,
     invalidateRelation,
+    getServiceIdentities,
+    createServiceIdentity,
+    getServiceTechnicalRoles,
+    getServiceTechnicalRolesForApplication,
+    getServiceTechnicalRoleResources,
+    createServiceTechnicalRole,
+    addServiceTechnicalRoleResource,
+    removeServiceTechnicalRoleResource,
+    getServiceAccessGrants,
+    getReceivedServiceAccessGrants,
+    requestServiceAccess,
+    decideServiceAccess,
+    revokeServiceAccess,
+    getServiceApplications,
+    getServiceResources,
+    getServiceRoles,
   };
 }
 
