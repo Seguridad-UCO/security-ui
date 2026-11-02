@@ -118,6 +118,43 @@ export type ProfileAssignment = {
   validFrom: string;
   validUntil?: string | null;
 };
+export type ServiceIdentity = {
+  id: string;
+  consumerApplicationId: string;
+  name: string;
+  clientId: string;
+  status: "ACTIVE" | "SUSPENDED" | "REVOKED";
+  registeredAt: string;
+};
+export type RegisteredServiceIdentity = {
+  identity: ServiceIdentity;
+  clientSecret: string;
+};
+export type ServiceTechnicalRole = {
+  id: string;
+  applicationId: string;
+  code: string;
+  name: string;
+  resourceCount: number;
+  createdAt: string;
+};
+export type ServiceTechnicalRoleResource = {
+  id: string;
+  path: string;
+  method: string;
+};
+export type ServiceAccessGrant = {
+  id: string;
+  serviceIdentityId: string;
+  targetApplicationId: string;
+  resourceId: string | null;
+  technicalRoleId: string | null;
+  technicalRole: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "REVOKED";
+  requestedAt: string;
+  decidedAt: string | null;
+};
+export type ApplicationOption = { id: string; name: string };
 export type UserAssignmentsResponse = {
   user: UserIdentitySummary;
   roleAssignments: PageResponse<RoleAssignment>;
